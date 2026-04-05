@@ -1,0 +1,2 @@
+/usr/bin/ar qc libSERVER_CORE.a CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o
+/usr/bin/ranlib libSERVER_CORE.a
