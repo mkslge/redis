@@ -28,9 +28,9 @@ TEST(TokenizerTest, SimpleSetCommand) {
     auto tokens = unwrap(result);
 
     std::vector<TokenType> expected = {
-        TokenType::GET,   // NOTE: your implementation swaps set/get
+        TokenType::SET,
         TokenType::key,
-        TokenType::key
+        TokenType::value
     };
 
     EXPECT_EQ(tokens, expected);
@@ -44,7 +44,7 @@ TEST(TokenizerTest, UppercaseInput) {
     auto tokens = unwrap(result);
 
     std::vector<TokenType> expected = {
-        TokenType::GET,
+        TokenType::SET,
         TokenType::key
     };
 
@@ -59,7 +59,7 @@ TEST(TokenizerTest, MultipleTokens) {
     auto tokens = unwrap(result);
 
     std::vector<TokenType> expected = {
-        TokenType::SET,   // swapped
+        TokenType::GET,
         TokenType::key,
         TokenType::DEL,
         TokenType::key
@@ -106,8 +106,4 @@ TEST(TokenizerTest, ExistsExpireSeconds) {
     };
 
     EXPECT_EQ(tokens, expected);
-}
-
-TEST(TokenizerTest, shouldFail) {
-    EXPECT_FALSE(true);
 }

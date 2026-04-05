@@ -1,0 +1,10 @@
+testTokenizer_NOT_BUILT 0 0
+TokenizerTest.SimpleSetCommand 4 0.00185849
+TokenizerTest.UppercaseInput 3 0.00207353
+TokenizerTest.MultipleTokens 2 0.00291683
+TokenizerTest.InvalidToken 5 0.00106825
+TokenizerTest.PartialToken 5 0.00107512
+TokenizerTest.StopsOnInvalid 5 0.001021
+TokenizerTest.ExistsExpireSeconds 5 0.00100533
+TokenizerTest.shouldFail 0 0
+---

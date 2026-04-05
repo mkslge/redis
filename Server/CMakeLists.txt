@@ -18,7 +18,6 @@ enable_testing()
 add_library(SERVER_CORE STATIC
         Interpreter/Parser.cpp
         Interpreter/Tokenizer.cpp
-        Utility/util.cpp
 )
 
 add_executable(testTokenizer Tests/testTokenizer.cpp)

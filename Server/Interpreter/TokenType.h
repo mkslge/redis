@@ -7,7 +7,7 @@
 
 enum class TokenType {
    SET, GET, DEL, EXISTS, EXPIRE,
-   key, value, seconds
+   KEY, VALUE, SECONDS
 };
 
 #endif //TOKENTYPE_H

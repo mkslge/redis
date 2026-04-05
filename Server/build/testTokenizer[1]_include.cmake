@@ -1,0 +1,5 @@
+if(EXISTS "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer[1]_tests.cmake")
+  include("/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer[1]_tests.cmake")
+else()
+  add_test(testTokenizer_NOT_BUILT testTokenizer_NOT_BUILT)
+endif()

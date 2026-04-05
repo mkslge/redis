@@ -1,0 +1,192 @@
+Start testing: Apr 05 18:08 EDT
+----------------------------------------------------------
+1/7 Testing: TokenizerTest.SimpleSetCommand
+1/7 Test: TokenizerTest.SimpleSetCommand
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.SimpleSetCommand" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.SimpleSetCommand" start time: Apr 05 18:08 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.SimpleSetCommand
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.SimpleSetCommand
+[       OK ] TokenizerTest.SimpleSetCommand (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.SimpleSetCommand" end time: Apr 05 18:08 EDT
+"TokenizerTest.SimpleSetCommand" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/7 Testing: TokenizerTest.UppercaseInput
+2/7 Test: TokenizerTest.UppercaseInput
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.UppercaseInput" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.UppercaseInput" start time: Apr 05 18:08 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.UppercaseInput
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.UppercaseInput
+[       OK ] TokenizerTest.UppercaseInput (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.UppercaseInput" end time: Apr 05 18:08 EDT
+"TokenizerTest.UppercaseInput" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/7 Testing: TokenizerTest.MultipleTokens
+3/7 Test: TokenizerTest.MultipleTokens
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.MultipleTokens" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.MultipleTokens" start time: Apr 05 18:08 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.MultipleTokens
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.MultipleTokens
+[       OK ] TokenizerTest.MultipleTokens (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.MultipleTokens" end time: Apr 05 18:08 EDT
+"TokenizerTest.MultipleTokens" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/7 Testing: TokenizerTest.InvalidToken
+4/7 Test: TokenizerTest.InvalidToken
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.InvalidToken" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.InvalidToken" start time: Apr 05 18:08 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.InvalidToken
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.InvalidToken
+[       OK ] TokenizerTest.InvalidToken (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.InvalidToken" end time: Apr 05 18:08 EDT
+"TokenizerTest.InvalidToken" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/7 Testing: TokenizerTest.PartialToken
+5/7 Test: TokenizerTest.PartialToken
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.PartialToken" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.PartialToken" start time: Apr 05 18:08 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.PartialToken
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.PartialToken
+[       OK ] TokenizerTest.PartialToken (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.PartialToken" end time: Apr 05 18:08 EDT
+"TokenizerTest.PartialToken" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/7 Testing: TokenizerTest.StopsOnInvalid
+6/7 Test: TokenizerTest.StopsOnInvalid
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.StopsOnInvalid" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.StopsOnInvalid" start time: Apr 05 18:08 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.StopsOnInvalid
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.StopsOnInvalid
+[       OK ] TokenizerTest.StopsOnInvalid (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.StopsOnInvalid" end time: Apr 05 18:08 EDT
+"TokenizerTest.StopsOnInvalid" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/7 Testing: TokenizerTest.ExistsExpireSeconds
+7/7 Test: TokenizerTest.ExistsExpireSeconds
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.ExistsExpireSeconds" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.ExistsExpireSeconds" start time: Apr 05 18:08 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.ExistsExpireSeconds
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.ExistsExpireSeconds
+[       OK ] TokenizerTest.ExistsExpireSeconds (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.ExistsExpireSeconds" end time: Apr 05 18:08 EDT
+"TokenizerTest.ExistsExpireSeconds" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Apr 05 18:08 EDT
