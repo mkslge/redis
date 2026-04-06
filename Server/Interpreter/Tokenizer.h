@@ -5,21 +5,29 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
-#include "TokenType.h"
+#include "Token.h"
+#include "PrimToken.h"
+#include "../Utility/util.h"
 #include <vector>
 #include <string_view>
 #include <string>
-#include "../Utility/util.h"
+
+#include <iostream>
+#include <charconv>
 class Tokenizer {
 public:
     Tokenizer();
-    static std::optional<std::vector<TokenType>> tokenize(std::string& input) {
+    static std::optional<std::vector<Token>> tokenize(std::string& input) {
         //at the beginning we want set all input to lowercase to normalize it.
         input = util::to_lower(input);
         int idx = 0;
-        std::vector<TokenType> token_list{};
+        std::vector<Token> token_list{};
 
         while (idx < input.size()) {
+            if (input[idx] == ' ') {
+                idx++;
+                continue;
+            }
             auto token = tokenize_once(input, idx); //idx incremented here
             if (token == std::nullopt) {
                 return std::nullopt;
@@ -28,40 +36,51 @@ public:
 
         }
 
-        return token_list;
+        return token_list.size() > 0 ?
+    std::optional<std::vector<Token>>{token_list} : std::nullopt;
     }
 
 private:
-    static std::optional<TokenType> tokenize_once(std::string& input, int& idx_out) {
+    static std::optional<Token> tokenize_once(std::string& input, int& idx_out) {
 
         if (input.substr(idx_out, 3) == "get") {
             idx_out += 3;
-            return TokenType::GET;
+            return Token(TokenType::GET);
         } else if (input.substr(idx_out, 3) == "set") {
             idx_out += 3;
-            return TokenType::SET;
+            return Token(TokenType::SET);
         } else if (input.substr(idx_out, 3) == "del") {
             idx_out += 3;
-            return TokenType::DEL;
-        } else if (input.substr(idx_out, 3) == "key") {
-            idx_out += 3;
-            return TokenType::key;
-        } else if (input.substr(idx_out, 5) == "value") {
-            idx_out += 5;
-            return TokenType::value;
-        }
-        else if (input.substr(idx_out, 6) == "exists") {
+            return Token(TokenType::DEL);
+        } else if (input.substr(idx_out, 6) == "exists") {
             idx_out += 6;
-            return TokenType::EXISTS;
+            return Token(TokenType::EXISTS);
         } else if (input.substr(idx_out, 6) == "expire") {
             idx_out += 6;
-            return TokenType::EXPIRE;
-        } else if (input.substr(idx_out, 7) == "seconds") {
-            idx_out += 7;
-            return TokenType::seconds;
+            return Token(TokenType::EXPIRE);
+        }
+        std::optional<int> opt_int = is_int(input, idx_out);
+        if (opt_int.has_value()) {
+            return PrimToken<int>( TokenType::INT, opt_int.value());
         }
 
         return std::nullopt;
+    }
+
+
+    static std::optional<int> is_int(const std::string& input, int& idx_out) {
+        int value;
+        const char* start = input.data() + idx_out;
+        const char* end   = input.data() + input.size();
+
+        auto [ptr, ec] = std::from_chars(start, end, value);
+
+        if (ec != std::errc()) {
+            return std::nullopt;
+        }
+
+        idx_out = static_cast<int>(ptr - input.data());
+        return value;
     }
 
 };

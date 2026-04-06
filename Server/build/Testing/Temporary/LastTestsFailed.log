@@ -1,1 +1,2 @@
-8:TokenizerTest.shouldFail
+22:TokenizerTest.PositiveSignInt
+34:TokenizerTest.WhitespaceOnlyFails

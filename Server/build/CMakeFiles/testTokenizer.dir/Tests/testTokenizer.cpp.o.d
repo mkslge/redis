@@ -781,6 +781,15 @@ CMakeFiles/testTokenizer.dir/Tests/testTokenizer.cpp.o: \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest-typed-test.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest_pred_impl.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest_prod.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/PrimToken.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/Token.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/TokenType.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/Tokenizer.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/../Utility/util.h
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/../Utility/util.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/charconv \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/chars_format.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/from_chars_result.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/tables.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/to_chars_base_10.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/to_chars_result.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/make_32_64_or_128_bit.h

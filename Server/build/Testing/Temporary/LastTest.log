@@ -1,10 +1,10 @@
-Start testing: Apr 05 18:08 EDT
+Start testing: Apr 05 20:43 EDT
 ----------------------------------------------------------
-1/7 Testing: TokenizerTest.SimpleSetCommand
-1/7 Test: TokenizerTest.SimpleSetCommand
+1/40 Testing: TokenizerTest.SimpleSetCommand
+1/40 Test: TokenizerTest.SimpleSetCommand
 Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.SimpleSetCommand" "--gtest_also_run_disabled_tests"
 Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
-"TokenizerTest.SimpleSetCommand" start time: Apr 05 18:08 EDT
+"TokenizerTest.SimpleSetCommand" start time: Apr 05 20:43 EDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -23,15 +23,15 @@ Note: Google Test filter = TokenizerTest.SimpleSetCommand
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"TokenizerTest.SimpleSetCommand" end time: Apr 05 18:08 EDT
+"TokenizerTest.SimpleSetCommand" end time: Apr 05 20:43 EDT
 "TokenizerTest.SimpleSetCommand" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-2/7 Testing: TokenizerTest.UppercaseInput
-2/7 Test: TokenizerTest.UppercaseInput
+2/40 Testing: TokenizerTest.UppercaseInput
+2/40 Test: TokenizerTest.UppercaseInput
 Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.UppercaseInput" "--gtest_also_run_disabled_tests"
 Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
-"TokenizerTest.UppercaseInput" start time: Apr 05 18:08 EDT
+"TokenizerTest.UppercaseInput" start time: Apr 05 20:43 EDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -50,15 +50,15 @@ Note: Google Test filter = TokenizerTest.UppercaseInput
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"TokenizerTest.UppercaseInput" end time: Apr 05 18:08 EDT
+"TokenizerTest.UppercaseInput" end time: Apr 05 20:43 EDT
 "TokenizerTest.UppercaseInput" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-3/7 Testing: TokenizerTest.MultipleTokens
-3/7 Test: TokenizerTest.MultipleTokens
+3/40 Testing: TokenizerTest.MultipleTokens
+3/40 Test: TokenizerTest.MultipleTokens
 Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.MultipleTokens" "--gtest_also_run_disabled_tests"
 Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
-"TokenizerTest.MultipleTokens" start time: Apr 05 18:08 EDT
+"TokenizerTest.MultipleTokens" start time: Apr 05 20:43 EDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -77,15 +77,15 @@ Note: Google Test filter = TokenizerTest.MultipleTokens
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"TokenizerTest.MultipleTokens" end time: Apr 05 18:08 EDT
+"TokenizerTest.MultipleTokens" end time: Apr 05 20:43 EDT
 "TokenizerTest.MultipleTokens" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-4/7 Testing: TokenizerTest.InvalidToken
-4/7 Test: TokenizerTest.InvalidToken
+4/40 Testing: TokenizerTest.InvalidToken
+4/40 Test: TokenizerTest.InvalidToken
 Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.InvalidToken" "--gtest_also_run_disabled_tests"
 Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
-"TokenizerTest.InvalidToken" start time: Apr 05 18:08 EDT
+"TokenizerTest.InvalidToken" start time: Apr 05 20:43 EDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -104,15 +104,15 @@ Note: Google Test filter = TokenizerTest.InvalidToken
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"TokenizerTest.InvalidToken" end time: Apr 05 18:08 EDT
+"TokenizerTest.InvalidToken" end time: Apr 05 20:43 EDT
 "TokenizerTest.InvalidToken" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-5/7 Testing: TokenizerTest.PartialToken
-5/7 Test: TokenizerTest.PartialToken
+5/40 Testing: TokenizerTest.PartialToken
+5/40 Test: TokenizerTest.PartialToken
 Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.PartialToken" "--gtest_also_run_disabled_tests"
 Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
-"TokenizerTest.PartialToken" start time: Apr 05 18:08 EDT
+"TokenizerTest.PartialToken" start time: Apr 05 20:43 EDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -131,15 +131,15 @@ Note: Google Test filter = TokenizerTest.PartialToken
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"TokenizerTest.PartialToken" end time: Apr 05 18:08 EDT
+"TokenizerTest.PartialToken" end time: Apr 05 20:43 EDT
 "TokenizerTest.PartialToken" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-6/7 Testing: TokenizerTest.StopsOnInvalid
-6/7 Test: TokenizerTest.StopsOnInvalid
+6/40 Testing: TokenizerTest.StopsOnInvalid
+6/40 Test: TokenizerTest.StopsOnInvalid
 Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.StopsOnInvalid" "--gtest_also_run_disabled_tests"
 Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
-"TokenizerTest.StopsOnInvalid" start time: Apr 05 18:08 EDT
+"TokenizerTest.StopsOnInvalid" start time: Apr 05 20:43 EDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -158,15 +158,15 @@ Note: Google Test filter = TokenizerTest.StopsOnInvalid
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"TokenizerTest.StopsOnInvalid" end time: Apr 05 18:08 EDT
+"TokenizerTest.StopsOnInvalid" end time: Apr 05 20:43 EDT
 "TokenizerTest.StopsOnInvalid" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-7/7 Testing: TokenizerTest.ExistsExpireSeconds
-7/7 Test: TokenizerTest.ExistsExpireSeconds
+7/40 Testing: TokenizerTest.ExistsExpireSeconds
+7/40 Test: TokenizerTest.ExistsExpireSeconds
 Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.ExistsExpireSeconds" "--gtest_also_run_disabled_tests"
 Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
-"TokenizerTest.ExistsExpireSeconds" start time: Apr 05 18:08 EDT
+"TokenizerTest.ExistsExpireSeconds" start time: Apr 05 20:43 EDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -185,8 +185,899 @@ Note: Google Test filter = TokenizerTest.ExistsExpireSeconds
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"TokenizerTest.ExistsExpireSeconds" end time: Apr 05 18:08 EDT
+"TokenizerTest.ExistsExpireSeconds" end time: Apr 05 20:43 EDT
 "TokenizerTest.ExistsExpireSeconds" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Apr 05 18:08 EDT
+8/40 Testing: TokenizerTest.BasicInt
+8/40 Test: TokenizerTest.BasicInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.BasicInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.BasicInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.BasicInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.BasicInt
+[       OK ] TokenizerTest.BasicInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.BasicInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.BasicInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/40 Testing: TokenizerTest.IntWithLeadingWhitespace
+9/40 Test: TokenizerTest.IntWithLeadingWhitespace
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntWithLeadingWhitespace" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntWithLeadingWhitespace" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntWithLeadingWhitespace
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntWithLeadingWhitespace
+[       OK ] TokenizerTest.IntWithLeadingWhitespace (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntWithLeadingWhitespace" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntWithLeadingWhitespace" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/40 Testing: TokenizerTest.IntWithTrailingWhitespace
+10/40 Test: TokenizerTest.IntWithTrailingWhitespace
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntWithTrailingWhitespace" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntWithTrailingWhitespace" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntWithTrailingWhitespace
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntWithTrailingWhitespace
+[       OK ] TokenizerTest.IntWithTrailingWhitespace (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntWithTrailingWhitespace" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntWithTrailingWhitespace" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/40 Testing: TokenizerTest.IntWithLeadingAndTrailingWhitespace
+11/40 Test: TokenizerTest.IntWithLeadingAndTrailingWhitespace
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntWithLeadingAndTrailingWhitespace" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntWithLeadingAndTrailingWhitespace" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntWithLeadingAndTrailingWhitespace
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntWithLeadingAndTrailingWhitespace
+[       OK ] TokenizerTest.IntWithLeadingAndTrailingWhitespace (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntWithLeadingAndTrailingWhitespace" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntWithLeadingAndTrailingWhitespace" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/40 Testing: TokenizerTest.ZeroInt
+12/40 Test: TokenizerTest.ZeroInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.ZeroInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.ZeroInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.ZeroInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.ZeroInt
+[       OK ] TokenizerTest.ZeroInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.ZeroInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.ZeroInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/40 Testing: TokenizerTest.MultipleZerosInt
+13/40 Test: TokenizerTest.MultipleZerosInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.MultipleZerosInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.MultipleZerosInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.MultipleZerosInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.MultipleZerosInt
+[       OK ] TokenizerTest.MultipleZerosInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.MultipleZerosInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.MultipleZerosInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/40 Testing: TokenizerTest.LargeInt
+14/40 Test: TokenizerTest.LargeInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.LargeInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.LargeInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.LargeInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.LargeInt
+[       OK ] TokenizerTest.LargeInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.LargeInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.LargeInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/40 Testing: TokenizerTest.MultipleInts
+15/40 Test: TokenizerTest.MultipleInts
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.MultipleInts" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.MultipleInts" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.MultipleInts
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.MultipleInts
+[       OK ] TokenizerTest.MultipleInts (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.MultipleInts" end time: Apr 05 20:43 EDT
+"TokenizerTest.MultipleInts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/40 Testing: TokenizerTest.IntThenCommand
+16/40 Test: TokenizerTest.IntThenCommand
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntThenCommand" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntThenCommand" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntThenCommand
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntThenCommand
+[       OK ] TokenizerTest.IntThenCommand (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntThenCommand" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntThenCommand" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/40 Testing: TokenizerTest.CommandThenInt
+17/40 Test: TokenizerTest.CommandThenInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.CommandThenInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.CommandThenInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.CommandThenInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.CommandThenInt
+[       OK ] TokenizerTest.CommandThenInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.CommandThenInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.CommandThenInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/40 Testing: TokenizerTest.CommandIntCommandInt
+18/40 Test: TokenizerTest.CommandIntCommandInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.CommandIntCommandInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.CommandIntCommandInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.CommandIntCommandInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.CommandIntCommandInt
+[       OK ] TokenizerTest.CommandIntCommandInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.CommandIntCommandInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.CommandIntCommandInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/40 Testing: TokenizerTest.IntBetweenCommandsWithExtraWhitespace
+19/40 Test: TokenizerTest.IntBetweenCommandsWithExtraWhitespace
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntBetweenCommandsWithExtraWhitespace" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntBetweenCommandsWithExtraWhitespace" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntBetweenCommandsWithExtraWhitespace
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntBetweenCommandsWithExtraWhitespace
+[       OK ] TokenizerTest.IntBetweenCommandsWithExtraWhitespace (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntBetweenCommandsWithExtraWhitespace" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntBetweenCommandsWithExtraWhitespace" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/40 Testing: TokenizerTest.NegativeInt
+20/40 Test: TokenizerTest.NegativeInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.NegativeInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.NegativeInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.NegativeInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.NegativeInt
+[       OK ] TokenizerTest.NegativeInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.NegativeInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.NegativeInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/40 Testing: TokenizerTest.NegativeZeroInt
+21/40 Test: TokenizerTest.NegativeZeroInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.NegativeZeroInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.NegativeZeroInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.NegativeZeroInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.NegativeZeroInt
+[       OK ] TokenizerTest.NegativeZeroInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.NegativeZeroInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.NegativeZeroInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/40 Testing: TokenizerTest.PositiveSignInt
+22/40 Test: TokenizerTest.PositiveSignInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.PositiveSignInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.PositiveSignInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.PositiveSignInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.PositiveSignInt
+[       OK ] TokenizerTest.PositiveSignInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.PositiveSignInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.PositiveSignInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/40 Testing: TokenizerTest.MinInt
+23/40 Test: TokenizerTest.MinInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.MinInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.MinInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.MinInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.MinInt
+[       OK ] TokenizerTest.MinInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.MinInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.MinInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/40 Testing: TokenizerTest.IntOverflowFails
+24/40 Test: TokenizerTest.IntOverflowFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntOverflowFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntOverflowFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntOverflowFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntOverflowFails
+[       OK ] TokenizerTest.IntOverflowFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntOverflowFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntOverflowFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/40 Testing: TokenizerTest.IntUnderflowFails
+25/40 Test: TokenizerTest.IntUnderflowFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntUnderflowFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntUnderflowFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntUnderflowFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntUnderflowFails
+[       OK ] TokenizerTest.IntUnderflowFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntUnderflowFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntUnderflowFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/40 Testing: TokenizerTest.IntFollowedByLettersFails
+26/40 Test: TokenizerTest.IntFollowedByLettersFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntFollowedByLettersFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntFollowedByLettersFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntFollowedByLettersFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntFollowedByLettersFails
+[       OK ] TokenizerTest.IntFollowedByLettersFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntFollowedByLettersFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntFollowedByLettersFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/40 Testing: TokenizerTest.LettersBeforeIntFails
+27/40 Test: TokenizerTest.LettersBeforeIntFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.LettersBeforeIntFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.LettersBeforeIntFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.LettersBeforeIntFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.LettersBeforeIntFails
+[       OK ] TokenizerTest.LettersBeforeIntFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.LettersBeforeIntFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.LettersBeforeIntFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/40 Testing: TokenizerTest.IntWithEmbeddedLetterFails
+28/40 Test: TokenizerTest.IntWithEmbeddedLetterFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntWithEmbeddedLetterFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntWithEmbeddedLetterFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntWithEmbeddedLetterFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntWithEmbeddedLetterFails
+[       OK ] TokenizerTest.IntWithEmbeddedLetterFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntWithEmbeddedLetterFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntWithEmbeddedLetterFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/40 Testing: TokenizerTest.IntWithDecimalPointFails
+29/40 Test: TokenizerTest.IntWithDecimalPointFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntWithDecimalPointFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntWithDecimalPointFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntWithDecimalPointFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntWithDecimalPointFails
+[       OK ] TokenizerTest.IntWithDecimalPointFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntWithDecimalPointFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntWithDecimalPointFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/40 Testing: TokenizerTest.NegativeIntWithLettersFails
+30/40 Test: TokenizerTest.NegativeIntWithLettersFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.NegativeIntWithLettersFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.NegativeIntWithLettersFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.NegativeIntWithLettersFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.NegativeIntWithLettersFails
+[       OK ] TokenizerTest.NegativeIntWithLettersFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.NegativeIntWithLettersFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.NegativeIntWithLettersFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/40 Testing: TokenizerTest.PlusOnlyFails
+31/40 Test: TokenizerTest.PlusOnlyFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.PlusOnlyFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.PlusOnlyFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.PlusOnlyFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.PlusOnlyFails
+[       OK ] TokenizerTest.PlusOnlyFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.PlusOnlyFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.PlusOnlyFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/40 Testing: TokenizerTest.MinusOnlyFails
+32/40 Test: TokenizerTest.MinusOnlyFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.MinusOnlyFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.MinusOnlyFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.MinusOnlyFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.MinusOnlyFails
+[       OK ] TokenizerTest.MinusOnlyFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.MinusOnlyFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.MinusOnlyFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/40 Testing: TokenizerTest.EmptyStringFails
+33/40 Test: TokenizerTest.EmptyStringFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.EmptyStringFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.EmptyStringFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.EmptyStringFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.EmptyStringFails
+[       OK ] TokenizerTest.EmptyStringFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.EmptyStringFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.EmptyStringFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/40 Testing: TokenizerTest.WhitespaceOnlyFails
+34/40 Test: TokenizerTest.WhitespaceOnlyFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.WhitespaceOnlyFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.WhitespaceOnlyFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.WhitespaceOnlyFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.WhitespaceOnlyFails
+[       OK ] TokenizerTest.WhitespaceOnlyFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.WhitespaceOnlyFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.WhitespaceOnlyFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/40 Testing: TokenizerTest.TwoIntsWithoutSeparatorFails
+35/40 Test: TokenizerTest.TwoIntsWithoutSeparatorFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.TwoIntsWithoutSeparatorFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.TwoIntsWithoutSeparatorFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.TwoIntsWithoutSeparatorFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.TwoIntsWithoutSeparatorFails
+[       OK ] TokenizerTest.TwoIntsWithoutSeparatorFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.TwoIntsWithoutSeparatorFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.TwoIntsWithoutSeparatorFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/40 Testing: TokenizerTest.IntAdjacentToCommandFails
+36/40 Test: TokenizerTest.IntAdjacentToCommandFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntAdjacentToCommandFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntAdjacentToCommandFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntAdjacentToCommandFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntAdjacentToCommandFails
+[       OK ] TokenizerTest.IntAdjacentToCommandFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntAdjacentToCommandFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntAdjacentToCommandFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/40 Testing: TokenizerTest.CommandAdjacentToIntFails
+37/40 Test: TokenizerTest.CommandAdjacentToIntFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.CommandAdjacentToIntFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.CommandAdjacentToIntFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.CommandAdjacentToIntFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.CommandAdjacentToIntFails
+[       OK ] TokenizerTest.CommandAdjacentToIntFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.CommandAdjacentToIntFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.CommandAdjacentToIntFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/40 Testing: TokenizerTest.SequenceOfValidAndInvalidIntTokensFails
+38/40 Test: TokenizerTest.SequenceOfValidAndInvalidIntTokensFails
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.SequenceOfValidAndInvalidIntTokensFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.SequenceOfValidAndInvalidIntTokensFails" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.SequenceOfValidAndInvalidIntTokensFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.SequenceOfValidAndInvalidIntTokensFails
+[       OK ] TokenizerTest.SequenceOfValidAndInvalidIntTokensFails (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.SequenceOfValidAndInvalidIntTokensFails" end time: Apr 05 20:43 EDT
+"TokenizerTest.SequenceOfValidAndInvalidIntTokensFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+39/40 Testing: TokenizerTest.IntThenNegativeInt
+39/40 Test: TokenizerTest.IntThenNegativeInt
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.IntThenNegativeInt" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.IntThenNegativeInt" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.IntThenNegativeInt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.IntThenNegativeInt
+[       OK ] TokenizerTest.IntThenNegativeInt (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.IntThenNegativeInt" end time: Apr 05 20:43 EDT
+"TokenizerTest.IntThenNegativeInt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/40 Testing: TokenizerTest.ManyInts
+40/40 Test: TokenizerTest.ManyInts
+Command: "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testTokenizer" "--gtest_filter=TokenizerTest.ManyInts" "--gtest_also_run_disabled_tests"
+Directory: /Users/markseeliger/Desktop/Coding/redisimpl/Server/build
+"TokenizerTest.ManyInts" start time: Apr 05 20:43 EDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = TokenizerTest.ManyInts
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TokenizerTest
+[ RUN      ] TokenizerTest.ManyInts
+[       OK ] TokenizerTest.ManyInts (0 ms)
+[----------] 1 test from TokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"TokenizerTest.ManyInts" end time: Apr 05 20:43 EDT
+"TokenizerTest.ManyInts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Apr 05 20:43 EDT
