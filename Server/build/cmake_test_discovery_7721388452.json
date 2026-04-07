@@ -1,10 +1,10 @@
 {
-  "tests": 39,
+  "tests": 40,
   "name": "AllTests",
   "testsuites": [
     {
       "name": "TokenizerTest",
-      "tests": 39,
+      "tests": 40,
       "testsuite": [
         {
           "name": "SimpleSetCommand",
@@ -200,6 +200,11 @@
           "name": "TestBasicString",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
           "line": 449
+        },
+        {
+          "name": "TestBasicSetFunction",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 467
         }
       ]
     }

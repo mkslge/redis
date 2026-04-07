@@ -463,3 +463,23 @@ TEST(TokenizerTest, TestBasicString) {
 
     EXPECT_EQ(tokens, expected);
 }
+
+TEST(TokenizerTest, TestBasicSetFunction) {
+    std::string input = "SET 67 54";
+
+    auto result = Tokenizer::tokenize(input);
+
+    auto tokens = unwrap(result);
+
+    for (auto token : tokens) {
+        std::cout << token_type_str(token.get_type()) << std::endl;
+    }
+
+    std::vector<Token> expected = {
+        Token(TokenType::SET),
+        static_cast<Token>(PrimToken<int>(TokenType::INT, 67)),
+        static_cast<Token>(PrimToken<int>(TokenType::INT, 54)),
+    };
+
+    EXPECT_EQ(tokens, expected);
+}
