@@ -1,10 +1,10 @@
 {
-  "tests": 37,
+  "tests": 39,
   "name": "AllTests",
   "testsuites": [
     {
       "name": "TokenizerTest",
-      "tests": 37,
+      "tests": 39,
       "testsuite": [
         {
           "name": "SimpleSetCommand",
@@ -190,6 +190,16 @@
           "name": "DoubleThenNegativeDouble",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
           "line": 417
+        },
+        {
+          "name": "TestBasicChar",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 434
+        },
+        {
+          "name": "TestBasicString",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 449
         }
       ]
     }

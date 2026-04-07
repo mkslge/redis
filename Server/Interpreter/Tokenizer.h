@@ -78,6 +78,24 @@ private:
             }
         }
 
+        {
+            int temp_idx = idx_out;
+            std::optional<char> opt_ch = is_char(input, temp_idx);
+            if (opt_ch.has_value()) {
+                idx_out = temp_idx;
+                return PrimToken<char>(TokenType::CHAR, opt_ch.value());
+            }
+        }
+
+        {
+            int temp_idx = idx_out;
+            std::optional<std::string> opt_str = is_str(input, temp_idx);
+            if (opt_str.has_value()) {
+                idx_out = temp_idx;
+                return PrimToken<std::string>(TokenType::STRING, opt_str.value());
+            }
+        }
+
         return std::nullopt;
     }
 
@@ -128,6 +146,32 @@ private:
 
         idx_out = static_cast<int>(end - input.c_str());
         return value;
+    }
+
+    static std::optional<char> is_char(const std::string& input, int& idx_out) {
+        if (input[idx_out] != '\'' || idx_out + 2 >= input.size() || input[idx_out] != '\'') {
+            return std::nullopt;
+        }
+        idx_out += 3;
+        return idx_out - 2;
+    }
+
+    static std::optional<std::string> is_str(const std::string& input, int &idx_out) {
+        if (input[idx_out] != '\"') {
+            return std::nullopt;
+        }
+        idx_out++;
+        std::string builder = "";
+        while (idx_out < input.size()) {
+            if (input[idx_out] == '\"') {
+                idx_out++;
+                return builder;
+            }
+            builder += input[idx_out++];
+        }
+
+
+        return std::nullopt;
     }
 };
 

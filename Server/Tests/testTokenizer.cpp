@@ -430,3 +430,36 @@ TEST(TokenizerTest, DoubleThenNegativeDouble) {
 
     EXPECT_EQ(tokens, expected);
 }
+
+TEST(TokenizerTest, TestBasicChar) {
+    std::string input = "'p'";
+
+    auto result = Tokenizer::tokenize(input);
+
+    auto tokens = unwrap(result);
+
+
+    std::vector<Token> expected = {
+        static_cast<Token>(PrimToken<double>(TokenType::CHAR, 'p')),
+    };
+
+    EXPECT_EQ(tokens, expected);
+}
+
+TEST(TokenizerTest, TestBasicString) {
+    std::string input = "\"67\"";
+
+    auto result = Tokenizer::tokenize(input);
+
+    auto tokens = unwrap(result);
+
+    for (auto token : tokens) {
+        std::cout << token_type_str(token.get_type()) << std::endl;
+    }
+
+    std::vector<Token> expected = {
+        static_cast<Token>(PrimToken<std::string>(TokenType::STRING, "67")),
+    };
+
+    EXPECT_EQ(tokens, expected);
+}
