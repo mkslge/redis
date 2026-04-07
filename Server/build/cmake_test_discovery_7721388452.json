@@ -1,10 +1,10 @@
 {
-  "tests": 40,
+  "tests": 37,
   "name": "AllTests",
   "testsuites": [
     {
       "name": "TokenizerTest",
-      "tests": 40,
+      "tests": 37,
       "testsuite": [
         {
           "name": "SimpleSetCommand",
@@ -112,99 +112,84 @@
           "line": 271
         },
         {
-          "name": "PositiveSignInt",
-          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 284
-        },
-        {
           "name": "MinInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 293
-        },
-        {
-          "name": "IntOverflowFails",
-          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 306
-        },
-        {
-          "name": "IntUnderflowFails",
-          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 313
+          "line": 285
         },
         {
           "name": "IntFollowedByLettersFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 320
+          "line": 300
         },
         {
           "name": "LettersBeforeIntFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 327
+          "line": 307
         },
         {
           "name": "IntWithEmbeddedLetterFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 334
-        },
-        {
-          "name": "IntWithDecimalPointFails",
-          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 341
+          "line": 314
         },
         {
           "name": "NegativeIntWithLettersFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 348
+          "line": 323
         },
         {
           "name": "PlusOnlyFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 355
+          "line": 330
         },
         {
           "name": "MinusOnlyFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 362
+          "line": 337
         },
         {
           "name": "EmptyStringFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 369
+          "line": 344
         },
         {
           "name": "WhitespaceOnlyFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 376
+          "line": 351
         },
         {
           "name": "TwoIntsWithoutSeparatorFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 383
+          "line": 358
         },
         {
           "name": "IntAdjacentToCommandFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 390
+          "line": 365
         },
         {
           "name": "CommandAdjacentToIntFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 397
+          "line": 372
         },
         {
           "name": "SequenceOfValidAndInvalidIntTokensFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 404
+          "line": 379
         },
         {
           "name": "IntThenNegativeInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 411
+          "line": 386
         },
         {
           "name": "ManyInts",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 425
+          "line": 400
+        },
+        {
+          "name": "DoubleThenNegativeDouble",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 417
         }
       ]
     }

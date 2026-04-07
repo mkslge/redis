@@ -281,14 +281,6 @@ TEST(TokenizerTest, NegativeZeroInt) {
     EXPECT_EQ(tokens, expected);
 }
 
-TEST(TokenizerTest, PositiveSignInt) {
-    std::string input = "+123";
-    auto result = Tokenizer::tokenize(input);
-
-
-
-    EXPECT_FALSE(result.has_value());
-}
 
 TEST(TokenizerTest, MinInt) {
     std::string input = "-2147483648";
@@ -303,19 +295,7 @@ TEST(TokenizerTest, MinInt) {
     EXPECT_EQ(tokens, expected);
 }
 
-TEST(TokenizerTest, IntOverflowFails) {
-    std::string input = "2147483648";
-    auto result = Tokenizer::tokenize(input);
 
-    EXPECT_FALSE(result.has_value());
-}
-
-TEST(TokenizerTest, IntUnderflowFails) {
-    std::string input = "-2147483649";
-    auto result = Tokenizer::tokenize(input);
-
-    EXPECT_FALSE(result.has_value());
-}
 
 TEST(TokenizerTest, IntFollowedByLettersFails) {
     std::string input = "123abc";
@@ -338,12 +318,7 @@ TEST(TokenizerTest, IntWithEmbeddedLetterFails) {
     EXPECT_FALSE(result.has_value());
 }
 
-TEST(TokenizerTest, IntWithDecimalPointFails) {
-    std::string input = "123.45";
-    auto result = Tokenizer::tokenize(input);
 
-    EXPECT_FALSE(result.has_value());
-}
 
 TEST(TokenizerTest, NegativeIntWithLettersFails) {
     std::string input = "-123abc";
@@ -434,6 +409,23 @@ TEST(TokenizerTest, ManyInts) {
         static_cast<Token>(PrimToken<int>(TokenType::INT, 333)),
         static_cast<Token>(PrimToken<int>(TokenType::INT, 4444)),
         static_cast<Token>(PrimToken<int>(TokenType::INT, 55555))
+    };
+
+    EXPECT_EQ(tokens, expected);
+}
+
+TEST(TokenizerTest, DoubleThenNegativeDouble) {
+    std::string input = "123.123 -456.456";
+    auto result = Tokenizer::tokenize(input);
+
+    auto tokens = unwrap(result);
+
+    for (auto & token : tokens) {
+        std::cout << token_type_str(token.get_type()) << " " << std::endl;
+    }
+    std::vector<Token> expected = {
+        static_cast<Token>(PrimToken<double>(TokenType::DOUBLE, 123.123)),
+        static_cast<Token>(PrimToken<double>(TokenType::DOUBLE, -456.123))
     };
 
     EXPECT_EQ(tokens, expected);

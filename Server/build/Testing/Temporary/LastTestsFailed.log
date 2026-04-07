@@ -1,2 +1,1 @@
-22:TokenizerTest.PositiveSignInt
-34:TokenizerTest.WhitespaceOnlyFails
+37:TokenizerTest.DoubleThenNegativeDouble
