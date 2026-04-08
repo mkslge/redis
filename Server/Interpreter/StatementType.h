@@ -6,7 +6,7 @@
 #define STATEMENTTYPE_H
 
 enum class StatementType {
-
+    GET, SET, DELETE, EXISTS, EXPIRE
 };
 
 #endif //STATEMENTTYPE_H

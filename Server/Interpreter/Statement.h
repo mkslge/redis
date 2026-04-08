@@ -5,9 +5,16 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
+#include "StatementType.h"
+
 class Statement {
+private:
+StatementType type_;
 public:
-    virtual StatementTyp
+    Statement(StatementType type) : type_(type) {}
+    virtual StatementType get_type() {
+        return type_;
+    }
     virtual ~Statement() = default;
 };
 
