@@ -1,5 +1,6 @@
 /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles/SERVER_CORE.dir
 /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles/testTokenizer.dir
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles/testParser.dir
 /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles/test.dir
 /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles/edit_cache.dir
 /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles/rebuild_cache.dir

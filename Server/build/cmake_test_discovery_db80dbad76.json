@@ -1,0 +1,62 @@
+{
+  "tests": 10,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "ParserTest",
+      "tests": 10,
+      "testsuite": [
+        {
+          "name": "TryParseGetAcceptsPrimitiveKey",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 23
+        },
+        {
+          "name": "TryParseGetRejectsNonPrimitiveKey",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 37
+        },
+        {
+          "name": "TryParseSetBuildsSetStatementWithTypedValues",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 48
+        },
+        {
+          "name": "TryParseSetRejectsWrongValueType",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 64
+        },
+        {
+          "name": "TryParseDeleteAcceptsPrimitiveKey",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 76
+        },
+        {
+          "name": "TryParseExistsAcceptsPrimitiveKey",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 90
+        },
+        {
+          "name": "TryParseExpireParsesKeyAndTtl",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 104
+        },
+        {
+          "name": "TryParseExpireRejectsNonIntegerTtl",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 120
+        },
+        {
+          "name": "ParseDispatchesSetStatements",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 132
+        },
+        {
+          "name": "ParseRejectsMalformedCommands",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
+          "line": 151
+        }
+      ]
+    }
+  ]
+}

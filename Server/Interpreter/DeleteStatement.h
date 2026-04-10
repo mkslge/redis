@@ -16,5 +16,9 @@ public:
 
     }
 
+    const K& key() const {
+        return key_;
+    }
+
 };
 #endif //DELETESTATEMENT_H

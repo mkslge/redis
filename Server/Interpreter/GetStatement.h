@@ -16,6 +16,10 @@ public:
 
     }
 
+    const K& key() const {
+        return key_;
+    }
+
 };
 
 

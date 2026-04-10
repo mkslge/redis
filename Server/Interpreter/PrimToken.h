@@ -8,32 +8,25 @@
 
 template <typename T>
 class PrimToken : public Token {
-private:
-     T val_;
 public:
-    PrimToken(TokenType type, const T& val) : Token(type),  val_(val) {
+    PrimToken(TokenType type, const T& val) : Token(type, val) {
      };
-    const T& get_val() const {return val_;}
+    T get_val() const { return this->template get_prim<T>().value(); }
 
     bool is_prim() const override {
         return true;
     }
 
-    bool operator==(const Token other) const {
-        if (!other.is_prim()) {
-            return false;
-        }
-        auto other_cpy = static_cast<PrimToken>(other);
-        return this->get_type() == other_cpy.get_type() && val_ == other_cpy.get_val();
+    bool operator==(const Token& other) const override {
+        return Token::operator==(other);
     }
 
     bool operator==(const PrimToken& other) const {
-        return this->get_type() == other.get_type() && val_ == other.get_val();
+        return Token::operator==(other);
     }
 };
 
 
 
 #endif //PRIMTOKEN_H
-
 

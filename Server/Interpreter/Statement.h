@@ -11,11 +11,9 @@ class Statement {
 private:
 StatementType type_;
 public:
-    Statement(StatementType type) : type_(type) {}
-    virtual StatementType get_type() {
-        return type_;
-    }
-    virtual ~Statement() = default;
+    explicit Statement(StatementType type);
+    virtual StatementType get_type() const;
+    virtual ~Statement();
 };
 
 #endif //STATEMENT_H

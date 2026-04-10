@@ -8,13 +8,21 @@
 #include "Statement.h"
 
 template<typename K>
-class ExpireStatement : Statement {
+class ExpireStatement : public Statement {
 private:
     K key_;
     int expire_time_{};
 public:
     ExpireStatement(const K& key, int expire_time) : Statement(StatementType::EXPIRE), key_(key), expire_time_(expire_time) {
 
+    }
+
+    const K& key() const {
+        return key_;
+    }
+
+    int expire_time() const {
+        return expire_time_;
     }
 
 

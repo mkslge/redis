@@ -17,12 +17,19 @@ enable_testing()
 
 add_library(SERVER_CORE STATIC
         Interpreter/Parser.cpp
+        Interpreter/Statement.cpp
+        Interpreter/Token.cpp
         Interpreter/Tokenizer.cpp
+        Utility/util.cpp
 )
 
 add_executable(testTokenizer Tests/testTokenizer.cpp)
 target_link_libraries(testTokenizer PRIVATE SERVER_CORE GTest::gtest_main)
 
+add_executable(testParser Tests/testParser.cpp)
+target_link_libraries(testParser PRIVATE SERVER_CORE GTest::gtest_main)
+
 
 include(GoogleTest)
 gtest_discover_tests(testTokenizer)
+gtest_discover_tests(testParser)

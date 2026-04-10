@@ -11,8 +11,16 @@ private:
     K key_;
     V value_;
 public:
-    SetStatement(const K& key, const V& value) : Statement(StatementType::GET) , key_(key), value_(value){
+    SetStatement(const K& key, const V& value) : Statement(StatementType::SET) , key_(key), value_(value){
 
+    }
+
+    const K& key() const {
+        return key_;
+    }
+
+    const V& value() const {
+        return value_;
     }
 };
 #endif //SETSTATEMENT_H

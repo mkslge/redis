@@ -6,22 +6,34 @@
 #define TOKEN_H
 
 #include "TokenType.h"
-#include <iostream>
+#include <optional>
+#include <string>
+#include <variant>
+
 class Token {
 private:
     TokenType type_;
+    std::variant<std::monostate, int, double, char, std::string> value_{};
 public:
-    explicit Token(TokenType type) : type_(type) {}
-    TokenType get_type() const { return type_; }
+    explicit Token(TokenType type);
+    template <typename T>
+    Token(TokenType type, const T& value) : type_(type), value_(value) {}
 
-    virtual bool is_prim() const {
-        return false;
+    TokenType get_type() const;
+
+    virtual bool is_prim() const;
+
+    template <typename T>
+    std::optional<T> get_prim() const {
+        if (const auto* value = std::get_if<T>(&value_)) {
+            return *value;
+        }
+
+        return std::nullopt;
     }
 
-    virtual bool operator==(const Token& other) const {
-        return this->type_ == other.type_ ;
-    }
-    virtual ~Token() = default;
+    virtual bool operator==(const Token& other) const;
+    virtual ~Token();
 };
 
 /*std::iostream& operator<<(std::ostream& os, const Token tok) {

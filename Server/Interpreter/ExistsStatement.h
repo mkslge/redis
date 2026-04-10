@@ -14,6 +14,10 @@ private:
 public:
     ExistsStatement(const K& key) : Statement(StatementType::EXISTS), key_(key) {}
 
+    const K& key() const {
+        return key_;
+    }
+
 };
 
 

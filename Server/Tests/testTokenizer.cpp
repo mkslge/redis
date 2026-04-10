@@ -425,7 +425,7 @@ TEST(TokenizerTest, DoubleThenNegativeDouble) {
     }
     std::vector<Token> expected = {
         static_cast<Token>(PrimToken<double>(TokenType::DOUBLE, 123.123)),
-        static_cast<Token>(PrimToken<double>(TokenType::DOUBLE, -456.123))
+        static_cast<Token>(PrimToken<double>(TokenType::DOUBLE, -456.456))
     };
 
     EXPECT_EQ(tokens, expected);
@@ -440,7 +440,7 @@ TEST(TokenizerTest, TestBasicChar) {
 
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<double>(TokenType::CHAR, 'p')),
+        static_cast<Token>(PrimToken<char>(TokenType::CHAR, 'p')),
     };
 
     EXPECT_EQ(tokens, expected);
@@ -482,4 +482,19 @@ TEST(TokenizerTest, TestBasicSetFunction) {
     };
 
     EXPECT_EQ(tokens, expected);
+}
+
+TEST(TokenizerTest, PreservesCaseForStringAndCharValues) {
+    std::string string_input = "SET \"Hello\" 'X'";
+    auto string_result = Tokenizer::tokenize(string_input);
+
+    auto string_tokens = unwrap(string_result);
+
+    std::vector<Token> expected_string_tokens = {
+        Token(TokenType::SET),
+        static_cast<Token>(PrimToken<std::string>(TokenType::STRING, "Hello")),
+        static_cast<Token>(PrimToken<char>(TokenType::CHAR, 'X')),
+    };
+
+    EXPECT_EQ(string_tokens, expected_string_tokens);
 }

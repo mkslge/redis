@@ -1,10 +1,10 @@
 {
-  "tests": 40,
+  "tests": 41,
   "name": "AllTests",
   "testsuites": [
     {
       "name": "TokenizerTest",
-      "tests": 40,
+      "tests": 41,
       "testsuite": [
         {
           "name": "SimpleSetCommand",
@@ -205,6 +205,11 @@
           "name": "TestBasicSetFunction",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
           "line": 467
+        },
+        {
+          "name": "PreservesCaseForStringAndCharValues",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 487
         }
       ]
     }
