@@ -9,52 +9,52 @@
         {
           "name": "TryParseGetAcceptsPrimitiveKey",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 23
+          "line": 21
         },
         {
           "name": "TryParseGetRejectsNonPrimitiveKey",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 37
+          "line": 34
         },
         {
           "name": "TryParseSetBuildsSetStatementWithTypedValues",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 48
+          "line": 45
         },
         {
           "name": "TryParseSetRejectsWrongValueType",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 64
+          "line": 60
         },
         {
           "name": "TryParseDeleteAcceptsPrimitiveKey",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 76
+          "line": 72
         },
         {
           "name": "TryParseExistsAcceptsPrimitiveKey",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 90
+          "line": 85
         },
         {
           "name": "TryParseExpireParsesKeyAndTtl",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 104
+          "line": 98
         },
         {
           "name": "TryParseExpireRejectsNonIntegerTtl",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 120
+          "line": 113
         },
         {
           "name": "ParseDispatchesSetStatements",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 132
+          "line": 125
         },
         {
           "name": "ParseRejectsMalformedCommands",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testParser.cpp",
-          "line": 151
+          "line": 143
         }
       ]
     }

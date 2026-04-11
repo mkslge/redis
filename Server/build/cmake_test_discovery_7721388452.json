@@ -1,215 +1,235 @@
 {
-  "tests": 41,
+  "tests": 45,
   "name": "AllTests",
   "testsuites": [
     {
       "name": "TokenizerTest",
-      "tests": 41,
+      "tests": 45,
       "testsuite": [
         {
           "name": "SimpleSetCommand",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 24
+          "line": 23
         },
         {
           "name": "UppercaseInput",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 32
+          "line": 31
         },
         {
           "name": "MultipleTokens",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 46
+          "line": 45
         },
         {
           "name": "InvalidToken",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 54
+          "line": 53
         },
         {
           "name": "PartialToken",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 62
+          "line": 61
         },
         {
           "name": "StopsOnInvalid",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 70
+          "line": 69
         },
         {
           "name": "ExistsExpireSeconds",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 78
+          "line": 77
         },
         {
           "name": "BasicInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 92
+          "line": 91
         },
         {
           "name": "IntWithLeadingWhitespace",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 105
+          "line": 104
         },
         {
           "name": "IntWithTrailingWhitespace",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 118
+          "line": 117
         },
         {
           "name": "IntWithLeadingAndTrailingWhitespace",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 131
+          "line": 130
         },
         {
           "name": "ZeroInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 144
+          "line": 143
         },
         {
           "name": "MultipleZerosInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 157
+          "line": 156
         },
         {
           "name": "LargeInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 170
+          "line": 169
         },
         {
           "name": "MultipleInts",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 183
+          "line": 182
         },
         {
           "name": "IntThenCommand",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 198
+          "line": 197
         },
         {
           "name": "CommandThenInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 212
+          "line": 211
         },
         {
           "name": "CommandIntCommandInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 226
+          "line": 225
         },
         {
           "name": "IntBetweenCommandsWithExtraWhitespace",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 242
+          "line": 241
         },
         {
           "name": "NegativeInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 258
+          "line": 257
         },
         {
           "name": "NegativeZeroInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 271
+          "line": 270
         },
         {
           "name": "MinInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 285
+          "line": 284
         },
         {
           "name": "IntFollowedByLettersFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 300
+          "line": 299
         },
         {
           "name": "LettersBeforeIntFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 307
+          "line": 306
         },
         {
           "name": "IntWithEmbeddedLetterFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 314
+          "line": 313
         },
         {
           "name": "NegativeIntWithLettersFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 323
+          "line": 322
         },
         {
           "name": "PlusOnlyFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 330
+          "line": 329
         },
         {
           "name": "MinusOnlyFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 337
+          "line": 336
         },
         {
           "name": "EmptyStringFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 344
+          "line": 343
         },
         {
           "name": "WhitespaceOnlyFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 351
+          "line": 350
         },
         {
           "name": "TwoIntsWithoutSeparatorFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 358
+          "line": 357
         },
         {
           "name": "IntAdjacentToCommandFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 365
+          "line": 364
         },
         {
           "name": "CommandAdjacentToIntFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 372
+          "line": 371
+        },
+        {
+          "name": "DelAdjacentToIntFails",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 378
+        },
+        {
+          "name": "ExistsAdjacentToStringFails",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 385
+        },
+        {
+          "name": "ExpireAdjacentToKeyFails",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 392
+        },
+        {
+          "name": "AdjacentCommandsWithoutWhitespaceFail",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
+          "line": 399
         },
         {
           "name": "SequenceOfValidAndInvalidIntTokensFails",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 379
+          "line": 406
         },
         {
           "name": "IntThenNegativeInt",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 386
+          "line": 413
         },
         {
           "name": "ManyInts",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 400
+          "line": 427
         },
         {
           "name": "DoubleThenNegativeDouble",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 417
+          "line": 444
         },
         {
           "name": "TestBasicChar",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 434
+          "line": 458
         },
         {
           "name": "TestBasicString",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 449
+          "line": 473
         },
         {
           "name": "TestBasicSetFunction",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 467
+          "line": 487
         },
         {
           "name": "PreservesCaseForStringAndCharValues",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testTokenizer.cpp",
-          "line": 487
+          "line": 503
         }
       ]
     }

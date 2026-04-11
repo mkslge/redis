@@ -218,6 +218,32 @@ testParser/fast:
 .PHONY : testParser/fast
 
 #=============================================================================
+# Target rules for targets named testExecutor
+
+# Build rule for target.
+testExecutor: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testExecutor
+.PHONY : testExecutor
+
+# fast build rule for target.
+testExecutor/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testExecutor.dir/build.make CMakeFiles/testExecutor.dir/build
+.PHONY : testExecutor/fast
+
+#=============================================================================
+# Target rules for targets named testStorageEngine
+
+# Build rule for target.
+testStorageEngine: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testStorageEngine
+.PHONY : testStorageEngine
+
+# fast build rule for target.
+testStorageEngine/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testStorageEngine.dir/build.make CMakeFiles/testStorageEngine.dir/build
+.PHONY : testStorageEngine/fast
+
+#=============================================================================
 # Target rules for targets named gmock
 
 # Build rule for target.
@@ -269,101 +295,173 @@ gtest_main/fast:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build
 .PHONY : gtest_main/fast
 
-Interpreter/Parser.o: Interpreter/Parser.cpp.o
-.PHONY : Interpreter/Parser.o
+Interpreter/Executor/Executor.o: Interpreter/Executor/Executor.cpp.o
+.PHONY : Interpreter/Executor/Executor.o
 
 # target to build an object file
-Interpreter/Parser.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o
-.PHONY : Interpreter/Parser.cpp.o
+Interpreter/Executor/Executor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o
+.PHONY : Interpreter/Executor/Executor.cpp.o
 
-Interpreter/Parser.i: Interpreter/Parser.cpp.i
-.PHONY : Interpreter/Parser.i
+Interpreter/Executor/Executor.i: Interpreter/Executor/Executor.cpp.i
+.PHONY : Interpreter/Executor/Executor.i
 
 # target to preprocess a source file
-Interpreter/Parser.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.i
-.PHONY : Interpreter/Parser.cpp.i
+Interpreter/Executor/Executor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.i
+.PHONY : Interpreter/Executor/Executor.cpp.i
 
-Interpreter/Parser.s: Interpreter/Parser.cpp.s
-.PHONY : Interpreter/Parser.s
+Interpreter/Executor/Executor.s: Interpreter/Executor/Executor.cpp.s
+.PHONY : Interpreter/Executor/Executor.s
 
 # target to generate assembly for a file
-Interpreter/Parser.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.s
-.PHONY : Interpreter/Parser.cpp.s
+Interpreter/Executor/Executor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.s
+.PHONY : Interpreter/Executor/Executor.cpp.s
 
-Interpreter/Statement.o: Interpreter/Statement.cpp.o
-.PHONY : Interpreter/Statement.o
+Interpreter/Executor/StorageEngine.o: Interpreter/Executor/StorageEngine.cpp.o
+.PHONY : Interpreter/Executor/StorageEngine.o
 
 # target to build an object file
-Interpreter/Statement.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o
-.PHONY : Interpreter/Statement.cpp.o
+Interpreter/Executor/StorageEngine.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o
+.PHONY : Interpreter/Executor/StorageEngine.cpp.o
 
-Interpreter/Statement.i: Interpreter/Statement.cpp.i
-.PHONY : Interpreter/Statement.i
+Interpreter/Executor/StorageEngine.i: Interpreter/Executor/StorageEngine.cpp.i
+.PHONY : Interpreter/Executor/StorageEngine.i
 
 # target to preprocess a source file
-Interpreter/Statement.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.i
-.PHONY : Interpreter/Statement.cpp.i
+Interpreter/Executor/StorageEngine.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.i
+.PHONY : Interpreter/Executor/StorageEngine.cpp.i
 
-Interpreter/Statement.s: Interpreter/Statement.cpp.s
-.PHONY : Interpreter/Statement.s
+Interpreter/Executor/StorageEngine.s: Interpreter/Executor/StorageEngine.cpp.s
+.PHONY : Interpreter/Executor/StorageEngine.s
 
 # target to generate assembly for a file
-Interpreter/Statement.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.s
-.PHONY : Interpreter/Statement.cpp.s
+Interpreter/Executor/StorageEngine.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.s
+.PHONY : Interpreter/Executor/StorageEngine.cpp.s
 
-Interpreter/Token.o: Interpreter/Token.cpp.o
-.PHONY : Interpreter/Token.o
+Interpreter/Parsing/Parser.o: Interpreter/Parsing/Parser.cpp.o
+.PHONY : Interpreter/Parsing/Parser.o
 
 # target to build an object file
-Interpreter/Token.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o
-.PHONY : Interpreter/Token.cpp.o
+Interpreter/Parsing/Parser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o
+.PHONY : Interpreter/Parsing/Parser.cpp.o
 
-Interpreter/Token.i: Interpreter/Token.cpp.i
-.PHONY : Interpreter/Token.i
+Interpreter/Parsing/Parser.i: Interpreter/Parsing/Parser.cpp.i
+.PHONY : Interpreter/Parsing/Parser.i
 
 # target to preprocess a source file
-Interpreter/Token.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.i
-.PHONY : Interpreter/Token.cpp.i
+Interpreter/Parsing/Parser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.i
+.PHONY : Interpreter/Parsing/Parser.cpp.i
 
-Interpreter/Token.s: Interpreter/Token.cpp.s
-.PHONY : Interpreter/Token.s
+Interpreter/Parsing/Parser.s: Interpreter/Parsing/Parser.cpp.s
+.PHONY : Interpreter/Parsing/Parser.s
 
 # target to generate assembly for a file
-Interpreter/Token.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.s
-.PHONY : Interpreter/Token.cpp.s
+Interpreter/Parsing/Parser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.s
+.PHONY : Interpreter/Parsing/Parser.cpp.s
 
-Interpreter/Tokenizer.o: Interpreter/Tokenizer.cpp.o
-.PHONY : Interpreter/Tokenizer.o
+Interpreter/Parsing/Tokenizer.o: Interpreter/Parsing/Tokenizer.cpp.o
+.PHONY : Interpreter/Parsing/Tokenizer.o
 
 # target to build an object file
-Interpreter/Tokenizer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o
-.PHONY : Interpreter/Tokenizer.cpp.o
+Interpreter/Parsing/Tokenizer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o
+.PHONY : Interpreter/Parsing/Tokenizer.cpp.o
 
-Interpreter/Tokenizer.i: Interpreter/Tokenizer.cpp.i
-.PHONY : Interpreter/Tokenizer.i
+Interpreter/Parsing/Tokenizer.i: Interpreter/Parsing/Tokenizer.cpp.i
+.PHONY : Interpreter/Parsing/Tokenizer.i
 
 # target to preprocess a source file
-Interpreter/Tokenizer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.i
-.PHONY : Interpreter/Tokenizer.cpp.i
+Interpreter/Parsing/Tokenizer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.i
+.PHONY : Interpreter/Parsing/Tokenizer.cpp.i
 
-Interpreter/Tokenizer.s: Interpreter/Tokenizer.cpp.s
-.PHONY : Interpreter/Tokenizer.s
+Interpreter/Parsing/Tokenizer.s: Interpreter/Parsing/Tokenizer.cpp.s
+.PHONY : Interpreter/Parsing/Tokenizer.s
 
 # target to generate assembly for a file
-Interpreter/Tokenizer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.s
-.PHONY : Interpreter/Tokenizer.cpp.s
+Interpreter/Parsing/Tokenizer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s
+.PHONY : Interpreter/Parsing/Tokenizer.cpp.s
+
+Interpreter/Statements/Statement.o: Interpreter/Statements/Statement.cpp.o
+.PHONY : Interpreter/Statements/Statement.o
+
+# target to build an object file
+Interpreter/Statements/Statement.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o
+.PHONY : Interpreter/Statements/Statement.cpp.o
+
+Interpreter/Statements/Statement.i: Interpreter/Statements/Statement.cpp.i
+.PHONY : Interpreter/Statements/Statement.i
+
+# target to preprocess a source file
+Interpreter/Statements/Statement.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.i
+.PHONY : Interpreter/Statements/Statement.cpp.i
+
+Interpreter/Statements/Statement.s: Interpreter/Statements/Statement.cpp.s
+.PHONY : Interpreter/Statements/Statement.s
+
+# target to generate assembly for a file
+Interpreter/Statements/Statement.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.s
+.PHONY : Interpreter/Statements/Statement.cpp.s
+
+Interpreter/Tokens/Token.o: Interpreter/Tokens/Token.cpp.o
+.PHONY : Interpreter/Tokens/Token.o
+
+# target to build an object file
+Interpreter/Tokens/Token.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o
+.PHONY : Interpreter/Tokens/Token.cpp.o
+
+Interpreter/Tokens/Token.i: Interpreter/Tokens/Token.cpp.i
+.PHONY : Interpreter/Tokens/Token.i
+
+# target to preprocess a source file
+Interpreter/Tokens/Token.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.i
+.PHONY : Interpreter/Tokens/Token.cpp.i
+
+Interpreter/Tokens/Token.s: Interpreter/Tokens/Token.cpp.s
+.PHONY : Interpreter/Tokens/Token.s
+
+# target to generate assembly for a file
+Interpreter/Tokens/Token.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.s
+.PHONY : Interpreter/Tokens/Token.cpp.s
+
+Tests/testExecutor.o: Tests/testExecutor.cpp.o
+.PHONY : Tests/testExecutor.o
+
+# target to build an object file
+Tests/testExecutor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testExecutor.dir/build.make CMakeFiles/testExecutor.dir/Tests/testExecutor.cpp.o
+.PHONY : Tests/testExecutor.cpp.o
+
+Tests/testExecutor.i: Tests/testExecutor.cpp.i
+.PHONY : Tests/testExecutor.i
+
+# target to preprocess a source file
+Tests/testExecutor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testExecutor.dir/build.make CMakeFiles/testExecutor.dir/Tests/testExecutor.cpp.i
+.PHONY : Tests/testExecutor.cpp.i
+
+Tests/testExecutor.s: Tests/testExecutor.cpp.s
+.PHONY : Tests/testExecutor.s
+
+# target to generate assembly for a file
+Tests/testExecutor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testExecutor.dir/build.make CMakeFiles/testExecutor.dir/Tests/testExecutor.cpp.s
+.PHONY : Tests/testExecutor.cpp.s
 
 Tests/testParser.o: Tests/testParser.cpp.o
 .PHONY : Tests/testParser.o
@@ -388,6 +486,30 @@ Tests/testParser.s: Tests/testParser.cpp.s
 Tests/testParser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testParser.dir/build.make CMakeFiles/testParser.dir/Tests/testParser.cpp.s
 .PHONY : Tests/testParser.cpp.s
+
+Tests/testStorageEngine.o: Tests/testStorageEngine.cpp.o
+.PHONY : Tests/testStorageEngine.o
+
+# target to build an object file
+Tests/testStorageEngine.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testStorageEngine.dir/build.make CMakeFiles/testStorageEngine.dir/Tests/testStorageEngine.cpp.o
+.PHONY : Tests/testStorageEngine.cpp.o
+
+Tests/testStorageEngine.i: Tests/testStorageEngine.cpp.i
+.PHONY : Tests/testStorageEngine.i
+
+# target to preprocess a source file
+Tests/testStorageEngine.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testStorageEngine.dir/build.make CMakeFiles/testStorageEngine.dir/Tests/testStorageEngine.cpp.i
+.PHONY : Tests/testStorageEngine.cpp.i
+
+Tests/testStorageEngine.s: Tests/testStorageEngine.cpp.s
+.PHONY : Tests/testStorageEngine.s
+
+# target to generate assembly for a file
+Tests/testStorageEngine.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testStorageEngine.dir/build.make CMakeFiles/testStorageEngine.dir/Tests/testStorageEngine.cpp.s
+.PHONY : Tests/testStorageEngine.cpp.s
 
 Tests/testTokenizer.o: Tests/testTokenizer.cpp.o
 .PHONY : Tests/testTokenizer.o
@@ -456,23 +578,37 @@ help:
 	@echo "... gmock_main"
 	@echo "... gtest"
 	@echo "... gtest_main"
+	@echo "... testExecutor"
 	@echo "... testParser"
+	@echo "... testStorageEngine"
 	@echo "... testTokenizer"
-	@echo "... Interpreter/Parser.o"
-	@echo "... Interpreter/Parser.i"
-	@echo "... Interpreter/Parser.s"
-	@echo "... Interpreter/Statement.o"
-	@echo "... Interpreter/Statement.i"
-	@echo "... Interpreter/Statement.s"
-	@echo "... Interpreter/Token.o"
-	@echo "... Interpreter/Token.i"
-	@echo "... Interpreter/Token.s"
-	@echo "... Interpreter/Tokenizer.o"
-	@echo "... Interpreter/Tokenizer.i"
-	@echo "... Interpreter/Tokenizer.s"
+	@echo "... Interpreter/Executor/Executor.o"
+	@echo "... Interpreter/Executor/Executor.i"
+	@echo "... Interpreter/Executor/Executor.s"
+	@echo "... Interpreter/Executor/StorageEngine.o"
+	@echo "... Interpreter/Executor/StorageEngine.i"
+	@echo "... Interpreter/Executor/StorageEngine.s"
+	@echo "... Interpreter/Parsing/Parser.o"
+	@echo "... Interpreter/Parsing/Parser.i"
+	@echo "... Interpreter/Parsing/Parser.s"
+	@echo "... Interpreter/Parsing/Tokenizer.o"
+	@echo "... Interpreter/Parsing/Tokenizer.i"
+	@echo "... Interpreter/Parsing/Tokenizer.s"
+	@echo "... Interpreter/Statements/Statement.o"
+	@echo "... Interpreter/Statements/Statement.i"
+	@echo "... Interpreter/Statements/Statement.s"
+	@echo "... Interpreter/Tokens/Token.o"
+	@echo "... Interpreter/Tokens/Token.i"
+	@echo "... Interpreter/Tokens/Token.s"
+	@echo "... Tests/testExecutor.o"
+	@echo "... Tests/testExecutor.i"
+	@echo "... Tests/testExecutor.s"
 	@echo "... Tests/testParser.o"
 	@echo "... Tests/testParser.i"
 	@echo "... Tests/testParser.s"
+	@echo "... Tests/testStorageEngine.o"
+	@echo "... Tests/testStorageEngine.i"
+	@echo "... Tests/testStorageEngine.s"
 	@echo "... Tests/testTokenizer.o"
 	@echo "... Tests/testTokenizer.i"
 	@echo "... Tests/testTokenizer.s"

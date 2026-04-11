@@ -762,17 +762,17 @@ CMakeFiles/testParser.dir/Tests/testParser.cpp.o: /Users/markseeliger/Desktop/Co
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdarg.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/DeleteStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/ExistsStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/ExpireStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/GetStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parser.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/PrimToken.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/SetStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/StatementType.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/TokenType.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Key.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/DeleteStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExistsStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExpireStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/GetStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/SetStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/StatementType.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/TokenType.h \
   _deps/googletest-src/googletest/include/gtest/gtest-assertion-result.h \
   _deps/googletest-src/googletest/include/gtest/gtest-death-test.h \
   _deps/googletest-src/googletest/include/gtest/gtest-matchers.h \
@@ -812,11 +812,13 @@ _deps/googletest-src/googletest/include/gtest/gtest-printers.h:
 
 _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.h:
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/StatementType.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/GetStatement.h:
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/ExistsStatement.h:
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/GetStatement.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.h:
 
 /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/__stddef_max_align_t.h:
 
@@ -827,6 +829,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/wctype.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/wchar.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Key.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h:
 
@@ -911,6 +915,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_select.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_condattr_t.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExistsStatement.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_cond_t.h:
 
@@ -1004,6 +1010,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdlib:
 
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdio:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdint:
@@ -1011,6 +1019,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/concepts:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/climits:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/DeleteStatement.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cctype:
 
@@ -1118,8 +1128,6 @@ _deps/googletest-src/googletest/include/gtest/internal/gtest-filepath.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_pod.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statement.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_nothrow_move_constructible.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_nothrow_move_assignable.h:
@@ -1210,8 +1218,6 @@ _deps/googletest-src/googletest/include/gtest/internal/gtest-filepath.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/conjunction.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parser.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_nothrow_convertible.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/conditional.h:
@@ -1240,8 +1246,6 @@ _deps/googletest-src/googletest/include/gtest/internal/gtest-filepath.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/add_cv.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/DeleteStatement.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__tree:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__threading_support:
@@ -1253,6 +1257,8 @@ _deps/googletest-src/googletest/include/gtest/internal/gtest-filepath.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_int64_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__string/extern_template_lists.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/TokenType.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__split_buffer:
 
@@ -1534,8 +1540,6 @@ _deps/googletest-src/googletest/include/gtest/gtest_prod.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__compare/compare_three_way.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/StatementType.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__compare/common_comparison_category.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__chrono/year.h:
@@ -1760,8 +1764,6 @@ _deps/googletest-src/googletest/include/gtest/gtest_prod.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_replace_copy_if.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/ExpireStatement.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__locale:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cmath:
@@ -1924,8 +1926,6 @@ _deps/googletest-src/googletest/include/gtest/gtest-death-test.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_includes.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/PrimToken.h:
-
 /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/istream:
@@ -1947,8 +1947,6 @@ _deps/googletest-src/googletest/include/gtest/gtest-death-test.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/sample.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_partition_point.h:
-
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/SetStatement.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/remove_cvref.h:
 
@@ -2097,6 +2095,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-death-test.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/ranges_uninitialized_algorithms.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__chrono/year_month.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExpireStatement.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_find_end.h:
 
@@ -2258,8 +2258,6 @@ _deps/googletest-src/googletest/include/gtest/gtest-param-test.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/uses_allocator.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/TokenType.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/invoke.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_nothrow_copy_assignable.h:
@@ -2291,6 +2289,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-param-test.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_wint_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/find_if.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/SetStatement.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_uintmax_t.h:
 

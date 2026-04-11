@@ -770,11 +770,10 @@ CMakeFiles/testTokenizer.dir/Tests/testTokenizer.cpp.o
  /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdarg.h
  /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h
  /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h
+ /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.h
+ /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.h
+ /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/TokenType.h
  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.h
- /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/PrimToken.h
- /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.h
- /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/TokenType.h
- /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokenizer.h
  /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest-assertion-result.h
  /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest-death-test.h
  /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest-matchers.h

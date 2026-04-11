@@ -1,0 +1,24 @@
+//
+// Created by Mark on 4/7/26.
+//
+
+#ifndef DELETESTATEMENT_H
+#define DELETESTATEMENT_H
+#include "Interpreter/Executor/Key.h"
+#include "Interpreter/Statements/Statement.h"
+#include "Interpreter/Statements/StatementType.h"
+
+class DeleteStatement : public Statement{
+private:
+    Key key_;
+public:
+    explicit DeleteStatement(const Key& key) : Statement(StatementType::DELETE) , key_(key){
+
+    }
+
+    const Key& key() const {
+        return key_;
+    }
+
+};
+#endif //DELETESTATEMENT_H

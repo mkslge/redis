@@ -72,66 +72,94 @@ include CMakeFiles/SERVER_CORE.dir/flags.make
 CMakeFiles/SERVER_CORE.dir/codegen:
 .PHONY : CMakeFiles/SERVER_CORE.dir/codegen
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
-CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parser.cpp
-CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parser.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Executor.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Executor.cpp
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parser.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.i
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Executor.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.i
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parser.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.s
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Executor.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.s
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
-CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statement.cpp
-CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statement.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/StorageEngine.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/StorageEngine.cpp
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statement.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.i
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/StorageEngine.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.i
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statement.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.s
+CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/StorageEngine.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.s
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
-CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.cpp
-CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.cpp
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.i
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.i
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.s
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.s
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
-CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokenizer.cpp
-CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokenizer.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
+CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.cpp
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokenizer.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.i
+CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.i
 
-CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokenizer.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.s
+CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.s
+
+CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
+CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.cpp
+
+CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.i
+
+CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.s
+
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.cpp
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.cpp
+
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.cpp > CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.i
+
+CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s
 
 CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
 CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.cpp
 CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.cpp
 
 CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.i: cmake_force
@@ -144,23 +172,27 @@ CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.s: cmake_force
 
 # Object files for target SERVER_CORE
 SERVER_CORE_OBJECTS = \
-"CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o" \
-"CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o" \
-"CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o" \
-"CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o" \
+"CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o" \
+"CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o" \
+"CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o" \
+"CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o" \
+"CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o" \
+"CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o" \
 "CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o"
 
 # External object files for target SERVER_CORE
 SERVER_CORE_EXTERNAL_OBJECTS =
 
-libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Parser.cpp.o
-libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Statement.cpp.o
-libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Token.cpp.o
-libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Tokenizer.cpp.o
+libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o
+libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o
+libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o
+libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o
+libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o
+libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/build.make
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library libSERVER_CORE.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX static library libSERVER_CORE.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/SERVER_CORE.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/SERVER_CORE.dir/link.txt --verbose=$(VERBOSE)
 

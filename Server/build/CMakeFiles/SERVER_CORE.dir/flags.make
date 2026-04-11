@@ -4,9 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = 
+CXX_INCLUDES = -I/Users/markseeliger/Desktop/Coding/redisimpl/Server
 
-CXX_FLAGSarm64 = -std=gnu++20 -arch arm64
-
-CXX_FLAGS = -std=gnu++20 -arch arm64
+CXX_FLAGS = -std=gnu++20
 

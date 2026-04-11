@@ -781,14 +781,14 @@ CMakeFiles/testParser.dir/Tests/testParser.cpp.o: \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest-typed-test.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest_pred_impl.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include/gtest/gtest_prod.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/DeleteStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/Statement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/StatementType.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/ExistsStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/ExpireStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/GetStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/Parser.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/SetStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/Token.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/TokenType.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Tests/../Interpreter/PrimToken.h
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/DeleteStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Key.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/StatementType.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExistsStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExpireStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/GetStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/SetStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/TokenType.h

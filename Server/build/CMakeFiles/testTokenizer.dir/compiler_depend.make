@@ -769,11 +769,10 @@ CMakeFiles/testTokenizer.dir/Tests/testTokenizer.cpp.o: /Users/markseeliger/Desk
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdarg.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/TokenType.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/PrimToken.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/TokenType.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokenizer.h \
   _deps/googletest-src/googletest/include/gtest/gtest-assertion-result.h \
   _deps/googletest-src/googletest/include/gtest/gtest-death-test.h \
   _deps/googletest-src/googletest/include/gtest/gtest-matchers.h \
@@ -812,8 +811,6 @@ _deps/googletest-src/googletest/include/gtest/gtest_pred_impl.h:
 _deps/googletest-src/googletest/include/gtest/gtest-printers.h:
 
 _deps/googletest-src/googletest/include/gtest/gtest-message.h:
-
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Token.h:
 
 /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/__stddef_max_align_t.h:
 
@@ -909,6 +906,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_select.h:
 
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_condattr_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_cond_t.h:
@@ -1000,6 +999,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstring:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdlib:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdio:
 
@@ -1244,6 +1245,8 @@ _deps/googletest-src/googletest/include/gtest/internal/gtest-filepath.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_int64_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__string/extern_template_lists.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/TokenType.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__split_buffer:
 
@@ -1675,8 +1678,6 @@ _deps/googletest-src/googletest/include/gtest/gtest_prod.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/remove_if.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/PrimToken.h:
-
 /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/istream:
@@ -1834,8 +1835,6 @@ _deps/googletest-src/googletest/include/gtest/gtest_prod.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdlib.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_partition_copy.h:
-
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokenizer.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/version:
 
@@ -2266,8 +2265,6 @@ _deps/googletest-src/googletest/include/gtest/internal/custom/gtest-printers.h:
 _deps/googletest-src/googletest/include/gtest/gtest-param-test.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/uses_allocator.h:
-
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/TokenType.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/invoke.h:
 

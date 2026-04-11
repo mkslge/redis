@@ -1,0 +1,5 @@
+if(EXISTS "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testExecutor[1]_tests.cmake")
+  include("/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testExecutor[1]_tests.cmake")
+else()
+  add_test(testExecutor_NOT_BUILT testExecutor_NOT_BUILT)
+endif()

@@ -7,10 +7,9 @@
 #include <string>
 #include <vector>
 
-#include "../Interpreter/PrimToken.h"
-#include "../Interpreter/Token.h"
-#include "../Interpreter/TokenType.h"
-#include "../Interpreter/Tokenizer.h"
+#include "Interpreter/Tokens/Token.h"
+#include "Interpreter/Tokens/TokenType.h"
+#include "Interpreter/Parsing/Tokenizer.h"
 
 // ---------- Helpers ----------
 static std::vector<Token> unwrap(const std::optional<std::vector<Token>>& opt) {
@@ -96,7 +95,7 @@ TEST(TokenizerTest, BasicInt) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 123))
+        Token(TokenType::INT, 123)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -109,7 +108,7 @@ TEST(TokenizerTest, IntWithLeadingWhitespace) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 123))
+        Token(TokenType::INT, 123)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -122,7 +121,7 @@ TEST(TokenizerTest, IntWithTrailingWhitespace) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 123))
+        Token(TokenType::INT, 123)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -135,7 +134,7 @@ TEST(TokenizerTest, IntWithLeadingAndTrailingWhitespace) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 123))
+        Token(TokenType::INT, 123)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -148,7 +147,7 @@ TEST(TokenizerTest, ZeroInt) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 0))
+        Token(TokenType::INT, 0)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -161,7 +160,7 @@ TEST(TokenizerTest, MultipleZerosInt) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 0))
+        Token(TokenType::INT, 0)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -174,7 +173,7 @@ TEST(TokenizerTest, LargeInt) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 2147483647))
+        Token(TokenType::INT, 2147483647)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -187,9 +186,9 @@ TEST(TokenizerTest, MultipleInts) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 123)),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 456)),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 789))
+        Token(TokenType::INT, 123),
+        Token(TokenType::INT, 456),
+        Token(TokenType::INT, 789)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -202,7 +201,7 @@ TEST(TokenizerTest, IntThenCommand) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 123)),
+        Token(TokenType::INT, 123),
         Token(TokenType::GET)
     };
 
@@ -217,7 +216,7 @@ TEST(TokenizerTest, CommandThenInt) {
 
     std::vector<Token> expected = {
         Token(TokenType::SET),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 123))
+        Token(TokenType::INT, 123)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -231,9 +230,9 @@ TEST(TokenizerTest, CommandIntCommandInt) {
 
     std::vector<Token> expected = {
         Token(TokenType::SET),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 10)),
+        Token(TokenType::INT, 10),
         Token(TokenType::GET),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 20))
+        Token(TokenType::INT, 20)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -247,9 +246,9 @@ TEST(TokenizerTest, IntBetweenCommandsWithExtraWhitespace) {
 
     std::vector<Token> expected = {
         Token(TokenType::SET),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 42)),
+        Token(TokenType::INT, 42),
         Token(TokenType::DEL),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 99))
+        Token(TokenType::INT, 99)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -262,7 +261,7 @@ TEST(TokenizerTest, NegativeInt) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, -123))
+        Token(TokenType::INT, -123)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -275,7 +274,7 @@ TEST(TokenizerTest, NegativeZeroInt) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 0))
+        Token(TokenType::INT, 0)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -289,7 +288,7 @@ TEST(TokenizerTest, MinInt) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, -2147483648))
+        Token(TokenType::INT, static_cast<int>(-2147483648LL))
     };
 
     EXPECT_EQ(tokens, expected);
@@ -366,14 +365,42 @@ TEST(TokenizerTest, IntAdjacentToCommandFails) {
     std::string input = "123GET";
     auto result = Tokenizer::tokenize(input);
 
-    EXPECT_TRUE(result.has_value());
+    EXPECT_FALSE(result.has_value());
 }
 
 TEST(TokenizerTest, CommandAdjacentToIntFails) {
     std::string input = "SET123";
     auto result = Tokenizer::tokenize(input);
 
-    EXPECT_TRUE(result.has_value());
+    EXPECT_FALSE(result.has_value());
+}
+
+TEST(TokenizerTest, DelAdjacentToIntFails) {
+    std::string input = "DEL99";
+    auto result = Tokenizer::tokenize(input);
+
+    EXPECT_FALSE(result.has_value());
+}
+
+TEST(TokenizerTest, ExistsAdjacentToStringFails) {
+    std::string input = "EXISTS\"key\"";
+    auto result = Tokenizer::tokenize(input);
+
+    EXPECT_FALSE(result.has_value());
+}
+
+TEST(TokenizerTest, ExpireAdjacentToKeyFails) {
+    std::string input = "EXPIRE\"session\" 30";
+    auto result = Tokenizer::tokenize(input);
+
+    EXPECT_FALSE(result.has_value());
+}
+
+TEST(TokenizerTest, AdjacentCommandsWithoutWhitespaceFail) {
+    std::string input = "GETDEL";
+    auto result = Tokenizer::tokenize(input);
+
+    EXPECT_FALSE(result.has_value());
 }
 
 TEST(TokenizerTest, SequenceOfValidAndInvalidIntTokensFails) {
@@ -390,8 +417,8 @@ TEST(TokenizerTest, IntThenNegativeInt) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 123)),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, -456))
+        Token(TokenType::INT, 123),
+        Token(TokenType::INT, -456)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -404,11 +431,11 @@ TEST(TokenizerTest, ManyInts) {
     auto tokens = unwrap(result);
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 1)),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 22)),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 333)),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 4444)),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 55555))
+        Token(TokenType::INT, 1),
+        Token(TokenType::INT, 22),
+        Token(TokenType::INT, 333),
+        Token(TokenType::INT, 4444),
+        Token(TokenType::INT, 55555)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -420,12 +447,9 @@ TEST(TokenizerTest, DoubleThenNegativeDouble) {
 
     auto tokens = unwrap(result);
 
-    for (auto & token : tokens) {
-        std::cout << token_type_str(token.get_type()) << " " << std::endl;
-    }
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<double>(TokenType::DOUBLE, 123.123)),
-        static_cast<Token>(PrimToken<double>(TokenType::DOUBLE, -456.456))
+        Token(TokenType::DOUBLE, 123.123),
+        Token(TokenType::DOUBLE, -456.456)
     };
 
     EXPECT_EQ(tokens, expected);
@@ -440,7 +464,7 @@ TEST(TokenizerTest, TestBasicChar) {
 
 
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<char>(TokenType::CHAR, 'p')),
+        Token(TokenType::CHAR, 'p'),
     };
 
     EXPECT_EQ(tokens, expected);
@@ -453,12 +477,8 @@ TEST(TokenizerTest, TestBasicString) {
 
     auto tokens = unwrap(result);
 
-    for (auto token : tokens) {
-        std::cout << token_type_str(token.get_type()) << std::endl;
-    }
-
     std::vector<Token> expected = {
-        static_cast<Token>(PrimToken<std::string>(TokenType::STRING, "67")),
+        Token(TokenType::STRING, "67"),
     };
 
     EXPECT_EQ(tokens, expected);
@@ -471,14 +491,10 @@ TEST(TokenizerTest, TestBasicSetFunction) {
 
     auto tokens = unwrap(result);
 
-    for (auto token : tokens) {
-        std::cout << token_type_str(token.get_type()) << std::endl;
-    }
-
     std::vector<Token> expected = {
         Token(TokenType::SET),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 67)),
-        static_cast<Token>(PrimToken<int>(TokenType::INT, 54)),
+        Token(TokenType::INT, 67),
+        Token(TokenType::INT, 54),
     };
 
     EXPECT_EQ(tokens, expected);
@@ -492,8 +508,8 @@ TEST(TokenizerTest, PreservesCaseForStringAndCharValues) {
 
     std::vector<Token> expected_string_tokens = {
         Token(TokenType::SET),
-        static_cast<Token>(PrimToken<std::string>(TokenType::STRING, "Hello")),
-        static_cast<Token>(PrimToken<char>(TokenType::CHAR, 'X')),
+        Token(TokenType::STRING, "Hello"),
+        Token(TokenType::CHAR, 'X'),
     };
 
     EXPECT_EQ(string_tokens, expected_string_tokens);

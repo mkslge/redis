@@ -6,7 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -isystem /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include -isystem /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest
 
-CXX_FLAGSarm64 = -std=c++20 -arch arm64  -DGTEST_HAS_PTHREAD=1  
-
-CXX_FLAGS = -std=c++20 -arch arm64  -DGTEST_HAS_PTHREAD=1  
+CXX_FLAGS = -std=c++20  -DGTEST_HAS_PTHREAD=1  
 

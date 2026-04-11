@@ -4,34 +4,31 @@
 
 #include <gtest/gtest.h>
 #include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
-#include "../Interpreter/DeleteStatement.h"
-#include "../Interpreter/ExistsStatement.h"
-#include "../Interpreter/ExpireStatement.h"
-#include "../Interpreter/GetStatement.h"
-#include "../Interpreter/Parser.h"
-#include "../Interpreter/PrimToken.h"
-#include "../Interpreter/SetStatement.h"
-#include "../Interpreter/Statement.h"
-#include "../Interpreter/StatementType.h"
-#include "../Interpreter/Token.h"
-#include "../Interpreter/TokenType.h"
+#include "Interpreter/Statements/DeleteStatement.h"
+#include "Interpreter/Statements/ExistsStatement.h"
+#include "Interpreter/Statements/ExpireStatement.h"
+#include "Interpreter/Statements/GetStatement.h"
+#include "Interpreter/Parsing/Parser.h"
+#include "Interpreter/Statements/SetStatement.h"
+#include "Interpreter/Statements/Statement.h"
+#include "Interpreter/Statements/StatementType.h"
+#include "Interpreter/Tokens/Token.h"
+#include "Interpreter/Tokens/TokenType.h"
 
 TEST(ParserTest, TryParseGetAcceptsPrimitiveKey) {
     std::vector<Token> tokens = {
         Token(TokenType::GET),
-        PrimToken<std::string>(TokenType::STRING, "session-key")
+        Token(TokenType::STRING, "session-key")
     };
 
-    auto parsed = Parser::try_parse_get<std::string>(tokens);
+    auto parsed = Parser::try_parse_get(tokens);
 
-    ASSERT_TRUE(parsed.has_value());
-    ASSERT_NE(parsed.value(), nullptr);
-    EXPECT_EQ(parsed.value()->get_type(), StatementType::GET);
-    EXPECT_EQ(parsed.value()->key(), "session-key");
+    ASSERT_NE(parsed, nullptr);
+    EXPECT_EQ(parsed->get_type(), StatementType::GET);
+    EXPECT_EQ(parsed->key(), "session-key");
 }
 
 TEST(ParserTest, TryParseGetRejectsNonPrimitiveKey) {
@@ -40,109 +37,104 @@ TEST(ParserTest, TryParseGetRejectsNonPrimitiveKey) {
         Token(TokenType::SET)
     };
 
-    auto parsed = Parser::try_parse_get<std::string>(tokens);
+    auto parsed = Parser::try_parse_get(tokens);
 
-    EXPECT_FALSE(parsed.has_value());
+    EXPECT_EQ(parsed, nullptr);
 }
 
 TEST(ParserTest, TryParseSetBuildsSetStatementWithTypedValues) {
     std::vector<Token> tokens = {
         Token(TokenType::SET),
-        PrimToken<std::string>(TokenType::STRING, "name"),
-        PrimToken<int>(TokenType::INT, 42)
+        Token(TokenType::STRING, "name"),
+        Token(TokenType::INT, 42)
     };
 
-    auto parsed = Parser::try_parse_set<std::string, int>(tokens);
+    auto parsed = Parser::try_parse_set<int>(tokens);
 
-    ASSERT_TRUE(parsed.has_value());
-    ASSERT_NE(parsed.value(), nullptr);
-    EXPECT_EQ(parsed.value()->get_type(), StatementType::SET);
-    EXPECT_EQ(parsed.value()->key(), "name");
-    EXPECT_EQ(parsed.value()->value(), 42);
+    ASSERT_NE(parsed, nullptr);
+    EXPECT_EQ(parsed->get_type(), StatementType::SET);
+    EXPECT_EQ(parsed->key(), "name");
+    EXPECT_EQ(parsed->value(), 42);
 }
 
 TEST(ParserTest, TryParseSetRejectsWrongValueType) {
     std::vector<Token> tokens = {
         Token(TokenType::SET),
-        PrimToken<std::string>(TokenType::STRING, "name"),
-        PrimToken<std::string>(TokenType::STRING, "forty-two")
+        Token(TokenType::STRING, "name"),
+        Token(TokenType::STRING, "forty-two")
     };
 
-    auto parsed = Parser::try_parse_set<std::string, int>(tokens);
+    auto parsed = Parser::try_parse_set<int>(tokens);
 
-    EXPECT_FALSE(parsed.has_value());
+    EXPECT_EQ(parsed, nullptr);
 }
 
 TEST(ParserTest, TryParseDeleteAcceptsPrimitiveKey) {
     std::vector<Token> tokens = {
         Token(TokenType::DEL),
-        PrimToken<int>(TokenType::INT, 7)
+        Token(TokenType::INT, 7)
     };
 
-    auto parsed = Parser::try_parse_del<int>(tokens);
+    auto parsed = Parser::try_parse_del(tokens);
 
-    ASSERT_TRUE(parsed.has_value());
-    ASSERT_NE(parsed.value(), nullptr);
-    EXPECT_EQ(parsed.value()->get_type(), StatementType::DELETE);
-    EXPECT_EQ(parsed.value()->key(), 7);
+    ASSERT_NE(parsed, nullptr);
+    EXPECT_EQ(parsed->get_type(), StatementType::DELETE);
+    EXPECT_EQ(parsed->key(), "7");
 }
 
 TEST(ParserTest, TryParseExistsAcceptsPrimitiveKey) {
     std::vector<Token> tokens = {
         Token(TokenType::EXISTS),
-        PrimToken<char>(TokenType::CHAR, 'k')
+        Token(TokenType::CHAR, 'k')
     };
 
-    auto parsed = Parser::try_parse_exists<char>(tokens);
+    auto parsed = Parser::try_parse_exists(tokens);
 
-    ASSERT_TRUE(parsed.has_value());
-    ASSERT_NE(parsed.value(), nullptr);
-    EXPECT_EQ(parsed.value()->get_type(), StatementType::EXISTS);
-    EXPECT_EQ(parsed.value()->key(), 'k');
+    ASSERT_NE(parsed, nullptr);
+    EXPECT_EQ(parsed->get_type(), StatementType::EXISTS);
+    EXPECT_EQ(parsed->key(), "k");
 }
 
 TEST(ParserTest, TryParseExpireParsesKeyAndTtl) {
     std::vector<Token> tokens = {
         Token(TokenType::EXPIRE),
-        PrimToken<std::string>(TokenType::STRING, "session-key"),
-        PrimToken<int>(TokenType::INT, 30)
+        Token(TokenType::STRING, "session-key"),
+        Token(TokenType::INT, 30)
     };
 
-    auto parsed = Parser::try_parse_expire<std::string>(tokens);
+    auto parsed = Parser::try_parse_expire(tokens);
 
-    ASSERT_TRUE(parsed.has_value());
-    ASSERT_NE(parsed.value(), nullptr);
-    EXPECT_EQ(parsed.value()->get_type(), StatementType::EXPIRE);
-    EXPECT_EQ(parsed.value()->key(), "session-key");
-    EXPECT_EQ(parsed.value()->expire_time(), 30);
+    ASSERT_NE(parsed, nullptr);
+    EXPECT_EQ(parsed->get_type(), StatementType::EXPIRE);
+    EXPECT_EQ(parsed->key(), "session-key");
+    EXPECT_EQ(parsed->expire_time(), 30);
 }
 
 TEST(ParserTest, TryParseExpireRejectsNonIntegerTtl) {
     std::vector<Token> tokens = {
         Token(TokenType::EXPIRE),
-        PrimToken<std::string>(TokenType::STRING, "session-key"),
-        PrimToken<double>(TokenType::DOUBLE, 30.5)
+        Token(TokenType::STRING, "session-key"),
+        Token(TokenType::DOUBLE, 30.5)
     };
 
-    auto parsed = Parser::try_parse_expire<std::string>(tokens);
+    auto parsed = Parser::try_parse_expire(tokens);
 
-    EXPECT_FALSE(parsed.has_value());
+    EXPECT_EQ(parsed, nullptr);
 }
 
 TEST(ParserTest, ParseDispatchesSetStatements) {
     std::vector<Token> tokens = {
         Token(TokenType::SET),
-        PrimToken<std::string>(TokenType::STRING, "user"),
-        PrimToken<std::string>(TokenType::STRING, "mark")
+        Token(TokenType::STRING, "user"),
+        Token(TokenType::STRING, "mark")
     };
 
     auto parsed = Parser::parse(tokens);
 
-    ASSERT_TRUE(parsed.has_value());
-    ASSERT_NE(parsed.value(), nullptr);
-    EXPECT_EQ(parsed.value()->get_type(), StatementType::SET);
+    ASSERT_NE(parsed, nullptr);
+    EXPECT_EQ(parsed->get_type(), StatementType::SET);
 
-    auto* set_statement = dynamic_cast<SetStatement<std::string, std::string>*>(parsed.value().get());
+    auto* set_statement = dynamic_cast<SetStatement<std::string>*>(parsed.get());
     ASSERT_NE(set_statement, nullptr);
     EXPECT_EQ(set_statement->key(), "user");
     EXPECT_EQ(set_statement->value(), "mark");
@@ -151,10 +143,10 @@ TEST(ParserTest, ParseDispatchesSetStatements) {
 TEST(ParserTest, ParseRejectsMalformedCommands) {
     std::vector<Token> tokens = {
         Token(TokenType::EXPIRE),
-        PrimToken<std::string>(TokenType::STRING, "session-key")
+        Token(TokenType::STRING, "session-key")
     };
 
     auto parsed = Parser::parse(tokens);
 
-    EXPECT_FALSE(parsed.has_value());
+    EXPECT_EQ(parsed, nullptr);
 }

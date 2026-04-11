@@ -4,9 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -isystem /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include -isystem /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest
+CXX_INCLUDES = -I/Users/markseeliger/Desktop/Coding/redisimpl/Server -isystem /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest/include -isystem /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/_deps/googletest-src/googletest
 
-CXX_FLAGSarm64 = -std=gnu++20 -arch arm64
-
-CXX_FLAGS = -std=gnu++20 -arch arm64
+CXX_FLAGS = -std=gnu++20
 
