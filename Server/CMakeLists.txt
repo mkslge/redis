@@ -16,8 +16,9 @@ enable_testing()
 
 
 add_library(SERVER_CORE STATIC
-        Interpreter/Executor/Executor.cpp
-        Interpreter/Executor/StorageEngine.cpp
+        Interpreter/Runtime/CommandProcessor.cpp
+        Interpreter/Runtime/Executor.cpp
+        Interpreter/Runtime/StorageEngine.cpp
         Interpreter/Parsing/Parser.cpp
         Interpreter/Statements/Statement.cpp
         Interpreter/Tokens/Token.cpp
@@ -25,6 +26,9 @@ add_library(SERVER_CORE STATIC
         Utility/util.cpp
 )
 target_include_directories(SERVER_CORE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(redisserver main.cpp)
+target_link_libraries(redisserver PRIVATE SERVER_CORE)
 
 add_executable(testTokenizer Tests/testTokenizer.cpp)
 target_link_libraries(testTokenizer PRIVATE SERVER_CORE GTest::gtest_main)

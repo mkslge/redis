@@ -4,7 +4,7 @@
 
 #ifndef SETSTATEMENT_H
 #define SETSTATEMENT_H
-#include "Interpreter/Executor/Key.h"
+#include "Interpreter/Model/Key.h"
 #include "Interpreter/Statements/Statement.h"
 template <typename V>
 class SetStatement : public Statement{

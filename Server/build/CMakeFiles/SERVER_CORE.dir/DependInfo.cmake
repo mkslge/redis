@@ -8,10 +8,11 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Executor.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/Executor.cpp.o.d"
-  "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/StorageEngine.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Executor/StorageEngine.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o.d"
+  "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/CommandProcessor.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandProcessor.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandProcessor.cpp.o.d"
+  "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/Executor.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o.d"
+  "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/StorageEngine.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/StorageEngine.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/StorageEngine.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.cpp" "CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o.d"

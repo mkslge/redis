@@ -5,7 +5,7 @@
 #ifndef EXITSSTATEMENT_H
 #define EXITSSTATEMENT_H
 
-#include "Interpreter/Executor/Key.h"
+#include "Interpreter/Model/Key.h"
 #include "Interpreter/Statements/Statement.h"
 
 class ExistsStatement : public Statement {

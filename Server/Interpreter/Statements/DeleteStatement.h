@@ -4,7 +4,7 @@
 
 #ifndef DELETESTATEMENT_H
 #define DELETESTATEMENT_H
-#include "Interpreter/Executor/Key.h"
+#include "Interpreter/Model/Key.h"
 #include "Interpreter/Statements/Statement.h"
 #include "Interpreter/Statements/StatementType.h"
 

@@ -5,7 +5,7 @@
 #ifndef EXPIRESTATEMENT_H
 #define EXPIRESTATEMENT_H
 
-#include "Interpreter/Executor/Key.h"
+#include "Interpreter/Model/Key.h"
 #include "Interpreter/Statements/Statement.h"
 
 class ExpireStatement : public Statement {

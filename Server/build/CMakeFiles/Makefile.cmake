@@ -105,6 +105,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/SERVER_CORE.dir/DependInfo.cmake"
+  "CMakeFiles/redisserver.dir/DependInfo.cmake"
   "CMakeFiles/testTokenizer.dir/DependInfo.cmake"
   "CMakeFiles/testParser.dir/DependInfo.cmake"
   "CMakeFiles/testExecutor.dir/DependInfo.cmake"

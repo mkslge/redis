@@ -1,0 +1,22 @@
+name: CTest
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ctest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -S Server -B Server/build-ci
+
+      - name: Build tests
+        run: cmake --build Server/build-ci
+
+      - name: Run CTest
+        run: ctest --test-dir Server/build-ci --output-on-failure

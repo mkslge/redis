@@ -11,7 +11,7 @@
 #include "Interpreter/Statements/DeleteStatement.h"
 #include "Interpreter/Statements/ExistsStatement.h"
 #include "Interpreter/Statements/ExpireStatement.h"
-#include "Interpreter/Executor/Key.h"
+#include "Interpreter/Model/Key.h"
 #include "Interpreter/Tokens/Token.h"
 #include <limits>
 #include <memory>

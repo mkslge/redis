@@ -762,8 +762,10 @@ CMakeFiles/testExecutor.dir/Tests/testExecutor.cpp.o: /Users/markseeliger/Deskto
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdarg.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Executor.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Key.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Key.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Value.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/Executor.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/StorageEngine.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/DeleteStatement.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExistsStatement.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExpireStatement.h \
@@ -810,13 +812,15 @@ _deps/googletest-src/googletest/include/gtest/gtest-printers.h:
 
 _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/StatementType.h:
-
 /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.h:
 
 /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/GetStatement.h:
 
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Executor.h:
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/StatementType.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/StorageEngine.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/Executor.h:
 
 /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/__stddef_max_align_t.h:
 
@@ -827,8 +831,6 @@ _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/wctype.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/wchar.h:
-
-/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Executor/Key.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h:
 
@@ -905,6 +907,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-message.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fd_setsize.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_dev_t.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Key.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_blksize_t.h:
 
@@ -2055,6 +2059,8 @@ _deps/googletest-src/googletest/include/gtest/gtest-death-test.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/prev_permutation.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_move_backward.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Value.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/in_in_result.h:
 
