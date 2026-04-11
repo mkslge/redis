@@ -17,6 +17,7 @@
 #include <memory>
 #include <optional>
 #include <sstream>
+#include <vector>
 
 
 class Parser {
