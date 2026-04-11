@@ -356,30 +356,6 @@ Interpreter/Parsing/Tokenizer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s
 .PHONY : Interpreter/Parsing/Tokenizer.cpp.s
 
-Interpreter/Runtime/CommandProcessor.o: Interpreter/Runtime/CommandProcessor.cpp.o
-.PHONY : Interpreter/Runtime/CommandProcessor.o
-
-# target to build an object file
-Interpreter/Runtime/CommandProcessor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandProcessor.cpp.o
-.PHONY : Interpreter/Runtime/CommandProcessor.cpp.o
-
-Interpreter/Runtime/CommandProcessor.i: Interpreter/Runtime/CommandProcessor.cpp.i
-.PHONY : Interpreter/Runtime/CommandProcessor.i
-
-# target to preprocess a source file
-Interpreter/Runtime/CommandProcessor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandProcessor.cpp.i
-.PHONY : Interpreter/Runtime/CommandProcessor.cpp.i
-
-Interpreter/Runtime/CommandProcessor.s: Interpreter/Runtime/CommandProcessor.cpp.s
-.PHONY : Interpreter/Runtime/CommandProcessor.s
-
-# target to generate assembly for a file
-Interpreter/Runtime/CommandProcessor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandProcessor.cpp.s
-.PHONY : Interpreter/Runtime/CommandProcessor.cpp.s
-
 Interpreter/Runtime/Executor.o: Interpreter/Runtime/Executor.cpp.o
 .PHONY : Interpreter/Runtime/Executor.o
 
@@ -650,9 +626,6 @@ help:
 	@echo "... Interpreter/Parsing/Tokenizer.o"
 	@echo "... Interpreter/Parsing/Tokenizer.i"
 	@echo "... Interpreter/Parsing/Tokenizer.s"
-	@echo "... Interpreter/Runtime/CommandProcessor.o"
-	@echo "... Interpreter/Runtime/CommandProcessor.i"
-	@echo "... Interpreter/Runtime/CommandProcessor.s"
 	@echo "... Interpreter/Runtime/Executor.o"
 	@echo "... Interpreter/Runtime/Executor.i"
 	@echo "... Interpreter/Runtime/Executor.s"

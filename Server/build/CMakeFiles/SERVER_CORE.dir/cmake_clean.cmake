@@ -3,8 +3,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o.d"
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o"
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o.d"
-  "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandProcessor.cpp.o"
-  "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandProcessor.cpp.o.d"
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o"
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o.d"
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/StorageEngine.cpp.o"

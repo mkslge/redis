@@ -16,18 +16,19 @@ class Executor {
 public:
     explicit Executor(StorageEngine& storage);
 
-    void execute_get(const GetStatement& statement);
+    bool execute(Statement& statement);
 
+private:
     template <typename V>
     void execute_set(const SetStatement<V>& statement);
 
+    template <typename V>
+    bool try_execute_set(Statement* statement);
+
+    void execute_get(const GetStatement& statement);
     void execute_delete(const DeleteStatement& statement);
-
     void execute_exists(const ExistsStatement& statement);
-
     void execute_expire(const ExpireStatement& statement);
-
-private:
     StorageEngine& storage_;
 };
 

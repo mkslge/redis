@@ -16,7 +16,6 @@ enable_testing()
 
 
 add_library(SERVER_CORE STATIC
-        Interpreter/Runtime/CommandProcessor.cpp
         Interpreter/Runtime/Executor.cpp
         Interpreter/Runtime/StorageEngine.cpp
         Interpreter/Parsing/Parser.cpp

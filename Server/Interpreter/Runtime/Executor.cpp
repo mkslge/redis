@@ -50,6 +50,41 @@ void Executor::execute_set(const SetStatement<V>& statement) {
     std::cout << std::endl;
 }
 
+template <typename V>
+bool Executor::try_execute_set(Statement* statement) {
+    auto* set_statement = dynamic_cast<SetStatement<V>*>(statement);
+    if (set_statement == nullptr) {
+        return false;
+    }
+
+    execute_set(*set_statement);
+    return true;
+}
+
+bool Executor::execute(Statement& statement) {
+    switch (statement.get_type()) {
+        case StatementType::GET:
+            execute_get(*dynamic_cast<GetStatement*>(&statement));
+            return true;
+        case StatementType::SET:
+            return try_execute_set<int>(&statement) ||
+                   try_execute_set<double>(&statement) ||
+                   try_execute_set<char>(&statement) ||
+                   try_execute_set<std::string>(&statement);
+        case StatementType::DELETE:
+            execute_delete(*dynamic_cast<DeleteStatement*>(&statement));
+            return true;
+        case StatementType::EXISTS:
+            execute_exists(*dynamic_cast<ExistsStatement*>(&statement));
+            return true;
+        case StatementType::EXPIRE:
+            execute_expire(*dynamic_cast<ExpireStatement*>(&statement));
+            return true;
+        default:
+            return false;
+    }
+}
+
 void Executor::execute_delete(const DeleteStatement& statement) {
     const bool deleted = storage_.del(statement.key());
     std::cout << "DELETE";
@@ -79,3 +114,7 @@ template void Executor::execute_set<int>(const SetStatement<int>&);
 template void Executor::execute_set<double>(const SetStatement<double>&);
 template void Executor::execute_set<char>(const SetStatement<char>&);
 template void Executor::execute_set<std::string>(const SetStatement<std::string>&);
+template bool Executor::try_execute_set<int>(Statement*);
+template bool Executor::try_execute_set<double>(Statement*);
+template bool Executor::try_execute_set<char>(Statement*);
+template bool Executor::try_execute_set<std::string>(Statement*);
