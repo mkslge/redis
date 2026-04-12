@@ -1,6 +1,6 @@
 #include "TCP/Server.h"
 
-#include "TCP/ResponseFormatter.h"
+#include "Protocol/ResponseFormatter.h"
 
 #include <cstring>
 #include <iostream>

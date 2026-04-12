@@ -1,8 +1,8 @@
-#include "Interpreter/Runtime/CommandProcessor.h"
-#include "Interpreter/Runtime/Executor.h"
-#include "Interpreter/Runtime/StorageEngine.h"
-#include "Log/AOFLogger.h"
-#include "Log/LogRunner.h"
+#include "App/CommandProcessor.h"
+#include "Persistence/AOFLogger.h"
+#include "Persistence/LogRunner.h"
+#include "Runtime/Executor.h"
+#include "Runtime/StorageEngine.h"
 #include "TCP/Server.h"
 
 #include <gtest/gtest.h>

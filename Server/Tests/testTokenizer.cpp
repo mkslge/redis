@@ -7,9 +7,9 @@
 #include <string>
 #include <vector>
 
-#include "Interpreter/Tokens/Token.h"
-#include "Interpreter/Tokens/TokenType.h"
-#include "Interpreter/Parsing/Tokenizer.h"
+#include "Parsing/Token.h"
+#include "Parsing/TokenType.h"
+#include "Parsing/Tokenizer.h"
 
 // ---------- Helpers ----------
 static std::vector<Token> unwrap(const std::optional<std::vector<Token>>& opt) {

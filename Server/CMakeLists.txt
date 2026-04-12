@@ -16,16 +16,16 @@ enable_testing()
 
 
 add_library(SERVER_CORE STATIC
-        Interpreter/Runtime/CommandProcessor.cpp
-        Interpreter/Runtime/Executor.cpp
-        Interpreter/Runtime/StorageEngine.cpp
-        Interpreter/Parsing/Parser.cpp
-        Interpreter/Statements/Statement.cpp
-        Interpreter/Tokens/Token.cpp
-        Interpreter/Parsing/Tokenizer.cpp
-        Log/AOFLogger.cpp
-        Log/LogRunner.cpp
-        TCP/ResponseFormatter.cpp
+        App/CommandProcessor.cpp
+        Runtime/Executor.cpp
+        Runtime/StorageEngine.cpp
+        Parsing/Parser.cpp
+        Commands/Statement.cpp
+        Parsing/Token.cpp
+        Parsing/Tokenizer.cpp
+        Persistence/AOFLogger.cpp
+        Persistence/LogRunner.cpp
+        Protocol/ResponseFormatter.cpp
         TCP/Server.cpp
         Utility/util.cpp
 )

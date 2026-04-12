@@ -1,4 +1,4 @@
-#include "Interpreter/Runtime/StorageEngine.h"
+#include "Runtime/StorageEngine.h"
 
 #include "gtest/gtest.h"
 
