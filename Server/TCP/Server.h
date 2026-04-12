@@ -1,10 +1,11 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Interpreter/Runtime/CommandHandler.h"
+#include "Interpreter/Runtime/CommandProcessor.h"
 #include "Log/AOFLogger.h"
 
 #include <arpa/inet.h>
+#include <atomic>
 #include <cstdint>
 #include <string>
 #include <sys/socket.h>
@@ -18,7 +19,8 @@ private:
     int socket_fd_{-1};
     sockaddr_in serveraddr_{};
     AOFLogger& logger_;
-    CommandHandler& command_handler_;
+    CommandProcessor& command_processor_;
+    std::atomic<bool> stopping_{false};
 
     void bind_and_listen();
     static bool send_response(int client_fd, const std::string& response);
@@ -27,13 +29,15 @@ private:
 public:
     static constexpr std::uint16_t kDefaultPort = 6380;
 
-    explicit Server(AOFLogger& logger, CommandHandler& command_handler, std::uint16_t port = kDefaultPort);
+    explicit Server(AOFLogger& logger, CommandProcessor& command_processor, std::uint16_t port = kDefaultPort);
     ~Server();
 
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
 
     void run();
+    void stop();
+    std::uint16_t port() const;
 };
 
 #endif //SERVER_H

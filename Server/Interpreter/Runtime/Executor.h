@@ -23,9 +23,6 @@ private:
     template <typename V>
     ExecutionResult execute_set(const SetStatement<V>& statement);
 
-    template <typename V>
-    ExecutionResult try_execute_set(Statement* statement);
-
     ExecutionResult execute_get(const GetStatement& statement);
     ExecutionResult execute_delete(const DeleteStatement& statement);
     ExecutionResult execute_exists(const ExistsStatement& statement);

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Interpreter/Runtime/CommandHandler.h"
+#include "Interpreter/Runtime/CommandProcessor.h"
 #include "Interpreter/Runtime/Executor.h"
 #include "Interpreter/Runtime/StorageEngine.h"
 #include "Log/AOFLogger.h"
@@ -14,11 +14,11 @@ int main() {
 
         StorageEngine storage;
         Executor executor(storage);
-        CommandHandler command_handler(executor);
+        CommandProcessor command_processor(executor);
         AOFLogger logger(aof_path);
         LogRunner log_runner(aof_path);
-        log_runner.run_log(command_handler);
-        Server server(logger, command_handler, kServerPort);
+        log_runner.run_log(command_processor);
+        Server server(logger, command_processor, kServerPort);
         server.run();
     } catch (const std::exception& error) {
         std::cerr << error.what() << std::endl;

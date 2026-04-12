@@ -10,10 +10,8 @@ class AOFLogger {
 public:
     explicit AOFLogger(const std::string& file_path = std::string(LogConfig::kDefaultAofPath));
     void enqueue(const std::string& log_entry);
-    const std::string& file_path() const;
 
 private:
-    std::string file_path_;
     std::ofstream stream_;
 };
 

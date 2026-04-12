@@ -35,20 +35,6 @@ ExecutionResult Executor::execute_set(const SetStatement<V>& statement) {
     };
 }
 
-template <typename V>
-ExecutionResult Executor::try_execute_set(Statement* statement) {
-    auto* set_statement = dynamic_cast<SetStatement<V>*>(statement);
-    if (set_statement == nullptr) {
-        return ExecutionResult{
-            .success = false,
-            .message = "Unsupported SET value type",
-            .payload = std::monostate{}
-        };
-    }
-
-    return execute_set(*set_statement);
-}
-
 ExecutionResult Executor::execute(Statement& statement) {
     switch (statement.get_type()) {
         case StatementType::GET:
@@ -117,7 +103,3 @@ template ExecutionResult Executor::execute_set<int>(const SetStatement<int>&);
 template ExecutionResult Executor::execute_set<double>(const SetStatement<double>&);
 template ExecutionResult Executor::execute_set<char>(const SetStatement<char>&);
 template ExecutionResult Executor::execute_set<std::string>(const SetStatement<std::string>&);
-template ExecutionResult Executor::try_execute_set<int>(Statement*);
-template ExecutionResult Executor::try_execute_set<double>(Statement*);
-template ExecutionResult Executor::try_execute_set<char>(Statement*);
-template ExecutionResult Executor::try_execute_set<std::string>(Statement*);

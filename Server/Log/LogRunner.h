@@ -1,7 +1,7 @@
 #ifndef LOGRUNNER_H
 #define LOGRUNNER_H
 
-#include "Interpreter/Runtime/CommandHandler.h"
+#include "Interpreter/Runtime/CommandProcessor.h"
 #include "Log/LogConfig.h"
 
 #include <string>
@@ -9,9 +9,7 @@
 class LogRunner {
 public:
     explicit LogRunner(const std::string& file_path = std::string(LogConfig::kDefaultAofPath));
-
-    const std::string& file_path() const;
-    void run_log(CommandHandler& command_handler) const;
+    void run_log(CommandProcessor& command_processor) const;
 
 private:
     std::string file_path_;

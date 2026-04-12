@@ -16,7 +16,7 @@ enable_testing()
 
 
 add_library(SERVER_CORE STATIC
-        Interpreter/Runtime/CommandHandler.cpp
+        Interpreter/Runtime/CommandProcessor.cpp
         Interpreter/Runtime/Executor.cpp
         Interpreter/Runtime/StorageEngine.cpp
         Interpreter/Parsing/Parser.cpp
@@ -46,9 +46,17 @@ target_link_libraries(testExecutor PRIVATE SERVER_CORE GTest::gtest_main)
 add_executable(testStorageEngine Tests/testStorageEngine.cpp)
 target_link_libraries(testStorageEngine PRIVATE SERVER_CORE GTest::gtest_main)
 
+add_executable(testLogging Tests/testLogging.cpp)
+target_link_libraries(testLogging PRIVATE SERVER_CORE GTest::gtest_main)
+
+add_executable(testServerIntegration Tests/testServerIntegration.cpp)
+target_link_libraries(testServerIntegration PRIVATE SERVER_CORE GTest::gtest_main)
+
 
 include(GoogleTest)
 gtest_discover_tests(testTokenizer)
 gtest_discover_tests(testParser)
 gtest_discover_tests(testExecutor)
 gtest_discover_tests(testStorageEngine)
+gtest_discover_tests(testLogging)
+gtest_discover_tests(testServerIntegration)

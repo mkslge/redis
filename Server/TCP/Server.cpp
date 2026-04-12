@@ -6,8 +6,8 @@
 #include <iostream>
 #include <stdexcept>
 
-Server::Server(AOFLogger& logger, CommandHandler& command_handler, const std::uint16_t port)
-    : port_(port), logger_(logger), command_handler_(command_handler) {
+Server::Server(AOFLogger& logger, CommandProcessor& command_processor, const std::uint16_t port)
+    : port_(port), logger_(logger), command_processor_(command_processor) {
     socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd_ == -1) {
         throw std::runtime_error("Error creating server socket");
@@ -41,6 +41,15 @@ void Server::bind_and_listen() {
         throw std::runtime_error("Error binding to port");
     }
 
+    sockaddr_in bound_address{};
+    socklen_t bound_length = sizeof(bound_address);
+    if (getsockname(socket_fd_, reinterpret_cast<sockaddr*>(&bound_address), &bound_length) != 0) {
+        close(socket_fd_);
+        socket_fd_ = -1;
+        throw std::runtime_error("Error getting bound port");
+    }
+    port_ = ntohs(bound_address.sin_port);
+
     if (listen(socket_fd_, 5) != 0) {
         close(socket_fd_);
         socket_fd_ = -1;
@@ -51,11 +60,14 @@ void Server::bind_and_listen() {
 void Server::run() {
     std::cout << "redisserver listening on port " << port_ << std::endl;
 
-    while (true) {
+    while (!stopping_) {
         sockaddr_in client_address{};
         socklen_t client_length = sizeof(client_address);
         const int client_fd = accept(socket_fd_, reinterpret_cast<sockaddr*>(&client_address), &client_length);
         if (client_fd < 0) {
+            if (stopping_) {
+                break;
+            }
             std::cerr << "Failed to accept client" << std::endl;
             continue;
         }
@@ -111,20 +123,33 @@ void Server::handle_client(const int client_fd) const {
             }
 
             if (!command.empty()) {
-                const CommandResponse result = command_handler_.process_command(command);
-                const std::string response = result.success
-                    ? ResponseFormatter::format_result(result.statement_type, result.execution_result)
-                    : ResponseFormatter::format_error(result.error_message);
+                const CommandProcessResult result = command_processor_.process(command);
+                const std::string response = result.is_success()
+                    ? ResponseFormatter::format_result(result.processed_command().statement_type,
+                                                       result.processed_command().execution_result)
+                    : ResponseFormatter::format_error(result.error_message());
 
                 if (!send_response(client_fd, response)) {
                     return;
                 }
-                if (result.should_log) {
-                    logger_.enqueue(result.log_entry);
+                if (result.is_success() && result.processed_command().should_log) {
+                    logger_.enqueue(result.processed_command().log_entry);
                 }
             }
 
             newline_position = pending_input.find('\n');
         }
     }
+}
+
+void Server::stop() {
+    stopping_ = true;
+    if (socket_fd_ >= 0) {
+        close(socket_fd_);
+        socket_fd_ = -1;
+    }
+}
+
+std::uint16_t Server::port() const {
+    return port_;
 }

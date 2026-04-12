@@ -6,11 +6,7 @@
 
 LogRunner::LogRunner(const std::string& file_path) : file_path_(file_path) {}
 
-const std::string& LogRunner::file_path() const {
-    return file_path_;
-}
-
-void LogRunner::run_log(CommandHandler& command_handler) const {
+void LogRunner::run_log(CommandProcessor& command_processor) const {
     std::ifstream stream(file_path_);
     if (!stream.is_open()) {
         throw std::runtime_error("Failed to open append-only log for replay");
@@ -30,17 +26,17 @@ void LogRunner::run_log(CommandHandler& command_handler) const {
             continue;
         }
 
-        const CommandResponse result = command_handler.process_command(command_line);
-        if (!result.success) {
+        const CommandProcessResult result = command_processor.process(command_line);
+        if (!result.is_success()) {
             std::ostringstream message;
-            message << "Failed to replay log line " << line_number << ": " << result.error_message;
+            message << "Failed to replay log line " << line_number << ": " << result.error_message();
             throw std::runtime_error(message.str());
         }
 
-        if (!result.execution_result.success) {
+        if (!result.processed_command().execution_result.success) {
             std::ostringstream message;
             message << "Log command failed on line " << line_number << ": "
-                    << result.execution_result.message;
+                    << result.processed_command().execution_result.message;
             throw std::runtime_error(message.str());
         }
     }
