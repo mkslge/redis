@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 AOFLogger::AOFLogger(const std::string& file_path)
-    : stream_(file_path, std::ios::out | std::ios::app) {
+    : stream_(file_path, std::ios::out | std::ios::app), file_path_(file_path) {
     if (!stream_.is_open()) {
         throw std::runtime_error("Failed to open append-only log");
     }
@@ -19,4 +19,8 @@ void AOFLogger::enqueue(const std::string& log_entry) {
         stream_ << '\n';
     }
     stream_.flush();
+}
+
+const std::string& AOFLogger::file_path() const {
+    return file_path_;
 }

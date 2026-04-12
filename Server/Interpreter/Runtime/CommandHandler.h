@@ -2,12 +2,16 @@
 #define COMMANDHANDLER_H
 
 #include "Interpreter/Runtime/Executor.h"
+#include "Interpreter/Statements/StatementType.h"
 
 #include <string>
 
 class CommandResponse {
 public:
-    std::string response;
+    bool success{true};
+    std::string error_message;
+    StatementType statement_type;
+    ExecutionResult execution_result;
     bool should_log{false};
     std::string log_entry;
 };
@@ -17,9 +21,6 @@ public:
     explicit CommandHandler(Executor& executor);
 
     CommandResponse process_command(const std::string& command_line) const;
-
-private:
-    static std::string format_result(const Statement& statement, const ExecutionResult& result);
 
     Executor& executor_;
 };

@@ -1,8 +1,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Log/AOFLogger.h"
 #include "Interpreter/Runtime/CommandHandler.h"
+#include "Log/AOFLogger.h"
 
 #include <arpa/inet.h>
 #include <cstdint>

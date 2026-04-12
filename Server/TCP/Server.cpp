@@ -1,5 +1,7 @@
 #include "TCP/Server.h"
 
+#include "TCP/ResponseFormatter.h"
+
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
@@ -110,7 +112,11 @@ void Server::handle_client(const int client_fd) const {
 
             if (!command.empty()) {
                 const CommandResponse result = command_handler_.process_command(command);
-                if (!send_response(client_fd, result.response)) {
+                const std::string response = result.success
+                    ? ResponseFormatter::format_result(result.statement_type, result.execution_result)
+                    : ResponseFormatter::format_error(result.error_message);
+
+                if (!send_response(client_fd, response)) {
                     return;
                 }
                 if (result.should_log) {

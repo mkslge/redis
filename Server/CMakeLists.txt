@@ -24,6 +24,8 @@ add_library(SERVER_CORE STATIC
         Interpreter/Tokens/Token.cpp
         Interpreter/Parsing/Tokenizer.cpp
         Log/AOFLogger.cpp
+        Log/LogRunner.cpp
+        TCP/ResponseFormatter.cpp
         TCP/Server.cpp
         Utility/util.cpp
 )
