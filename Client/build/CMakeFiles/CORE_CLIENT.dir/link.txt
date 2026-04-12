@@ -1,2 +1,0 @@
-/usr/bin/ar qc libCORE_CLIENT.a CMakeFiles/CORE_CLIENT.dir/Networking/Client.cpp.o
-/usr/bin/ranlib libCORE_CLIENT.a
