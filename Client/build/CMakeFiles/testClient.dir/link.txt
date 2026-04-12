@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/testClient.dir/Tests/testClient.cpp.o -o testClient  libCORE_CLIENT.a lib/libgtest_main.a lib/libgtest.a
