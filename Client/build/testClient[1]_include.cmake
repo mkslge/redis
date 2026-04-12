@@ -1,5 +1,0 @@
-if(EXISTS "/Users/markseeliger/Desktop/Coding/redisimpl/Client/build/testClient[1]_tests.cmake")
-  include("/Users/markseeliger/Desktop/Coding/redisimpl/Client/build/testClient[1]_tests.cmake")
-else()
-  add_test(testClient_NOT_BUILT testClient_NOT_BUILT)
-endif()
