@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/testTokenizer.dir/Tests/testTokenizer.cpp.o -o testTokenizer  libSERVER_CORE.a lib/libgtest_main.a lib/libgtest.a

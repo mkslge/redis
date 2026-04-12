@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/testParser.dir/Tests/testParser.cpp.o -o testParser  libSERVER_CORE.a lib/libgtest_main.a lib/libgtest.a

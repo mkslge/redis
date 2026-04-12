@@ -1,5 +1,0 @@
-if(EXISTS "/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testStorageEngine[1]_tests.cmake")
-  include("/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/testStorageEngine[1]_tests.cmake")
-else()
-  add_test(testStorageEngine_NOT_BUILT testStorageEngine_NOT_BUILT)
-endif()
