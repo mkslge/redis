@@ -1,48 +1,37 @@
-
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include <iostream>
-#include <string>
 #include <cstring>
-#include <sys/socket.h>
 #include <arpa/inet.h>
+#include <cstdint>
+#include <string>
+#include <sys/socket.h>
 #include <unistd.h>
 
 class Client {
-    private:
-        int socket_fd{};
-        sockaddr_in server;
-        char buffer[1024];
-    public:
-    explicit Client(const std::string& server_ip) {
-        socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-        if(socket_fd == -1) {
-            throw "Could not create socket";
-        }
+private:
+    static constexpr std::size_t kBufferSize = 1024;
 
-        server.sin_addr.s_addr = inet_addr(server_ip.c_str());
-        server.sin_family = AF_INET;
-        server.sin_port = htons(8080); //need to change this wont be true
+    int socket_fd{-1};
+    sockaddr_in server{};
+    char buffer[kBufferSize]{};
+    std::string pending_response_;
 
-        if(connect(socket_fd, (struct sockaddr*)&server, sizeof(server)) < 0) {
-            throw "Could not connect to server";
-        }
+public:
+    static constexpr std::uint16_t kDefaultPort = 6380;
 
-        std::cout << "Connected to server..." << std::endl;
-    }
+    explicit Client(const std::string& server_ip, std::uint16_t port = kDefaultPort);
+    ~Client();
 
-    void send_command(const std::string& command) {
-        
-        send(socket_fd, command.c_str(), command.size(), 0);
-    }
+    Client(const Client&) = delete;
+    Client& operator=(const Client&) = delete;
 
-    std::string get_response() {
-        recv(socket_fd, buffer, 1024, 0);
-        return std::string(buffer);
-    }
+    static sockaddr_in build_server_address(const std::string& server_ip, std::uint16_t port);
+    static std::string response_from_buffer(const char* response_buffer, std::size_t bytes_read);
 
+    void send_command(const std::string& command);
+    std::string get_response();
 };
 
 
-#endif CLIENT_H
+#endif //CLIENT_H
