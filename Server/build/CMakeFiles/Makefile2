@@ -169,12 +169,12 @@ _deps/googletest-build/googletest/clean: _deps/googletest-build/googletest/CMake
 CMakeFiles/SERVER_CORE.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target SERVER_CORE"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Built target SERVER_CORE"
 .PHONY : CMakeFiles/SERVER_CORE.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/SERVER_CORE.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 8
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/SERVER_CORE.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 0
 .PHONY : CMakeFiles/SERVER_CORE.dir/rule
@@ -186,7 +186,7 @@ SERVER_CORE: CMakeFiles/SERVER_CORE.dir/rule
 # codegen rule for target.
 CMakeFiles/SERVER_CORE.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Finished codegen for target SERVER_CORE"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Finished codegen for target SERVER_CORE"
 .PHONY : CMakeFiles/SERVER_CORE.dir/codegen
 
 # clean rule for target.
@@ -201,12 +201,12 @@ CMakeFiles/SERVER_CORE.dir/clean:
 CMakeFiles/redisserver.dir/all: CMakeFiles/SERVER_CORE.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/redisserver.dir/build.make CMakeFiles/redisserver.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/redisserver.dir/build.make CMakeFiles/redisserver.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=17,18 "Built target redisserver"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=19,20 "Built target redisserver"
 .PHONY : CMakeFiles/redisserver.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/redisserver.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 10
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 12
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/redisserver.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 0
 .PHONY : CMakeFiles/redisserver.dir/rule
@@ -218,7 +218,7 @@ redisserver: CMakeFiles/redisserver.dir/rule
 # codegen rule for target.
 CMakeFiles/redisserver.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/redisserver.dir/build.make CMakeFiles/redisserver.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=17,18 "Finished codegen for target redisserver"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=19,20 "Finished codegen for target redisserver"
 .PHONY : CMakeFiles/redisserver.dir/codegen
 
 # clean rule for target.
@@ -235,12 +235,12 @@ CMakeFiles/testTokenizer.dir/all: _deps/googletest-build/googletest/CMakeFiles/g
 CMakeFiles/testTokenizer.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testTokenizer.dir/build.make CMakeFiles/testTokenizer.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testTokenizer.dir/build.make CMakeFiles/testTokenizer.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=25,26 "Built target testTokenizer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=27,28 "Built target testTokenizer"
 .PHONY : CMakeFiles/testTokenizer.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/testTokenizer.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 14
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 16
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/testTokenizer.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 0
 .PHONY : CMakeFiles/testTokenizer.dir/rule
@@ -252,7 +252,7 @@ testTokenizer: CMakeFiles/testTokenizer.dir/rule
 # codegen rule for target.
 CMakeFiles/testTokenizer.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testTokenizer.dir/build.make CMakeFiles/testTokenizer.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=25,26 "Finished codegen for target testTokenizer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=27,28 "Finished codegen for target testTokenizer"
 .PHONY : CMakeFiles/testTokenizer.dir/codegen
 
 # clean rule for target.
@@ -269,12 +269,12 @@ CMakeFiles/testParser.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtes
 CMakeFiles/testParser.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testParser.dir/build.make CMakeFiles/testParser.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testParser.dir/build.make CMakeFiles/testParser.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=21,22 "Built target testParser"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=23,24 "Built target testParser"
 .PHONY : CMakeFiles/testParser.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/testParser.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 14
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 16
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/testParser.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 0
 .PHONY : CMakeFiles/testParser.dir/rule
@@ -286,7 +286,7 @@ testParser: CMakeFiles/testParser.dir/rule
 # codegen rule for target.
 CMakeFiles/testParser.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testParser.dir/build.make CMakeFiles/testParser.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=21,22 "Finished codegen for target testParser"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=23,24 "Finished codegen for target testParser"
 .PHONY : CMakeFiles/testParser.dir/codegen
 
 # clean rule for target.
@@ -303,12 +303,12 @@ CMakeFiles/testExecutor.dir/all: _deps/googletest-build/googletest/CMakeFiles/gt
 CMakeFiles/testExecutor.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testExecutor.dir/build.make CMakeFiles/testExecutor.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testExecutor.dir/build.make CMakeFiles/testExecutor.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=19,20 "Built target testExecutor"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=21,22 "Built target testExecutor"
 .PHONY : CMakeFiles/testExecutor.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/testExecutor.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 14
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 16
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/testExecutor.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 0
 .PHONY : CMakeFiles/testExecutor.dir/rule
@@ -320,7 +320,7 @@ testExecutor: CMakeFiles/testExecutor.dir/rule
 # codegen rule for target.
 CMakeFiles/testExecutor.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testExecutor.dir/build.make CMakeFiles/testExecutor.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=19,20 "Finished codegen for target testExecutor"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=21,22 "Finished codegen for target testExecutor"
 .PHONY : CMakeFiles/testExecutor.dir/codegen
 
 # clean rule for target.
@@ -337,12 +337,12 @@ CMakeFiles/testStorageEngine.dir/all: _deps/googletest-build/googletest/CMakeFil
 CMakeFiles/testStorageEngine.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testStorageEngine.dir/build.make CMakeFiles/testStorageEngine.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testStorageEngine.dir/build.make CMakeFiles/testStorageEngine.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=23,24 "Built target testStorageEngine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=25,26 "Built target testStorageEngine"
 .PHONY : CMakeFiles/testStorageEngine.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/testStorageEngine.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 14
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 16
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/testStorageEngine.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles 0
 .PHONY : CMakeFiles/testStorageEngine.dir/rule
@@ -354,7 +354,7 @@ testStorageEngine: CMakeFiles/testStorageEngine.dir/rule
 # codegen rule for target.
 CMakeFiles/testStorageEngine.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testStorageEngine.dir/build.make CMakeFiles/testStorageEngine.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=23,24 "Finished codegen for target testStorageEngine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=25,26 "Finished codegen for target testStorageEngine"
 .PHONY : CMakeFiles/testStorageEngine.dir/codegen
 
 # clean rule for target.
@@ -369,7 +369,7 @@ CMakeFiles/testStorageEngine.dir/clean:
 _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=9,10 "Built target gmock"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=11,12 "Built target gmock"
 .PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all
 
 # Build rule for subdir invocation for target.
@@ -386,7 +386,7 @@ gmock: _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/rule
 # codegen rule for target.
 _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=9,10 "Finished codegen for target gmock"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=11,12 "Finished codegen for target gmock"
 .PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/codegen
 
 # clean rule for target.
@@ -402,7 +402,7 @@ _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletes
 _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=11,12 "Built target gmock_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=13,14 "Built target gmock_main"
 .PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all
 
 # Build rule for subdir invocation for target.
@@ -419,7 +419,7 @@ gmock_main: _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/rule
 # codegen rule for target.
 _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=11,12 "Finished codegen for target gmock_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=13,14 "Finished codegen for target gmock_main"
 .PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/codegen
 
 # clean rule for target.
@@ -434,7 +434,7 @@ _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/clean:
 _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=13,14 "Built target gtest"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=15,16 "Built target gtest"
 .PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 
 # Build rule for subdir invocation for target.
@@ -451,7 +451,7 @@ gtest: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/rule
 # codegen rule for target.
 _deps/googletest-build/googletest/CMakeFiles/gtest.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=13,14 "Finished codegen for target gtest"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=15,16 "Finished codegen for target gtest"
 .PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest.dir/codegen
 
 # clean rule for target.
@@ -466,7 +466,7 @@ _deps/googletest-build/googletest/CMakeFiles/gtest.dir/clean:
 _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=15,16 "Built target gtest_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=17,18 "Built target gtest_main"
 .PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
 
 # Build rule for subdir invocation for target.
@@ -483,7 +483,7 @@ gtest_main: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/rule
 # codegen rule for target.
 _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=15,16 "Finished codegen for target gtest_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=17,18 "Finished codegen for target gtest_main"
 .PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/codegen
 
 # clean rule for target.

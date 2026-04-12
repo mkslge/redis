@@ -10,14 +10,9 @@
 #include "Interpreter/Parsing/Parser.h"
 #include "Interpreter/Parsing/Tokenizer.h"
 #include "Interpreter/Runtime/Executor.h"
+#include "Interpreter/Runtime/ExecutionResult.h"
 
 namespace {
-template <typename Fn>
-std::string capture_stdout(Fn&& fn) {
-    testing::internal::CaptureStdout();
-    fn();
-    return testing::internal::GetCapturedStdout();
-}
 
 std::unique_ptr<Statement> parse_statement(const std::string& command) {
     auto tokens = Tokenizer::tokenize(command);
@@ -30,21 +25,21 @@ std::unique_ptr<Statement> parse_statement(const std::string& command) {
 }
 } // namespace
 
-TEST(ExecutorTest, ExecuteGetPrintsQuotedStringKey) {
+TEST(ExecutorTest, ExecuteGetReturnsEmptyPayloadForMissingKey) {
     StorageEngine storage;
     Executor executor(storage);
     auto statement = parse_statement("GET \"user\"");
 
     ASSERT_NE(statement, nullptr);
 
-    auto output = capture_stdout([&]() {
-        executor.execute(*statement);
-    });
+    const ExecutionResult result = executor.execute(*statement);
 
-    EXPECT_EQ(output, "GET key=\"user\"\n");
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.message, "GET");
+    EXPECT_TRUE(std::holds_alternative<std::monostate>(result.payload));
 }
 
-TEST(ExecutorTest, ProcessCommandPrintsGetValueForExistingKey) {
+TEST(ExecutorTest, ExecuteGetReturnsStoredValueForExistingKey) {
     StorageEngine storage;
     storage.set("42", Value("meaning"));
     Executor executor(storage);
@@ -52,11 +47,12 @@ TEST(ExecutorTest, ProcessCommandPrintsGetValueForExistingKey) {
 
     ASSERT_NE(statement, nullptr);
 
-    auto output = capture_stdout([&]() {
-        executor.execute(*statement);
-    });
+    const ExecutionResult result = executor.execute(*statement);
 
-    EXPECT_EQ(output, "GET key=\"42\" value=\"meaning\"\n");
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.message, "GET");
+    ASSERT_TRUE(std::holds_alternative<Value>(result.payload));
+    EXPECT_EQ(std::get<Value>(result.payload).get<std::string>(), "meaning");
 }
 
 TEST(ExecutorTest, ExecuteSetStoresTypedValue) {
@@ -66,11 +62,12 @@ TEST(ExecutorTest, ExecuteSetStoresTypedValue) {
 
     ASSERT_NE(statement, nullptr);
 
-    auto output = capture_stdout([&]() {
-        executor.execute(*statement);
-    });
+    const ExecutionResult result = executor.execute(*statement);
 
-    EXPECT_EQ(output, "SET key=\"count\" value=7\n");
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.message, "SET");
+    ASSERT_TRUE(std::holds_alternative<Value>(result.payload));
+    EXPECT_EQ(std::get<Value>(result.payload).get<int>(), 7);
     ASSERT_TRUE(storage.get("count").has_value());
     EXPECT_EQ(storage.get("count")->get<int>(), 7);
 }
@@ -82,16 +79,17 @@ TEST(ExecutorTest, ExecuteSetQuotesStringValue) {
 
     ASSERT_NE(statement, nullptr);
 
-    auto output = capture_stdout([&]() {
-        executor.execute(*statement);
-    });
+    const ExecutionResult result = executor.execute(*statement);
 
-    EXPECT_EQ(output, "SET key=\"x\" value=\"payload\"\n");
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.message, "SET");
+    ASSERT_TRUE(std::holds_alternative<Value>(result.payload));
+    EXPECT_EQ(std::get<Value>(result.payload).get<std::string>(), "payload");
     ASSERT_TRUE(storage.get("x").has_value());
     EXPECT_EQ(storage.get("x")->get<std::string>(), "payload");
 }
 
-TEST(ExecutorTest, ExecuteDeletePrintsKey) {
+TEST(ExecutorTest, ExecuteDeleteReturnsDeletionResult) {
     StorageEngine storage;
     storage.set("3.5", Value(11));
     Executor executor(storage);
@@ -99,15 +97,16 @@ TEST(ExecutorTest, ExecuteDeletePrintsKey) {
 
     ASSERT_NE(statement, nullptr);
 
-    auto output = capture_stdout([&]() {
-        executor.execute(*statement);
-    });
+    const ExecutionResult result = executor.execute(*statement);
 
-    EXPECT_EQ(output, "DELETE key=\"3.5\" deleted=true\n");
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.message, "DELETE");
+    ASSERT_TRUE(std::holds_alternative<bool>(result.payload));
+    EXPECT_TRUE(std::get<bool>(result.payload));
     EXPECT_FALSE(storage.exists("3.5"));
 }
 
-TEST(ExecutorTest, ExecuteExistsPrintsKey) {
+TEST(ExecutorTest, ExecuteExistsReturnsExistenceResult) {
     StorageEngine storage;
     storage.set("k", Value('v'));
     Executor executor(storage);
@@ -115,14 +114,15 @@ TEST(ExecutorTest, ExecuteExistsPrintsKey) {
 
     ASSERT_NE(statement, nullptr);
 
-    auto output = capture_stdout([&]() {
-        executor.execute(*statement);
-    });
+    const ExecutionResult result = executor.execute(*statement);
 
-    EXPECT_EQ(output, "EXISTS key=\"k\" exists=true\n");
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.message, "EXISTS");
+    ASSERT_TRUE(std::holds_alternative<bool>(result.payload));
+    EXPECT_TRUE(std::get<bool>(result.payload));
 }
 
-TEST(ExecutorTest, ExecuteExpirePrintsKeyAndTtl) {
+TEST(ExecutorTest, ExecuteExpireReturnsApplyResult) {
     StorageEngine storage;
     storage.set("session", Value("token"));
     Executor executor(storage);
@@ -130,10 +130,11 @@ TEST(ExecutorTest, ExecuteExpirePrintsKeyAndTtl) {
 
     ASSERT_NE(statement, nullptr);
 
-    auto output = capture_stdout([&]() {
-        executor.execute(*statement);
-    });
+    const ExecutionResult result = executor.execute(*statement);
 
-    EXPECT_EQ(output, "EXPIRE key=\"session\" ttl=30 applied=true\n");
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.message, "EXPIRE");
+    ASSERT_TRUE(std::holds_alternative<bool>(result.payload));
+    EXPECT_TRUE(std::get<bool>(result.payload));
     EXPECT_TRUE(storage.exists("session"));
 }

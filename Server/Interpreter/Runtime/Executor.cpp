@@ -4,117 +4,120 @@
 
 #include "Interpreter/Runtime/Executor.h"
 
-#include <iostream>
 #include <string>
-
-namespace {
-template <typename T>
-void print_value(const T& value) {
-    std::cout << value;
-}
-
-template <>
-void print_value<std::string>(const std::string& value) {
-    std::cout << '"' << value << '"';
-}
-
-template <typename K>
-void print_key_clause(const K& key) {
-    std::cout << " key=";
-    print_value(key);
-}
-} // namespace
 
 Executor::Executor(StorageEngine& storage) : storage_(storage) {}
 
-void Executor::execute_get(const GetStatement& statement) {
+ExecutionResult Executor::execute_get(const GetStatement& statement) {
     const auto value = storage_.get(statement.key());
-    std::cout << "GET";
-    print_key_clause(statement.key());
     if (value.has_value()) {
-        std::cout << " value=";
-        value->visit([](const auto& stored_value) {
-            print_value(stored_value);
-        });
+        return ExecutionResult{
+            .success = true,
+            .message = "GET",
+            .payload = value.value()
+        };
     }
-    std::cout << std::endl;
+
+    return ExecutionResult{
+        .success = true,
+        .message = "GET",
+        .payload = std::monostate{}
+    };
 }
 
 template <typename V>
-void Executor::execute_set(const SetStatement<V>& statement) {
+ExecutionResult Executor::execute_set(const SetStatement<V>& statement) {
     storage_.set(statement.key(), Value(statement.value()));
-    std::cout << "SET";
-    print_key_clause(statement.key());
-    std::cout << " value=";
-    print_value(statement.value());
-    std::cout << std::endl;
+    return ExecutionResult{
+        .success = true,
+        .message = "SET",
+        .payload = Value(statement.value())
+    };
 }
 
 template <typename V>
-bool Executor::try_execute_set(Statement* statement) {
+ExecutionResult Executor::try_execute_set(Statement* statement) {
     auto* set_statement = dynamic_cast<SetStatement<V>*>(statement);
     if (set_statement == nullptr) {
-        return false;
+        return ExecutionResult{
+            .success = false,
+            .message = "Unsupported SET value type",
+            .payload = std::monostate{}
+        };
     }
 
-    execute_set(*set_statement);
-    return true;
+    return execute_set(*set_statement);
 }
 
-bool Executor::execute(Statement& statement) {
+ExecutionResult Executor::execute(Statement& statement) {
     switch (statement.get_type()) {
         case StatementType::GET:
-            execute_get(*dynamic_cast<GetStatement*>(&statement));
-            return true;
+            return execute_get(*dynamic_cast<GetStatement*>(&statement));
         case StatementType::SET:
-            return try_execute_set<int>(&statement) ||
-                   try_execute_set<double>(&statement) ||
-                   try_execute_set<char>(&statement) ||
-                   try_execute_set<std::string>(&statement);
+            if (auto* int_statement = dynamic_cast<SetStatement<int>*>(&statement); int_statement != nullptr) {
+                return execute_set(*int_statement);
+            }
+            if (auto* double_statement = dynamic_cast<SetStatement<double>*>(&statement); double_statement != nullptr) {
+                return execute_set(*double_statement);
+            }
+            if (auto* char_statement = dynamic_cast<SetStatement<char>*>(&statement); char_statement != nullptr) {
+                return execute_set(*char_statement);
+            }
+            if (auto* string_statement = dynamic_cast<SetStatement<std::string>*>(&statement); string_statement != nullptr) {
+                return execute_set(*string_statement);
+            }
+            return ExecutionResult{
+                .success = false,
+                .message = "Unsupported SET value type",
+                .payload = std::monostate{}
+            };
         case StatementType::DELETE:
-            execute_delete(*dynamic_cast<DeleteStatement*>(&statement));
-            return true;
+            return execute_delete(*dynamic_cast<DeleteStatement*>(&statement));
         case StatementType::EXISTS:
-            execute_exists(*dynamic_cast<ExistsStatement*>(&statement));
-            return true;
+            return execute_exists(*dynamic_cast<ExistsStatement*>(&statement));
         case StatementType::EXPIRE:
-            execute_expire(*dynamic_cast<ExpireStatement*>(&statement));
-            return true;
+            return execute_expire(*dynamic_cast<ExpireStatement*>(&statement));
         default:
-            return false;
+            return ExecutionResult{
+                .success = false,
+                .message = "Unsupported statement type",
+                .payload = std::monostate{}
+            };
     }
 }
 
-void Executor::execute_delete(const DeleteStatement& statement) {
+ExecutionResult Executor::execute_delete(const DeleteStatement& statement) {
     const bool deleted = storage_.del(statement.key());
-    std::cout << "DELETE";
-    print_key_clause(statement.key());
-    std::cout << " deleted=" << (deleted ? "true" : "false");
-    std::cout << std::endl;
+    return ExecutionResult{
+        .success = true,
+        .message = "DELETE",
+        .payload = deleted
+    };
 }
 
-void Executor::execute_exists(const ExistsStatement& statement) {
+ExecutionResult Executor::execute_exists(const ExistsStatement& statement) {
     const bool exists = storage_.exists(statement.key());
-    std::cout << "EXISTS";
-    print_key_clause(statement.key());
-    std::cout << " exists=" << (exists ? "true" : "false");
-    std::cout << std::endl;
+    return ExecutionResult{
+        .success = true,
+        .message = "EXISTS",
+        .payload = exists
+    };
 }
 
-void Executor::execute_expire(const ExpireStatement& statement) {
+ExecutionResult Executor::execute_expire(const ExpireStatement& statement) {
     const bool applied = storage_.expire(statement.key(), std::chrono::seconds(statement.expire_time()));
-    std::cout << "EXPIRE";
-    print_key_clause(statement.key());
-    std::cout << " ttl=" << statement.expire_time();
-    std::cout << " applied=" << (applied ? "true" : "false");
-    std::cout << std::endl;
+    return ExecutionResult{
+        .success = true,
+        .message = "EXPIRE",
+        .payload = applied
+    };
 }
 
-template void Executor::execute_set<int>(const SetStatement<int>&);
-template void Executor::execute_set<double>(const SetStatement<double>&);
-template void Executor::execute_set<char>(const SetStatement<char>&);
-template void Executor::execute_set<std::string>(const SetStatement<std::string>&);
-template bool Executor::try_execute_set<int>(Statement*);
-template bool Executor::try_execute_set<double>(Statement*);
-template bool Executor::try_execute_set<char>(Statement*);
-template bool Executor::try_execute_set<std::string>(Statement*);
+template ExecutionResult Executor::execute_set<int>(const SetStatement<int>&);
+template ExecutionResult Executor::execute_set<double>(const SetStatement<double>&);
+template ExecutionResult Executor::execute_set<char>(const SetStatement<char>&);
+template ExecutionResult Executor::execute_set<std::string>(const SetStatement<std::string>&);
+template ExecutionResult Executor::try_execute_set<int>(Statement*);
+template ExecutionResult Executor::try_execute_set<double>(Statement*);
+template ExecutionResult Executor::try_execute_set<char>(Statement*);
+template ExecutionResult Executor::try_execute_set<std::string>(Statement*);

@@ -773,6 +773,7 @@ CMakeFiles/testExecutor.dir/Tests/testExecutor.cpp.o: /Users/markseeliger/Deskto
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Value.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/ExecutionResult.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/Executor.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/StorageEngine.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/DeleteStatement.h \
@@ -1003,6 +1004,8 @@ _deps/googletest-src/googletest/include/gtest/internal/gtest-port-arch.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_blksize_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/all_of.h:
+
+/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/ExecutionResult.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_symbol_aliasing.h:
 

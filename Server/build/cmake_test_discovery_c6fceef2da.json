@@ -7,37 +7,37 @@
       "tests": 7,
       "testsuite": [
         {
-          "name": "ExecuteGetPrintsQuotedStringKey",
+          "name": "ExecuteGetReturnsEmptyPayloadForMissingKey",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testExecutor.cpp",
-          "line": 33
+          "line": 28
         },
         {
-          "name": "ProcessCommandPrintsGetValueForExistingKey",
+          "name": "ExecuteGetReturnsStoredValueForExistingKey",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testExecutor.cpp",
-          "line": 47
+          "line": 42
         },
         {
           "name": "ExecuteSetStoresTypedValue",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testExecutor.cpp",
-          "line": 62
+          "line": 58
         },
         {
           "name": "ExecuteSetQuotesStringValue",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testExecutor.cpp",
-          "line": 78
+          "line": 75
         },
         {
-          "name": "ExecuteDeletePrintsKey",
+          "name": "ExecuteDeleteReturnsDeletionResult",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testExecutor.cpp",
-          "line": 94
+          "line": 92
         },
         {
-          "name": "ExecuteExistsPrintsKey",
+          "name": "ExecuteExistsReturnsExistenceResult",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testExecutor.cpp",
-          "line": 110
+          "line": 109
         },
         {
-          "name": "ExecuteExpirePrintsKeyAndTtl",
+          "name": "ExecuteExpireReturnsApplyResult",
           "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Server\/Tests\/testExecutor.cpp",
           "line": 125
         }

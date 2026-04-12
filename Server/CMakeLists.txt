@@ -16,12 +16,14 @@ enable_testing()
 
 
 add_library(SERVER_CORE STATIC
+        Interpreter/Runtime/CommandHandler.cpp
         Interpreter/Runtime/Executor.cpp
         Interpreter/Runtime/StorageEngine.cpp
         Interpreter/Parsing/Parser.cpp
         Interpreter/Statements/Statement.cpp
         Interpreter/Tokens/Token.cpp
         Interpreter/Parsing/Tokenizer.cpp
+        TCP/Server.cpp
         Utility/util.cpp
 )
 target_include_directories(SERVER_CORE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

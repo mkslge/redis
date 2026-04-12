@@ -1,5 +1,6 @@
-CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o: \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/Executor.cpp \
+CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandHandler.cpp.o: \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/CommandHandler.cpp \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/CommandHandler.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/Executor.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/ExecutionResult.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Value.h \
@@ -687,4 +688,18 @@ CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o: \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExistsStatement.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExpireStatement.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/GetStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/SetStatement.h
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/SetStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Parser.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/TokenType.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/charconv \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/chars_format.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/from_chars_result.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__errc \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cerrno \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/tables.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/to_chars_base_10.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/to_chars_result.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/make_32_64_or_128_bit.h
