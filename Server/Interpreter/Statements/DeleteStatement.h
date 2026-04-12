@@ -20,5 +20,13 @@ public:
         return key_;
     }
 
+    bool mutates() const override {
+        return true;
+    }
+
+    std::string to_string() const override {
+        return "DEL " + serialize_value(key_);
+    }
+
 };
 #endif //DELETESTATEMENT_H

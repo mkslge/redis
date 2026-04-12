@@ -25,6 +25,14 @@ public:
         return expire_time_;
     }
 
+    bool mutates() const override {
+        return true;
+    }
+
+    std::string to_string() const override {
+        return "EXPIRE " + serialize_value(key_) + " " + std::to_string(expire_time_);
+    }
+
 
 };
 

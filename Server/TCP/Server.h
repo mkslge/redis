@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include "Log/AOFLogger.h"
 #include "Interpreter/Runtime/CommandHandler.h"
 
 #include <arpa/inet.h>
@@ -16,6 +17,7 @@ private:
     std::uint16_t port_;
     int socket_fd_{-1};
     sockaddr_in serveraddr_{};
+    AOFLogger& logger_;
     CommandHandler& command_handler_;
 
     void bind_and_listen();
@@ -25,7 +27,7 @@ private:
 public:
     static constexpr std::uint16_t kDefaultPort = 6380;
 
-    explicit Server(CommandHandler& command_handler, std::uint16_t port = kDefaultPort);
+    explicit Server(AOFLogger& logger, CommandHandler& command_handler, std::uint16_t port = kDefaultPort);
     ~Server();
 
     Server(const Server&) = delete;

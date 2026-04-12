@@ -20,6 +20,14 @@ public:
         return key_;
     }
 
+    bool mutates() const override {
+        return false;
+    }
+
+    std::string to_string() const override {
+        return "GET " + serialize_value(key_);
+    }
+
 };
 
 

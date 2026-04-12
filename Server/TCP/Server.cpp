@@ -4,8 +4,8 @@
 #include <iostream>
 #include <stdexcept>
 
-Server::Server(CommandHandler& command_handler, const std::uint16_t port)
-    : port_(port), command_handler_(command_handler) {
+Server::Server(AOFLogger& logger, CommandHandler& command_handler, const std::uint16_t port)
+    : port_(port), logger_(logger), command_handler_(command_handler) {
     socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd_ == -1) {
         throw std::runtime_error("Error creating server socket");
@@ -109,9 +109,12 @@ void Server::handle_client(const int client_fd) const {
             }
 
             if (!command.empty()) {
-                const std::string response = command_handler_.process_command(command);
-                if (!send_response(client_fd, response)) {
+                const CommandResponse result = command_handler_.process_command(command);
+                if (!send_response(client_fd, result.response)) {
                     return;
+                }
+                if (result.should_log) {
+                    logger_.enqueue(result.log_entry);
                 }
             }
 

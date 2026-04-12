@@ -13,6 +13,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o.d"
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o"
   "CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o.d"
+  "CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o"
+  "CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o.d"
   "CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o"
   "CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o.d"
   "CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o"

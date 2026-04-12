@@ -15,6 +15,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/StorageEngine.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/StorageEngine.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/StorageEngine.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Tokens/Token.cpp" "CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o.d"
+  "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Log/AOFLogger.cpp" "CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/TCP/Server.cpp" "CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o.d"
   "/Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.cpp" "CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o" "gcc" "CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o.d"
   )

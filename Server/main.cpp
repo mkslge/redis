@@ -2,6 +2,7 @@
 #include "Interpreter/Runtime/CommandHandler.h"
 #include "Interpreter/Runtime/Executor.h"
 #include "Interpreter/Runtime/StorageEngine.h"
+#include "Log/AOFLogger.h"
 #include "TCP/Server.h"
 
 int main() {
@@ -11,7 +12,8 @@ int main() {
         StorageEngine storage;
         Executor executor(storage);
         CommandHandler command_handler(executor);
-        Server server(command_handler, kServerPort);
+        AOFLogger logger;
+        Server server(logger, command_handler, kServerPort);
         server.run();
     } catch (const std::exception& error) {
         std::cerr << error.what() << std::endl;

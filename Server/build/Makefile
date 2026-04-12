@@ -476,6 +476,30 @@ Interpreter/Tokens/Token.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.s
 .PHONY : Interpreter/Tokens/Token.cpp.s
 
+Log/AOFLogger.o: Log/AOFLogger.cpp.o
+.PHONY : Log/AOFLogger.o
+
+# target to build an object file
+Log/AOFLogger.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o
+.PHONY : Log/AOFLogger.cpp.o
+
+Log/AOFLogger.i: Log/AOFLogger.cpp.i
+.PHONY : Log/AOFLogger.i
+
+# target to preprocess a source file
+Log/AOFLogger.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.i
+.PHONY : Log/AOFLogger.cpp.i
+
+Log/AOFLogger.s: Log/AOFLogger.cpp.s
+.PHONY : Log/AOFLogger.s
+
+# target to generate assembly for a file
+Log/AOFLogger.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.s
+.PHONY : Log/AOFLogger.cpp.s
+
 TCP/Server.o: TCP/Server.cpp.o
 .PHONY : TCP/Server.o
 
@@ -689,6 +713,9 @@ help:
 	@echo "... Interpreter/Tokens/Token.o"
 	@echo "... Interpreter/Tokens/Token.i"
 	@echo "... Interpreter/Tokens/Token.s"
+	@echo "... Log/AOFLogger.o"
+	@echo "... Log/AOFLogger.i"
+	@echo "... Log/AOFLogger.s"
 	@echo "... TCP/Server.o"
 	@echo "... TCP/Server.i"
 	@echo "... TCP/Server.s"

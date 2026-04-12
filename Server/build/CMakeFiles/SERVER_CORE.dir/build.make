@@ -170,10 +170,24 @@ CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Parsing/Tokenizer.cpp -o CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s
 
+CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
+CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Log/AOFLogger.cpp
+CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Log/AOFLogger.cpp
+
+CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/markseeliger/Desktop/Coding/redisimpl/Server/Log/AOFLogger.cpp > CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.i
+
+CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/markseeliger/Desktop/Coding/redisimpl/Server/Log/AOFLogger.cpp -o CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.s
+
 CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
 CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/TCP/Server.cpp
 CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o -MF CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/TCP/Server.cpp
 
 CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.i: cmake_force
@@ -187,7 +201,7 @@ CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.s: cmake_force
 CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o: CMakeFiles/SERVER_CORE.dir/flags.make
 CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o: /Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.cpp
 CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o: CMakeFiles/SERVER_CORE.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o -MF CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o.d -o CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o -c /Users/markseeliger/Desktop/Coding/redisimpl/Server/Utility/util.cpp
 
 CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.i: cmake_force
@@ -207,6 +221,7 @@ SERVER_CORE_OBJECTS = \
 "CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o" \
 "CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o" \
 "CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o" \
+"CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o" \
 "CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o" \
 "CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o"
 
@@ -220,11 +235,12 @@ libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Parser.cpp.o
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Statements/Statement.cpp.o
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.o
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.o
+libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/Utility/util.cpp.o
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/build.make
 libSERVER_CORE.a: CMakeFiles/SERVER_CORE.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX static library libSERVER_CORE.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/markseeliger/Desktop/Coding/redisimpl/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX static library libSERVER_CORE.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/SERVER_CORE.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/SERVER_CORE.dir/link.txt --verbose=$(VERBOSE)
 
