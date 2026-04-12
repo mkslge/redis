@@ -1,0 +1,27 @@
+{
+  "tests": 3,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "ClientTest",
+      "tests": 3,
+      "testsuite": [
+        {
+          "name": "BuildServerAddressUsesRequestedPortAndIp",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Client\/Tests\/testClient.cpp",
+          "line": 10
+        },
+        {
+          "name": "BuildServerAddressRejectsInvalidIpv4Address",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Client\/Tests\/testClient.cpp",
+          "line": 18
+        },
+        {
+          "name": "ResponseFromBufferUsesExactByteCount",
+          "file": "\/Users\/markseeliger\/Desktop\/Coding\/redisimpl\/Client\/Tests\/testClient.cpp",
+          "line": 22
+        }
+      ]
+    }
+  ]
+}
