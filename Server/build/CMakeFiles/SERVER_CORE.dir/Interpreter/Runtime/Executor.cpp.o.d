@@ -1,8 +1,8 @@
 CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o: \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/Executor.cpp \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/Executor.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/StorageEngine.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Key.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/ExecutionResult.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Value.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/string \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/max.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/comp.h \
@@ -679,15 +679,15 @@ CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_binary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_unary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/unary_negate.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Value.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Runtime/StorageEngine.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Model/Key.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/DeleteStatement.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/Statement.h \
   /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/StatementType.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExistsStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExpireStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/GetStatement.h \
-  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/SetStatement.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/istream \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ostream \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/bitset \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__locale \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/locale.h \
@@ -708,9 +708,6 @@ CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_time.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_wchar.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_wctype.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/istream \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ostream \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/bitset \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/locale \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdarg \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/streambuf \
@@ -741,4 +738,8 @@ CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/Executor.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fsblkcnt_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fsfilcnt_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_nl_item.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__bsd_locale_defaults.h
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__bsd_locale_defaults.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExistsStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/ExpireStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/GetStatement.h \
+  /Users/markseeliger/Desktop/Coding/redisimpl/Server/Interpreter/Statements/SetStatement.h

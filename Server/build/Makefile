@@ -356,6 +356,30 @@ Interpreter/Parsing/Tokenizer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Parsing/Tokenizer.cpp.s
 .PHONY : Interpreter/Parsing/Tokenizer.cpp.s
 
+Interpreter/Runtime/CommandHandler.o: Interpreter/Runtime/CommandHandler.cpp.o
+.PHONY : Interpreter/Runtime/CommandHandler.o
+
+# target to build an object file
+Interpreter/Runtime/CommandHandler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandHandler.cpp.o
+.PHONY : Interpreter/Runtime/CommandHandler.cpp.o
+
+Interpreter/Runtime/CommandHandler.i: Interpreter/Runtime/CommandHandler.cpp.i
+.PHONY : Interpreter/Runtime/CommandHandler.i
+
+# target to preprocess a source file
+Interpreter/Runtime/CommandHandler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandHandler.cpp.i
+.PHONY : Interpreter/Runtime/CommandHandler.cpp.i
+
+Interpreter/Runtime/CommandHandler.s: Interpreter/Runtime/CommandHandler.cpp.s
+.PHONY : Interpreter/Runtime/CommandHandler.s
+
+# target to generate assembly for a file
+Interpreter/Runtime/CommandHandler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Runtime/CommandHandler.cpp.s
+.PHONY : Interpreter/Runtime/CommandHandler.cpp.s
+
 Interpreter/Runtime/Executor.o: Interpreter/Runtime/Executor.cpp.o
 .PHONY : Interpreter/Runtime/Executor.o
 
@@ -451,6 +475,54 @@ Interpreter/Tokens/Token.s: Interpreter/Tokens/Token.cpp.s
 Interpreter/Tokens/Token.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Interpreter/Tokens/Token.cpp.s
 .PHONY : Interpreter/Tokens/Token.cpp.s
+
+Log/AOFLogger.o: Log/AOFLogger.cpp.o
+.PHONY : Log/AOFLogger.o
+
+# target to build an object file
+Log/AOFLogger.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.o
+.PHONY : Log/AOFLogger.cpp.o
+
+Log/AOFLogger.i: Log/AOFLogger.cpp.i
+.PHONY : Log/AOFLogger.i
+
+# target to preprocess a source file
+Log/AOFLogger.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.i
+.PHONY : Log/AOFLogger.cpp.i
+
+Log/AOFLogger.s: Log/AOFLogger.cpp.s
+.PHONY : Log/AOFLogger.s
+
+# target to generate assembly for a file
+Log/AOFLogger.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/Log/AOFLogger.cpp.s
+.PHONY : Log/AOFLogger.cpp.s
+
+TCP/Server.o: TCP/Server.cpp.o
+.PHONY : TCP/Server.o
+
+# target to build an object file
+TCP/Server.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.o
+.PHONY : TCP/Server.cpp.o
+
+TCP/Server.i: TCP/Server.cpp.i
+.PHONY : TCP/Server.i
+
+# target to preprocess a source file
+TCP/Server.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.i
+.PHONY : TCP/Server.cpp.i
+
+TCP/Server.s: TCP/Server.cpp.s
+.PHONY : TCP/Server.s
+
+# target to generate assembly for a file
+TCP/Server.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SERVER_CORE.dir/build.make CMakeFiles/SERVER_CORE.dir/TCP/Server.cpp.s
+.PHONY : TCP/Server.cpp.s
 
 Tests/testExecutor.o: Tests/testExecutor.cpp.o
 .PHONY : Tests/testExecutor.o
@@ -626,6 +698,9 @@ help:
 	@echo "... Interpreter/Parsing/Tokenizer.o"
 	@echo "... Interpreter/Parsing/Tokenizer.i"
 	@echo "... Interpreter/Parsing/Tokenizer.s"
+	@echo "... Interpreter/Runtime/CommandHandler.o"
+	@echo "... Interpreter/Runtime/CommandHandler.i"
+	@echo "... Interpreter/Runtime/CommandHandler.s"
 	@echo "... Interpreter/Runtime/Executor.o"
 	@echo "... Interpreter/Runtime/Executor.i"
 	@echo "... Interpreter/Runtime/Executor.s"
@@ -638,6 +713,12 @@ help:
 	@echo "... Interpreter/Tokens/Token.o"
 	@echo "... Interpreter/Tokens/Token.i"
 	@echo "... Interpreter/Tokens/Token.s"
+	@echo "... Log/AOFLogger.o"
+	@echo "... Log/AOFLogger.i"
+	@echo "... Log/AOFLogger.s"
+	@echo "... TCP/Server.o"
+	@echo "... TCP/Server.i"
+	@echo "... TCP/Server.s"
 	@echo "... Tests/testExecutor.o"
 	@echo "... Tests/testExecutor.i"
 	@echo "... Tests/testExecutor.s"

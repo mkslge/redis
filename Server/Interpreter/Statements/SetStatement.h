@@ -23,5 +23,13 @@ public:
     const V& value() const {
         return value_;
     }
+
+    bool mutates() const override {
+        return true;
+    }
+
+    std::string to_string() const override {
+        return "SET " + serialize_value(key_) + " " + serialize_value(value_);
+    }
 };
 #endif //SETSTATEMENT_H
