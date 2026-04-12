@@ -18,6 +18,7 @@ enable_testing()
 add_library(SERVER_CORE STATIC
         App/CommandProcessor.cpp
         Runtime/Executor.cpp
+        Runtime/ExpirationManager.cpp
         Runtime/StorageEngine.cpp
         Parsing/Parser.cpp
         Commands/Statement.cpp
