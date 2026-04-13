@@ -47,7 +47,7 @@ DEL "pi"
 
 ### Persistence
 
-Mutating commands are appended to `Server/Log/appendonlylog.txt`.
+Mutating commands are appended to `Server/Persistence/appendonlylog.txt`.
 
 
 
@@ -79,11 +79,13 @@ Client input / TCP message
 
 ### Main Components
 
+- `Server/App/*`: command orchestration across parsing, execution, and persistence policy
+- `Server/Parsing/*`: tokenization and parsing into typed statements
+- `Server/Commands/*`: command representations (`GET`, `SET`, `DEL`, `EXISTS`, `EXPIRE`)
+- `Server/Runtime/*`: execution layer, storage engine, expiration management, and runtime data model
+- `Server/Protocol/*`: client response formatting
+- `Server/Persistence/*`: append-only logging and log replay
 - `Server/TCP/Server.*`: socket setup, connection loop, request framing, and response sending
-- `Server/Interpreter/Parsing/*`: tokenization and parsing into typed statements
-- `Server/Interpreter/Statements/*`: command representations (`GET`, `SET`, `DEL`, `EXISTS`, `EXPIRE`)
-- `Server/Interpreter/Runtime/*`: execution layer and storage engine
-- `Server/Log/AOFLogger.*`: append-only file logging for mutating operations
 - `Client/Networking/Client.*`: TCP client implementation
 
 ## Repository Layout
@@ -95,15 +97,15 @@ redisimpl/
 │   ├── Tests/
 │   └── main.cpp
 ├── Server/
-│   ├── Interpreter/
-│   │   ├── Model/
-│   │   ├── Parsing/
-│   │   ├── Runtime/
-│   │   ├── Statements/
-│   │   └── Tokens/
-│   ├── Log/
+│   ├── App/
+│   ├── Commands/
+│   ├── Parsing/
+│   ├── Persistence/
+│   ├── Protocol/
+│   ├── Runtime/
 │   ├── TCP/
 │   ├── Tests/
+│   ├── Utility/
 │   └── main.cpp
 └── TODO.md
 ```
@@ -193,7 +195,6 @@ ctest --output-on-failure
 A few implementation details are worth calling out:
 
 - Keys are normalized into strings internally, even when the input token is numeric or character-based.
-- TTL expiration is enforced lazily during reads and key checks.
+- TTL expiration is enforced during reads/key checks and by a background expiration manager thread.
 - The wire protocol is intentionally simple so the parsing and execution pipeline stays easy to reason about.
 - Responses are structured plain text rather than Redis RESP. May switch to RESP later
-
