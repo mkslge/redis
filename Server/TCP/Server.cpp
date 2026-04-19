@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 Server::Server(AOFLogger& logger, CommandProcessor& command_processor, const std::uint16_t port)
     : port_(port), logger_(logger), command_processor_(command_processor) {
@@ -24,6 +25,7 @@ Server::Server(AOFLogger& logger, CommandProcessor& command_processor, const std
 }
 
 Server::~Server() {
+    shutdown_clients();
     if (socket_fd_ >= 0) {
         close(socket_fd_);
     }
@@ -61,6 +63,8 @@ void Server::run() {
     std::cout << "redisserver listening on port " << port_ << std::endl;
 
     while (!stopping_) {
+        reap_finished_clients();
+
         sockaddr_in client_address{};
         socklen_t client_length = sizeof(client_address);
         const int client_fd = accept(socket_fd_, reinterpret_cast<sockaddr*>(&client_address), &client_length);
@@ -72,11 +76,37 @@ void Server::run() {
             continue;
         }
 
-        std::cout << "Client connected" << std::endl;
-        handle_client(client_fd);
-        close(client_fd);
-        std::cout << "Client disconnected" << std::endl;
+        //a client can disconnect while the accept loop is blocked, and the OS may
+        //reuse that fd for the next connection before we can reap the old entry.
+        reap_finished_clients();
+
+        bool inserted = false;
+        {
+            std::lock_guard<std::mutex> lock{mutex_};
+            inserted = clients_.try_emplace(client_fd, ClientSession{}).second;
+        }
+
+        if (!inserted) {
+            std::cerr << "Client fd " << client_fd << " was reused before the old session was reaped" << std::endl;
+            shutdown(client_fd, SHUT_RDWR);
+            close(client_fd);
+            continue;
+        }
+
+        std::thread worker(&Server::handle_client, this, client_fd);
+        {
+            std::lock_guard<std::mutex> lock{mutex_};
+            auto it = clients_.find(client_fd);
+            if (it != clients_.end()) {
+                it->second.worker = std::move(worker);
+                it->second.finished = false;
+            }
+        }
+
+        std::cout << "Client " << client_fd << " connected" << std::endl;
     }
+
+    shutdown_clients();
 }
 
 bool Server::send_response(const int client_fd, const std::string& response) {
@@ -96,14 +126,15 @@ bool Server::send_response(const int client_fd, const std::string& response) {
     return true;
 }
 
-void Server::handle_client(const int client_fd) const {
+void Server::handle_client(const int client_fd) {
     char buffer[kBufferSize]{};
     std::string pending_input;
+    bool should_send_bye = false;
 
     while (true) {
         const ssize_t bytes_read = recv(client_fd, buffer, kBufferSize, 0);
         if (bytes_read <= 0) {
-            return;
+            break;
         }
 
         pending_input.append(buffer, static_cast<std::size_t>(bytes_read));
@@ -118,8 +149,8 @@ void Server::handle_client(const int client_fd) const {
             }
 
             if (command == "EXIT" || command == "exit" || command == "QUIT" || command == "quit") {
-                send_response(client_fd, "BYE\n");
-                return;
+                should_send_bye = true;
+                break;
             }
 
             if (!command.empty()) {
@@ -139,6 +170,78 @@ void Server::handle_client(const int client_fd) const {
 
             newline_position = pending_input.find('\n');
         }
+
+        if (should_send_bye) {
+            break;
+        }
+    }
+
+    if (should_send_bye) {
+        send_response(client_fd, "BYE\n");
+    }
+
+    shutdown(client_fd, SHUT_RDWR);
+    close(client_fd);
+    mark_client_finished(client_fd);
+}
+
+void Server::mark_client_finished(const int client_fd) {
+    std::lock_guard<std::mutex> lock{mutex_};
+    auto it = clients_.find(client_fd);
+    if (it != clients_.end()) {
+        it->second.finished = true;
+    }
+}
+
+void Server::reap_finished_clients() {
+    std::vector<std::thread> threads_to_join;
+
+    {
+        std::lock_guard<std::mutex> lock{mutex_};
+        for (auto it = clients_.begin(); it != clients_.end();) {
+            if (!it->second.finished) {
+                ++it;
+                continue;
+            }
+
+            threads_to_join.push_back(std::move(it->second.worker));
+            std::cout << "Client " << it->first << " disconnected" << std::endl;
+            it = clients_.erase(it);
+        }
+    }
+
+    for (auto& thread : threads_to_join) {
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
+}
+
+void Server::shutdown_clients() {
+    std::vector<int> client_fds;
+    std::vector<std::thread> threads_to_join;
+
+    {
+        std::lock_guard<std::mutex> lock{mutex_};
+        client_fds.reserve(clients_.size());
+        threads_to_join.reserve(clients_.size());
+
+        for (auto& [client_fd, session] : clients_) {
+            client_fds.push_back(client_fd);
+            threads_to_join.push_back(std::move(session.worker));
+        }
+        clients_.clear();
+    }
+
+    for (const int client_fd : client_fds) {
+        shutdown(client_fd, SHUT_RDWR);
+        close(client_fd);
+    }
+
+    for (auto& thread : threads_to_join) {
+        if (thread.joinable()) {
+            thread.join();
+        }
     }
 }
 
@@ -148,6 +251,7 @@ void Server::stop() {
         close(socket_fd_);
         socket_fd_ = -1;
     }
+    shutdown_clients();
 }
 
 std::uint16_t Server::port() const {
