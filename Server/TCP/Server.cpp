@@ -63,7 +63,6 @@ void Server::run() {
     std::cout << "redisserver listening on port " << port_ << std::endl;
 
     while (!stopping_) {
-        reap_finished_clients();
 
         sockaddr_in client_address{};
         socklen_t client_length = sizeof(client_address);
