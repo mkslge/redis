@@ -1,31 +1,50 @@
-# redisimpl
-
-A Redis-inspired database written in modern C++.
-
-This project is a from-scratch implementation of a small in-memory key-value store with a custom command pipeline, TCP server/client binaries, typed values, TTL support, and append-only logging for durability experiments.
+# My implementation of redis
 
 
 
+The project currently includes:
 
-### Server and Client
+- a TCP server with a simple newline-delimited text protocol
+- a CLI client for interactive testing
+- typed values (`int`, `double`, `char`, `string`)
+- key expiration with both lazy pruning and a background expiration thread
+- append-only logging for durable mutation replay
+- unit and integration tests for the parser, runtime, persistence, networking, and client
 
-- TCP server listening on port `6380` by default
-- CLI client for sending commands over the wire
-- newline-delimited text protocol
-- One-client-at-a-time request loop per accepted connection
+## Current Status
 
-### Supported Commands
+This is a working educational systems project, not a Redis-compatible clone.
+
+Implemented today:
+
+- `SET`, `GET`, `DEL`, `EXISTS`, `EXPIRE`, `QUIT`, `EXIT`
+- append-only log writes for mutating commands
+- log replay on server startup
+- one worker thread per connected client
+- a separate expiration manager thread
+- separate CMake projects for the server and client
+
+Not implemented:
+
+- RESP / Redis protocol compatibility
+- transactions, replication, snapshots, pub/sub, or clustering
+- advanced data structures beyond scalar values
+
+## Supported Commands
+
+Commands are sent as one line each.
 
 - `SET <key> <value>`
 - `GET <key>`
 - `DEL <key>`
 - `EXISTS <key>`
 - `EXPIRE <key> <seconds>`
-- `QUIT` / `EXIT`
+- `QUIT`
+- `EXIT`
 
-### Data Model
+### Value Types
 
-Supported value types:
+The parser currently accepts these scalar value types:
 
 - `int`
 - `double`
@@ -43,50 +62,71 @@ GET "name"
 EXISTS "age"
 EXPIRE "name" 30
 DEL "pi"
+QUIT
 ```
 
-### Persistence
+Keys are normalized to strings internally, even if the input token is numeric or character-based.
 
-Mutating commands are appended to `Server/Persistence/appendonlylog.txt`.
+## Wire Protocol
 
+The server uses a simple newline-delimited text protocol rather than RESP.
 
+Example responses:
+
+```text
+SET value="C++"
+GET value="C++"
+EXISTS exists=true
+EXPIRE applied=true
+DELETE deleted=true
+BYE
+ERROR parse failure
+```
+
+## Persistence
+
+Mutating commands are appended to:
+
+`Server/Persistence/appendonlylog.txt`
+
+On startup, the server replays that file before accepting client traffic.
+
+## Concurrency Model
+
+The server is no longer single-client.
+
+- `Server::run()` accepts new TCP connections on the main server thread
+- each accepted client gets its own worker thread
+- finished client threads are reaped and joined by the server loop
+- expiration is handled by a separate background thread
+
+This keeps the networking model simple while still allowing multiple simultaneous clients.
 
 ## Architecture
 
-The codebase is intentionally split into focused layers.
+The server pipeline is intentionally split into small layers:
 
 ```text
-Client input / TCP message
-        |
-        v
-   Tokenizer
-        |
-        v
-     Parser
-        |
-        v
-    Statement AST
-        |
-        v
-    Executor
-        |
-        v
-  StorageEngine
-        |
-        v
- Response + optional AOF log
+TCP input
+  -> Tokenizer
+  -> Parser
+  -> Statement AST
+  -> Executor
+  -> StorageEngine
+  -> Response formatting
+  -> Optional AOF append
 ```
 
 ### Main Components
 
-- `Server/App/*`: command orchestration across parsing, execution, and persistence policy
-- `Server/Parsing/*`: tokenization and parsing into typed statements
-- `Server/Commands/*`: command representations (`GET`, `SET`, `DEL`, `EXISTS`, `EXPIRE`)
-- `Server/Runtime/*`: execution layer, storage engine, expiration management, and runtime data model
-- `Server/Protocol/*`: client response formatting
-- `Server/Persistence/*`: append-only logging and log replay
-- `Server/TCP/Server.*`: socket setup, connection loop, request framing, and response sending
-- `Client/Networking/Client.*`: TCP client implementation
+- `Server/App/*`: command orchestration from raw command line to execution result
+- `Server/Parsing/*`: tokenization and parsing
+- `Server/Commands/*`: command statement types
+- `Server/Runtime/*`: storage engine, executor, values, and expiration handling
+- `Server/Protocol/*`: response formatting
+- `Server/Persistence/*`: append-only logging and replay
+- `Server/TCP/*`: socket server, connection lifecycle, and per-client request handling
+- `Client/Networking/*`: TCP client implementation
 
 ## Repository Layout
 
@@ -95,6 +135,7 @@ redisimpl/
 ├── Client/
 │   ├── Networking/
 │   ├── Tests/
+│   ├── CMakeLists.txt
 │   └── main.cpp
 ├── Server/
 │   ├── App/
@@ -106,15 +147,17 @@ redisimpl/
 │   ├── TCP/
 │   ├── Tests/
 │   ├── Utility/
+│   ├── CMakeLists.txt
 │   └── main.cpp
+├── README.md
 └── TODO.md
 ```
 
-## Building the Project
-This repository currently builds the server and client as separate CMake projects.
+## Building
 
+The client and server build separately.
 
-### Build the Server
+### Server
 
 ```bash
 cd Server
@@ -122,7 +165,7 @@ cmake -S . -B build
 cmake --build build
 ```
 
-### Build the Client
+### Client
 
 ```bash
 cd Client
@@ -130,7 +173,7 @@ cmake -S . -B build
 cmake --build build
 ```
 
-## Running It
+## Running
 
 Start the server:
 
@@ -138,11 +181,34 @@ Start the server:
 ./Server/build/redisserver
 ```
 
-In another terminal, connect with the client:
+In another terminal, start the client:
 
 ```bash
 ./Client/build/redisclient 127.0.0.1 6380
 ```
+
+### Docker
+
+Build the server image from the repository root:
+
+```bash
+docker build -t redisimpl-server -f Server/Dockerfile Server
+```
+
+Run the container and publish the server port:
+
+```bash
+docker run --rm -p 6380:6380 redisimpl-server
+```
+
+To keep the append-only log across container restarts, mount a Docker volume at the directory the server writes to inside the container:
+
+```bash
+docker volume create redisimpl-data
+docker run --rm -p 6380:6380 -v redisimpl-data:/app/Persistence redisimpl-server
+```
+
+The server opens `Persistence/appendonlylog.txt` relative to the container `WORKDIR`, so the log path inside Docker is `/app/Persistence/appendonlylog.txt`.
 
 Example session:
 
@@ -161,18 +227,24 @@ EXPIRE applied=true
 
 > DEL "language"
 DELETE deleted=true
+
+> QUIT
+BYE
 ```
 
 ## Testing
-The project includes unit tests for both the server and client components.
-You can run them with `ctest --build-dir build`
 
 ### Server tests
 
-- tokenizer behavior
-- parser behavior
+The server test suite covers:
+
+- tokenization
+- parsing
 - executor behavior
 - storage engine behavior
+- expiration manager behavior
+- append-only logging and replay
+- TCP integration behavior
 
 Run them with:
 
@@ -183,6 +255,8 @@ ctest --output-on-failure
 
 ### Client tests
 
+The client test suite currently covers address parsing and response-buffer handling.
+
 Run them with:
 
 ```bash
@@ -190,11 +264,9 @@ cd Client/build
 ctest --output-on-failure
 ```
 
-## Implementation Notes
+## Notes and Limitations
 
-A few implementation details are worth calling out:
-
-- Keys are normalized into strings internally, even when the input token is numeric or character-based.
-- TTL expiration is enforced during reads/key checks and by a background expiration manager thread.
-- The wire protocol is intentionally simple so the parsing and execution pipeline stays easy to reason about.
-- Responses are structured plain text rather than Redis RESP. May switch to RESP later
+- The protocol is intentionally simple and human-readable.
+- The project is focused on learning core systems concepts, not Redis feature parity.
+- Durability is append-only-log based; there is no snapshotting yet.
+- Current value support is limited to scalar primitives and strings.
