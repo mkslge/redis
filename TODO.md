@@ -1,1 +1,4 @@
     -Optimized AOL that only does needed work, e.g. not doing set 42 1000 times
+    -Thread safety in StorageEngine
+    -TTL / PERSIST commandss
+    -ADD INCR DECR and maybe INCRBY and DECRBY commands
