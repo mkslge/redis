@@ -166,6 +166,7 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
         EXPECT_EQ(connection.send_command("SET \"user\" \"alice\""), "SET value=\"alice\"");
         EXPECT_EQ(connection.send_command("EXPIRE \"user\" 30"), "EXPIRE applied=true");
         EXPECT_EQ(connection.send_command("QUIT"), "BYE");
+        first_server.shutdown();
     }
 
     StorageEngine restarted_storage;
@@ -178,5 +179,6 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
     ASSERT_TRUE(restarted_storage.get("user").has_value());
     EXPECT_EQ(restarted_storage.get("user")->get<std::string>(), "alice");
     EXPECT_TRUE(restarted_storage.exists("user"));
+
 }
 
