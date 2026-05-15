@@ -247,6 +247,7 @@ void Server::shutdown_clients() {
 void Server::stop() {
     stopping_ = true;
     if (socket_fd_ >= 0) {
+        shutdown(socket_fd_, SHUT_RDWR);
         close(socket_fd_);
         socket_fd_ = -1;
     }

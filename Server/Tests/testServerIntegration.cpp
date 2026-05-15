@@ -51,6 +51,13 @@ public:
             throw std::runtime_error("Failed to create client socket");
         }
 
+        const timeval timeout{.tv_sec = 2, .tv_usec = 0};
+        if (setsockopt(socket_fd_, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) != 0 ||
+            setsockopt(socket_fd_, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) != 0) {
+            close(socket_fd_);
+            throw std::runtime_error("Failed to configure client socket timeout");
+        }
+
         sockaddr_in address{};
         address.sin_family = AF_INET;
         address.sin_port = htons(port);
@@ -181,4 +188,3 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
     EXPECT_TRUE(restarted_storage.exists("user"));
 
 }
-
