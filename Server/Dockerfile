@@ -28,3 +28,4 @@ RUN mkdir -p /app/Persistence
 EXPOSE 6380
 
 CMD ["./redisserver"]
+dihowch

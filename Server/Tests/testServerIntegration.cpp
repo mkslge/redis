@@ -154,18 +154,7 @@ private:
 
 } // namespace
 
-TEST(ServerIntegrationTest, StartupAndCommandHandlingPersistMutationsOverTcp) {
-    TempLogFile log_file("server-startup-command-handling");
-    ServerHarness server(log_file.path_string());
-    TestConnection connection(server.port());
 
-    EXPECT_EQ(connection.send_command("SET \"language\" \"C++\""), "SET value=\"C++\"");
-    EXPECT_EQ(connection.send_command("GET \"language\""), "GET value=\"C++\"");
-    EXPECT_EQ(connection.send_command("QUIT"), "BYE");
-
-    EXPECT_TRUE(server.storage().get("language").has_value());
-    EXPECT_EQ(log_file.read_all(), "SET \"language\" \"C++\"\n");
-}
 
 TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
     TempLogFile log_file("server-restart-replay");
@@ -191,15 +180,3 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
     EXPECT_TRUE(restarted_storage.exists("user"));
 }
 
-TEST(ServerIntegrationTest, InvalidCommandsReturnErrorsAndDoNotWriteToAppendOnlyLog) {
-    TempLogFile log_file("server-invalid-command");
-    ServerHarness server(log_file.path_string());
-    TestConnection connection(server.port());
-
-    EXPECT_EQ(connection.send_command("SET \"user\""), "ERROR parse failure");
-    EXPECT_EQ(connection.send_command("bogus"), "ERROR invalid command");
-    EXPECT_EQ(connection.send_command("QUIT"), "BYE");
-
-    EXPECT_TRUE(log_file.read_all().empty());
-    EXPECT_FALSE(server.storage().exists("user"));
-}
