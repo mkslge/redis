@@ -30,7 +30,6 @@ bool StorageEngine::exists(const Key& key) {
 
 bool StorageEngine::expire(const Key& key, const Duration ttl) {
     const TimePoint now = Clock::now();
-    possibly_expired_.insert(key);
     prune_if_expired(key, now);
 
     const auto it = data_.find(key);
@@ -39,11 +38,12 @@ bool StorageEngine::expire(const Key& key, const Duration ttl) {
     }
 
     if (ttl <= Duration::zero()) {
-        data_.erase(it);
         possibly_expired_.erase(it->first);
+        data_.erase(it);
         return true;
     }
 
+    possibly_expired_.insert(key);
     it->second.expires_at = now + ttl;
     return true;
 }
