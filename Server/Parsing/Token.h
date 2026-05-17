@@ -5,7 +5,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "Parsing/TokenType.h"
+#include "TokenType.h"
 #include <optional>
 #include <string>
 #include <variant>

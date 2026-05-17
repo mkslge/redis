@@ -5,13 +5,13 @@
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
 
-#include "Commands/DeleteStatement.h"
-#include "Commands/ExistsStatement.h"
-#include "Commands/ExpireStatement.h"
-#include "Commands/GetStatement.h"
-#include "Commands/SetStatement.h"
-#include "Runtime/ExecutionResult.h"
-#include "Runtime/StorageEngine.h"
+#include "DeleteStatement.h"
+#include "ExistsStatement.h"
+#include "ExpireStatement.h"
+#include "GetStatement.h"
+#include "SetStatement.h"
+#include "ExecutionResult.h"
+#include "StorageEngine.h"
 
 class Executor {
 public:

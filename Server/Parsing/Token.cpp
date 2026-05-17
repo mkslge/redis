@@ -2,7 +2,7 @@
 // Created by Mark on 4/10/26.
 //
 
-#include "Parsing/Token.h"
+#include "Token.h"
 
 Token::Token(TokenType type) : type_(type) {}
 

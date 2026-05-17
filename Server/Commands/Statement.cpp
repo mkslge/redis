@@ -2,7 +2,7 @@
 // Created by Mark on 4/10/26.
 //
 
-#include "Commands/Statement.h"
+#include "Statement.h"
 
 Statement::Statement(StatementType type) : type_(type) {}
 

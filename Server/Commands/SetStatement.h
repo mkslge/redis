@@ -4,8 +4,8 @@
 
 #ifndef SETSTATEMENT_H
 #define SETSTATEMENT_H
-#include "Commands/Statement.h"
-#include "Runtime/Key.h"
+#include "Statement.h"
+#include "Key.h"
 template <typename V>
 class SetStatement : public Statement{
 private:

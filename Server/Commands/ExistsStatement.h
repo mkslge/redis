@@ -5,8 +5,8 @@
 #ifndef EXITSSTATEMENT_H
 #define EXITSSTATEMENT_H
 
-#include "Commands/Statement.h"
-#include "Runtime/Key.h"
+#include "Statement.h"
+#include "Key.h"
 
 class ExistsStatement : public Statement {
 private:

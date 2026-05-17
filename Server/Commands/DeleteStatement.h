@@ -4,9 +4,9 @@
 
 #ifndef DELETESTATEMENT_H
 #define DELETESTATEMENT_H
-#include "Commands/Statement.h"
-#include "Commands/StatementType.h"
-#include "Runtime/Key.h"
+#include "Statement.h"
+#include "StatementType.h"
+#include "Key.h"
 #include <optional>
 class DeleteStatement : public Statement{
 private:

@@ -4,7 +4,7 @@ add_library(SERVER_COMMANDS STATIC
 
 target_include_directories(SERVER_COMMANDS
     PUBLIC
-    ${PROJECT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries(SERVER_COMMANDS
     PUBLIC

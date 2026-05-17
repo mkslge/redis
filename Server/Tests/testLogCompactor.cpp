@@ -1,6 +1,6 @@
-#include "Parsing/Parser.h"
-#include "Parsing/Tokenizer.h"
-#include "Persistence/LogCompactor.h"
+#include "Parser.h"
+#include "Tokenizer.h"
+#include "LogCompactor.h"
 
 #include <gtest/gtest.h>
 

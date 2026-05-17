@@ -7,16 +7,16 @@
 #include <string>
 #include <vector>
 
-#include "Commands/DeleteStatement.h"
-#include "Commands/ExistsStatement.h"
-#include "Commands/ExpireStatement.h"
-#include "Commands/GetStatement.h"
-#include "Commands/SetStatement.h"
-#include "Commands/Statement.h"
-#include "Commands/StatementType.h"
-#include "Parsing/Parser.h"
-#include "Parsing/Token.h"
-#include "Parsing/TokenType.h"
+#include "DeleteStatement.h"
+#include "ExistsStatement.h"
+#include "ExpireStatement.h"
+#include "GetStatement.h"
+#include "SetStatement.h"
+#include "Statement.h"
+#include "StatementType.h"
+#include "Parser.h"
+#include "Token.h"
+#include "TokenType.h"
 
 TEST(ParserTest, TryParseGetAcceptsPrimitiveKey) {
     std::vector<Token> tokens = {

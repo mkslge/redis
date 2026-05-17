@@ -1,8 +1,8 @@
 #ifndef RESPONSEFORMATTER_H
 #define RESPONSEFORMATTER_H
 
-#include "Commands/StatementType.h"
-#include "Runtime/ExecutionResult.h"
+#include "StatementType.h"
+#include "ExecutionResult.h"
 
 #include <string>
 

@@ -1,4 +1,4 @@
-#include "Persistence/LogRunner.h"
+#include "LogRunner.h"
 
 #include <fstream>
 #include <sstream>

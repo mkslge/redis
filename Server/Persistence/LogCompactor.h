@@ -1,9 +1,9 @@
 #ifndef LOGCOMPACTOR_H
 #define LOGCOMPACTOR_H
 
-#include "Persistence/LogConfig.h"
-#include "Parsing/Tokenizer.h"
-#include "Parsing/Parser.h"
+#include "LogConfig.h"
+#include "Tokenizer.h"
+#include "Parser.h"
 #include <unordered_map>
 #include <string>
 #include <fstream>

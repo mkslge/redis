@@ -5,7 +5,7 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
-#include "Commands/StatementType.h"
+#include "StatementType.h"
 
 #include <sstream>
 #include <string>
