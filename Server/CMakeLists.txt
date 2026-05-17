@@ -14,55 +14,13 @@ enable_testing()
 
 
 
-
-add_library(SERVER_RUNTIME STATIC
-        Runtime/Executor.cpp
-        Runtime/ExpirationManager.cpp
-        Runtime/StorageEngine.cpp
-)
-target_include_directories(SERVER_RUNTIME PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-add_library(SERVER_COMMANDS STATIC
-        Commands/Statement.cpp
-)
-target_include_directories(SERVER_COMMANDS PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SERVER_COMMANDS PUBLIC SERVER_RUNTIME)
-
-add_library(SERVER_PARSING STATIC
-        Parsing/Parser.cpp
-        Parsing/Token.cpp
-        Parsing/Tokenizer.cpp
-        Utility/util.cpp
-)
-target_include_directories(SERVER_PARSING PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SERVER_PARSING PUBLIC SERVER_COMMANDS SERVER_RUNTIME)
-
-add_library(SERVER_PROTOCOL STATIC
-        Protocol/ResponseFormatter.cpp
-)
-target_include_directories(SERVER_PROTOCOL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SERVER_PROTOCOL PUBLIC SERVER_COMMANDS SERVER_RUNTIME)
-
-add_library(SERVER_APP STATIC
-        App/CommandProcessor.cpp
-)
-target_include_directories(SERVER_APP PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SERVER_APP PUBLIC SERVER_PARSING SERVER_RUNTIME SERVER_COMMANDS)
-
-add_library(SERVER_PERSISTENCE STATIC
-        Persistence/AOFLogger.cpp
-        Persistence/LogRunner.cpp
-        Persistence/LogCompactor.cpp
-)
-target_include_directories(SERVER_PERSISTENCE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SERVER_PERSISTENCE PUBLIC SERVER_APP)
-
-add_library(SERVER_TCP STATIC
-        TCP/Server.cpp
-)
-target_include_directories(SERVER_TCP PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SERVER_TCP PUBLIC SERVER_APP SERVER_PERSISTENCE SERVER_PROTOCOL)
-
+add_subdirectory(Runtime)
+add_subdirectory(Commands)
+add_subdirectory(Parsing)
+add_subdirectory(Protocol)
+add_subdirectory(App)
+add_subdirectory(Persistence)
+add_subdirectory(TCP)
 add_executable(redisserver main.cpp)
 target_link_libraries(redisserver
         PRIVATE
