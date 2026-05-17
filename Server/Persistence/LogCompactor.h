@@ -115,6 +115,7 @@ class LogCompactor {
         
         for(const auto& line : lines) {
             if(line != codes::DELETED_LINE) {
+                //getline strips the newline, so we need to ensure every command also has the newline added back
                 stream << line << "\n";
             }
         }
