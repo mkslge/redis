@@ -28,7 +28,7 @@ public:
         return true;
     }
 
-    std::optional<Key> get_key() const override {
+    std::optional<std::string> get_key() const override {
         return key_;
     }
 
