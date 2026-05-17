@@ -7,7 +7,7 @@
 #include "Commands/Statement.h"
 #include "Commands/StatementType.h"
 #include "Runtime/Key.h"
-
+#include <optional>
 class DeleteStatement : public Statement{
 private:
     Key key_;

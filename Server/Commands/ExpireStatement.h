@@ -7,7 +7,7 @@
 
 #include "Commands/Statement.h"
 #include "Runtime/Key.h"
-
+#include <optional>
 class ExpireStatement : public Statement {
 private:
     Key key_;
