@@ -7,10 +7,10 @@
 #include <string>
 #include <vector>
 
-#include "Parsing/Parser.h"
-#include "Parsing/Tokenizer.h"
-#include "Runtime/ExecutionResult.h"
-#include "Runtime/Executor.h"
+#include "Parser.h"
+#include "Tokenizer.h"
+#include "ExecutionResult.h"
+#include "Executor.h"
 
 namespace {
 

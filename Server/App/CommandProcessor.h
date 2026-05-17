@@ -1,8 +1,8 @@
 #ifndef COMMANDPROCESSOR_H
 #define COMMANDPROCESSOR_H
 
-#include "Commands/StatementType.h"
-#include "Runtime/Executor.h"
+#include "StatementType.h"
+#include "Executor.h"
 
 #include <optional>
 #include <string>

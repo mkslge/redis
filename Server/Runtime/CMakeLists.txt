@@ -4,4 +4,8 @@ add_library(SERVER_RUNTIME STATIC
         StorageEngine.cpp
 )
 
-target_include_directories(SERVER_RUNTIME PUBLIC ${PROJECT_SOURCE_DIR})
+target_include_directories(SERVER_RUNTIME
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${PROJECT_SOURCE_DIR}/Commands
+)

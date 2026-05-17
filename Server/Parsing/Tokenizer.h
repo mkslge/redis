@@ -2,7 +2,7 @@
 #define TOKENIZER_H
 
 #include "Token.h"
-#include "Utility/util.h"
+#include "util.h"
 #include <charconv>
 #include <cerrno>
 #include <cstdlib>

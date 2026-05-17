@@ -1,5 +1,5 @@
-#include "Runtime/ExpirationManager.h"
-#include "Runtime/StorageEngine.h"
+#include "ExpirationManager.h"
+#include "StorageEngine.h"
 
 #include <gtest/gtest.h>
 

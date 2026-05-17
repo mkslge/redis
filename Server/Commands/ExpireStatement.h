@@ -5,8 +5,8 @@
 #ifndef EXPIRESTATEMENT_H
 #define EXPIRESTATEMENT_H
 
-#include "Commands/Statement.h"
-#include "Runtime/Key.h"
+#include "Statement.h"
+#include "Key.h"
 #include <optional>
 class ExpireStatement : public Statement {
 private:

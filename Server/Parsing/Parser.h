@@ -5,14 +5,14 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "Commands/DeleteStatement.h"
-#include "Commands/ExistsStatement.h"
-#include "Commands/ExpireStatement.h"
-#include "Commands/GetStatement.h"
-#include "Commands/SetStatement.h"
-#include "Commands/Statement.h"
+#include "DeleteStatement.h"
+#include "ExistsStatement.h"
+#include "ExpireStatement.h"
+#include "GetStatement.h"
+#include "SetStatement.h"
+#include "Statement.h"
 #include "Token.h"
-#include "Runtime/Key.h"
+#include "Key.h"
 #include <memory>
 #include <optional>
 #include <vector>
