@@ -3,5 +3,5 @@ add_library(SERVER_APP STATIC
 )
 
 
-target_include_directories(SERVER_APP PUBLIC ${CMAKE_SOURCE_DIR})
+target_include_directories(SERVER_APP PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(SERVER_APP PUBLIC SERVER_PARSING SERVER_RUNTIME SERVER_COMMANDS)

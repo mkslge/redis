@@ -11,7 +11,7 @@
 #include "Commands/GetStatement.h"
 #include "Commands/SetStatement.h"
 #include "Commands/Statement.h"
-#include "Parsing/Token.h"
+#include "Token.h"
 #include "Runtime/Key.h"
 #include <memory>
 #include <optional>

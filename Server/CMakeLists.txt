@@ -13,7 +13,7 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 
-
+add_subdirectory(Utility)
 add_subdirectory(Runtime)
 add_subdirectory(Commands)
 add_subdirectory(Parsing)
@@ -21,6 +21,7 @@ add_subdirectory(Protocol)
 add_subdirectory(App)
 add_subdirectory(Persistence)
 add_subdirectory(TCP)
+
 add_executable(redisserver main.cpp)
 target_link_libraries(redisserver
         PRIVATE

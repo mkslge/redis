@@ -1,7 +1,7 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
-#include "Parsing/Token.h"
+#include "Token.h"
 #include "Utility/util.h"
 #include <charconv>
 #include <cerrno>

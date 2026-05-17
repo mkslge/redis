@@ -1,4 +1,4 @@
-#include "Protocol/ResponseFormatter.h"
+#include "ResponseFormatter.h"
 
 #include "Runtime/Value.h"
 

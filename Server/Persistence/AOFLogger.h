@@ -1,7 +1,7 @@
 #ifndef AOFLOGGER_H
 #define AOFLOGGER_H
 
-#include "Persistence/LogConfig.h"
+#include "LogConfig.h"
 
 #include <fstream>
 #include <string>

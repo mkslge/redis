@@ -1,7 +1,7 @@
-#include "App/CommandProcessor.h"
+#include "CommandProcessor.h"
 
-#include "Parsing/Parser.h"
-#include "Parsing/Tokenizer.h"
+#include "Parser.h"
+#include "Tokenizer.h"
 
 #include <memory>
 #include <optional>
