@@ -26,6 +26,10 @@ public:
         return "EXISTS " + serialize_value(key_);
     }
 
+    std::optional<Key> get_key() const override {
+        return key_;
+    }
+
 };
 
 

@@ -29,6 +29,10 @@ public:
         return true;
     }
 
+    std::optional<Key> get_key() const override {
+        return key_;
+    }
+
     std::string to_string() const override {
         return "EXPIRE " + serialize_value(key_) + " " + std::to_string(expire_time_);
     }

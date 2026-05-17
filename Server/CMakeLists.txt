@@ -52,6 +52,7 @@ target_link_libraries(SERVER_APP PUBLIC SERVER_PARSING SERVER_RUNTIME SERVER_COM
 add_library(SERVER_PERSISTENCE STATIC
         Persistence/AOFLogger.cpp
         Persistence/LogRunner.cpp
+        Persistence/LogCompactor.cpp
 )
 target_include_directories(SERVER_PERSISTENCE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(SERVER_PERSISTENCE PUBLIC SERVER_APP)
@@ -100,6 +101,16 @@ target_link_libraries(testLogging
         GTest::gtest_main
 )
 
+add_executable(testLogCompactor Tests/testLogCompactor.cpp)
+target_link_libraries(testLogCompactor
+        PRIVATE
+        SERVER_RUNTIME
+        SERVER_COMMANDS
+        SERVER_PARSING
+        SERVER_PERSISTENCE
+        GTest::gtest_main
+)
+
 add_executable(testServerIntegration Tests/testServerIntegration.cpp)
 target_link_libraries(testServerIntegration
         PRIVATE
@@ -121,4 +132,5 @@ gtest_discover_tests(testExecutor)
 gtest_discover_tests(testStorageEngine)
 gtest_discover_tests(testExpirationManager)
 gtest_discover_tests(testLogging)
+gtest_discover_tests(testLogCompactor)
 gtest_discover_tests(testServerIntegration PROPERTIES TIMEOUT 10)

@@ -10,6 +10,8 @@
 #include <sstream>
 #include <string>
 
+using Key = std::string;
+
 class Statement {
 private:
 StatementType type_;
@@ -17,6 +19,7 @@ public:
     explicit Statement(StatementType type);
     virtual StatementType get_type() const;
     virtual bool mutates() const = 0;
+    virtual std::optional<Key> get_key() const = 0;
     virtual std::string to_string() const = 0;
     virtual ~Statement();
 
