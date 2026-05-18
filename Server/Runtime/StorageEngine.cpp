@@ -1,6 +1,7 @@
 #include "StorageEngine.h"
 
 void StorageEngine::set(const Key& key, const Value& value) {
+    std::lock_guard<std::mutex> lg{*get_mutex(key)};
     data_.insert_or_assign(key, Entry{value, std::nullopt});
 }
 
@@ -17,6 +18,7 @@ std::optional<Value> StorageEngine::get(const Key& key) {
 }
 
 bool StorageEngine::del(const Key& key) {
+    std::lock_guard<std::mutex> lg{*get_mutex(key)};
     const TimePoint now = Clock::now();
     prune_if_expired(key, now);
     return data_.erase(key) > 0;
@@ -29,6 +31,7 @@ bool StorageEngine::exists(const Key& key) {
 }
 
 bool StorageEngine::expire(const Key& key, const Duration ttl) {
+    std::lock_guard<std::mutex> lg{*get_mutex(key)};
     const TimePoint now = Clock::now();
     prune_if_expired(key, now);
 
@@ -85,4 +88,11 @@ void StorageEngine::prune_if_expired(const Key& key, const TimePoint now) {
 
 std::unordered_set<Key> StorageEngine::possibly_expired() {
     return possibly_expired_;
+}
+
+std::mutex* StorageEngine::get_mutex(const Key& key) {
+    if(!mutexes_.contains(key)) {
+        auto [it, success] = mutexes_.try_emplace(key, std::make_unique<std::mutex>());
+    }
+    return mutexes_[key].get();
 }
