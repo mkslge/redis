@@ -53,13 +53,11 @@ bool StorageEngine::expire(const Key& key, const Duration ttl) {
 }
 
 void StorageEngine::clear() {
-    std::lock_guard<std::mutex> lg{*get_mutex(key)};
     data_.clear();
     possibly_expired_.clear();
 }
 
 std::size_t StorageEngine::size() {
-    std::lock_guard<std::mutex> lg{*get_mutex(key)};
     const TimePoint now = Clock::now();
 
     for (auto it = data_.begin(); it != data_.end();) {
