@@ -8,7 +8,7 @@ The project currently includes:
 - a CLI client for interactive testing
 - byte-string values that preserve the supplied representation
 - key expiration with both lazy pruning and a background expiration thread
-- append-only logging for durable mutation replay
+- binary-safe RESP-framed append-only logging for durable mutation replay
 - unit and integration tests for the parser, runtime, persistence, networking, and client
 
 ## Current Status
@@ -85,9 +85,16 @@ ERROR parse failure
 
 Mutating commands are appended to:
 
-`Server/Persistence/appendonlylog.txt`
+`data/appendonly.aof`
 
 On startup, the server replays that file before accepting client traffic.
+
+The AOF is a sequence of RESP arrays whose bulk strings are length-prefixed, so
+keys and values containing null bytes, CRLF, quotes, or arbitrary binary data
+round-trip exactly. It is not intended for manual editing. Startup rejects
+malformed commands and truncated records instead of silently
+discarding them. The default persistence policy calls `fsync()` before a write
+is acknowledged.
 
 ## Concurrency Model
 
@@ -147,6 +154,7 @@ redisimpl/
 │   ├── Utility/
 │   ├── CMakeLists.txt
 │   └── main.cpp
+├── data/
 ├── README.md
 └── TODO.md
 ```
@@ -203,10 +211,10 @@ To keep the append-only log across container restarts, mount a Docker volume at 
 
 ```bash
 docker volume create redisimpl-data
-docker run --rm -p 6380:6380 -v redisimpl-data:/app/Persistence redisimpl-server
+docker run --rm -p 6380:6380 -v redisimpl-data:/app/data redisimpl-server
 ```
 
-The server opens `Persistence/appendonlylog.txt` relative to the container `WORKDIR`, so the log path inside Docker is `/app/Persistence/appendonlylog.txt`.
+The server opens `data/appendonly.aof` relative to the container `WORKDIR`, so the log path inside Docker is `/app/data/appendonly.aof`.
 
 Example session:
 

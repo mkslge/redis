@@ -1,6 +1,5 @@
-#include "Parser.h"
-#include "Tokenizer.h"
 #include "LogCompactor.h"
+#include "RespCommandCodec.h"
 
 #include <gtest/gtest.h>
 
@@ -42,10 +41,7 @@ private:
 };
 
 void compact_log(const std::string& path) {
-    Tokenizer tokenizer;
-    Parser parser;
-    LogCompactor compactor(path, tokenizer, parser);
-
+    LogCompactor compactor(path);
     compactor.compact();
 }
 
@@ -54,63 +50,83 @@ void compact_log(const std::string& path) {
 TEST(LogCompactorTest, RemovesOlderSetForSameKey) {
     TempLogFile log_file(
         "older-set",
-        "SET \"user\" \"alice\"\n"
-        "SET \"counter\" 1\n"
-        "SET \"user\" \"bob\"\n");
+        RespCommandCodec::encode({"SET", "user", "alice"}) +
+        RespCommandCodec::encode({"SET", "counter", "1"}) +
+        RespCommandCodec::encode({"SET", "user", "bob"}));
 
     compact_log(log_file.path_string());
 
     EXPECT_EQ(
         log_file.read_all(),
-        "SET \"counter\" 1\n"
-        "SET \"user\" \"bob\"\n");
+        RespCommandCodec::encode({"SET", "counter", "1"}) +
+        RespCommandCodec::encode({"SET", "user", "bob"}));
 }
 
 TEST(LogCompactorTest, KeepsLatestExpireForSameKey) {
     TempLogFile log_file(
         "latest-expire",
-        "SET \"session\" \"token\"\n"
-        "EXPIRE \"session\" 30\n"
-        "EXPIRE \"session\" 60\n");
+        RespCommandCodec::encode({"SET", "session", "token"}) +
+        RespCommandCodec::encode({"EXPIRE", "session", "30"}) +
+        RespCommandCodec::encode({"EXPIRE", "session", "60"}));
 
     compact_log(log_file.path_string());
 
     EXPECT_EQ(
         log_file.read_all(),
-        "SET \"session\" \"token\"\n"
-        "EXPIRE \"session\" 60\n");
+        RespCommandCodec::encode({"SET", "session", "token"}) +
+        RespCommandCodec::encode({"EXPIRE", "session", "60"}));
 }
 
 TEST(LogCompactorTest, DeleteRemovesPriorMutationsForKey) {
     TempLogFile log_file(
         "delete-key",
-        "SET \"session\" \"token\"\n"
-        "EXPIRE \"session\" 30\n"
-        "DEL \"session\"\n"
-        "SET \"other\" \"value\"\n");
+        RespCommandCodec::encode({"SET", "session", "token"}) +
+        RespCommandCodec::encode({"EXPIRE", "session", "30"}) +
+        RespCommandCodec::encode({"DEL", "session"}) +
+        RespCommandCodec::encode({"SET", "other", "value"}));
 
     compact_log(log_file.path_string());
 
     EXPECT_EQ(
         log_file.read_all(),
-        "DEL \"session\"\n"
-        "SET \"other\" \"value\"\n");
+        RespCommandCodec::encode({"DEL", "session"}) +
+        RespCommandCodec::encode({"SET", "other", "value"}));
 }
 
 TEST(LogCompactorTest, LeavesIndependentKeysInOriginalOrder) {
     TempLogFile log_file(
         "independent-keys",
-        "SET \"a\" 1\n"
-        "SET \"b\" 2\n"
-        "EXPIRE \"a\" 10\n"
-        "SET \"c\" 3\n");
+        RespCommandCodec::encode({"SET", "a", "1"}) +
+        RespCommandCodec::encode({"SET", "b", "2"}) +
+        RespCommandCodec::encode({"EXPIRE", "a", "10"}) +
+        RespCommandCodec::encode({"SET", "c", "3"}));
 
     compact_log(log_file.path_string());
 
     EXPECT_EQ(
         log_file.read_all(),
-        "SET \"a\" 1\n"
-        "SET \"b\" 2\n"
-        "EXPIRE \"a\" 10\n"
-        "SET \"c\" 3\n");
+        RespCommandCodec::encode({"SET", "a", "1"}) +
+        RespCommandCodec::encode({"SET", "b", "2"}) +
+        RespCommandCodec::encode({"EXPIRE", "a", "10"}) +
+        RespCommandCodec::encode({"SET", "c", "3"}));
+}
+
+TEST(LogCompactorTest, PreservesBinaryKeyAndValue) {
+    const Bytes key{"k\0\n", 3};
+    const Bytes old_value{"old\0", 4};
+    const Bytes new_value{"new\xff", 4};
+    TempLogFile log_file("binary", RespCommandCodec::encode({"SET", key, old_value}) +
+                                   RespCommandCodec::encode({"SET", key, new_value}));
+    LogCompactor(log_file.path_string()).compact();
+    EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", key, new_value}));
+}
+
+TEST(LogCompactorTest, LaterSetRemovesPriorExpirationAndDelete) {
+    TempLogFile log_file("set-resets-state",
+        RespCommandCodec::encode({"SET", "key", "old"}) +
+        RespCommandCodec::encode({"EXPIRE", "key", "10"}) +
+        RespCommandCodec::encode({"DEL", "key"}) +
+        RespCommandCodec::encode({"SET", "key", "new"}));
+    LogCompactor(log_file.path_string()).compact();
+    EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", "key", "new"}));
 }

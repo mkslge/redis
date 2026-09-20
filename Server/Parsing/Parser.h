@@ -21,6 +21,7 @@
 class Parser {
 public:
     static std::unique_ptr<Statement> parse(std::vector<Token>& toks);
+    static std::unique_ptr<Statement> parse_arguments(const CommandArguments& arguments);
     static std::unique_ptr<GetStatement> try_parse_get(std::vector<Token>& toks);
 
     static std::unique_ptr<SetStatement> try_parse_set(std::vector<Token>& toks);

@@ -7,7 +7,6 @@
 #include "Statement.h"
 #include "StatementType.h"
 #include "Key.h"
-#include <optional>
 class DeleteStatement : public Statement{
 private:
     Key key_;
@@ -24,13 +23,7 @@ public:
         return true;
     }
 
-    std::string to_string() const override {
-        return "DEL " + serialize_value(key_);
-    }
-
-    std::optional<std::string> get_key() const override {
-        return key_;
-    }
+    CommandArguments arguments() const override { return {"DEL", key_}; }
 
 };
 #endif //DELETESTATEMENT_H

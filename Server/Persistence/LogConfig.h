@@ -4,7 +4,7 @@
 #include <string_view>
 
 namespace LogConfig {
-inline constexpr std::string_view kDefaultAofPath = "Persistence/appendonlylog.txt";
+inline constexpr std::string_view kDefaultAofPath = "data/appendonly.aof";
 }
 
 #endif //LOGCONFIG_H

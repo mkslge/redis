@@ -6,6 +6,38 @@
 
 #include <limits>
 #include <sstream>
+#include <charconv>
+#include <cctype>
+
+namespace {
+std::string uppercase_ascii(const Bytes& bytes) {
+    std::string result;
+    result.reserve(bytes.size());
+    for (const unsigned char byte : bytes) {
+        if (byte > 0x7f) return {};
+        result.push_back(static_cast<char>(std::toupper(byte)));
+    }
+    return result;
+}
+}
+
+std::unique_ptr<Statement> Parser::parse_arguments(const CommandArguments& arguments) {
+    if (arguments.empty()) return nullptr;
+    const std::string command = uppercase_ascii(arguments[0]);
+    if (command == "GET" && arguments.size() == 2) return std::make_unique<GetStatement>(arguments[1]);
+    if (command == "SET" && arguments.size() == 3) return std::make_unique<SetStatement>(arguments[1], arguments[2]);
+    if (command == "DEL" && arguments.size() == 2) return std::make_unique<DeleteStatement>(arguments[1]);
+    if (command == "EXISTS" && arguments.size() == 2) return std::make_unique<ExistsStatement>(arguments[1]);
+    if (command == "EXPIRE" && arguments.size() == 3) {
+        int seconds = 0;
+        const char* first = arguments[2].data();
+        const char* last = first + arguments[2].size();
+        const auto parsed = std::from_chars(first, last, seconds);
+        if (parsed.ec != std::errc{} || parsed.ptr != last) return nullptr;
+        return std::make_unique<ExpireStatement>(arguments[1], seconds);
+    }
+    return nullptr;
+}
 
 std::unique_ptr<Statement> Parser::parse(std::vector<Token>& toks) {
     if (toks.empty()) {

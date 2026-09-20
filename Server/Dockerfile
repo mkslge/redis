@@ -23,7 +23,7 @@ FROM ubuntu:24.04
 WORKDIR /app
 
 COPY --from=build /app/build/redisserver /app/redisserver
-RUN mkdir -p /app/Persistence
+RUN mkdir -p /app/data
 
 EXPOSE 6380
 

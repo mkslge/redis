@@ -27,3 +27,7 @@ Testing/
 # IDE / editor artifacts
 .idea/
 .DS_Store
+
+# Runtime database files
+/data/*
+!/data/.gitkeep

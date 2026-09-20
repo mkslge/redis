@@ -7,7 +7,6 @@
 #include "Statement.h"
 #include "StatementType.h"
 #include "Key.h"
-#include <optional>
 class GetStatement : public Statement{
 private:
     Key key_;
@@ -24,13 +23,7 @@ public:
         return false;
     }
 
-    std::optional<Key> get_key() const override {
-        return key_;
-    }
-
-    std::string to_string() const override {
-        return "GET " + serialize_value(key_);
-    }
+    CommandArguments arguments() const override { return {"GET", key_}; }
 
 };
 

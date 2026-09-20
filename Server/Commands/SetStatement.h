@@ -27,12 +27,6 @@ public:
         return true;
     }
 
-    std::optional<std::string> get_key() const override {
-        return key_;
-    }
-
-    std::string to_string() const override {
-        return "SET " + serialize_value(key_) + " " + serialize_value(value_);
-    }
+    CommandArguments arguments() const override { return {"SET", key_, value_}; }
 };
 #endif //SETSTATEMENT_H
