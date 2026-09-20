@@ -8,6 +8,7 @@
 #include "TokenType.h"
 #include <optional>
 #include <string>
+#include <utility>
 #include <variant>
 
 class Token {
@@ -18,10 +19,14 @@ public:
     explicit Token(TokenType type);
     template <typename T>
     Token(TokenType type, const T& value) : type_(type), value_(value) {}
+    template <typename T>
+    Token(TokenType type, const T& value, std::string source_text)
+        : type_(type), value_(value), source_text_(std::move(source_text)) {}
 
     TokenType get_type() const;
 
     bool has_value() const;
+    const std::optional<std::string>& source_text() const;
 
     template <typename T>
     std::optional<T> get_prim() const {
@@ -34,6 +39,9 @@ public:
 
     bool operator==(const Token& other) const;
     ~Token();
+
+private:
+    std::optional<std::string> source_text_;
 };
 
 #endif //TOKEN_H

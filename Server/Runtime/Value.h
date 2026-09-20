@@ -1,45 +1,25 @@
 #ifndef VALUE_H
 #define VALUE_H
 
-#include <string>
+#include "Bytes.h"
+
 #include <utility>
-#include <variant>
 
 class Value {
 public:
-    using Storage = std::variant<int, double, char, std::string>;
+    explicit Value(Bytes bytes) : bytes_(std::move(bytes)) {}
+    Value(const char* value) : bytes_(value) {}
 
-    Value(int value) : value_(value) {}
-    Value(double value) : value_(value) {}
-    Value(char value) : value_(value) {}
-    Value(std::string value) : value_(std::move(value)) {}
-    Value(const char* value) : value_(std::string(value)) {}
-
-    template <typename T>
-    bool is() const {
-        return std::holds_alternative<T>(value_);
-    }
-
-    template <typename T>
-    const T& get() const {
-        return std::get<T>(value_);
-    }
-
-    template <typename Visitor>
-    decltype(auto) visit(Visitor&& visitor) const {
-        return std::visit(std::forward<Visitor>(visitor), value_);
-    }
-
-    const Storage& storage() const {
-        return value_;
+    const Bytes& bytes() const {
+        return bytes_;
     }
 
     bool operator==(const Value& other) const {
-        return value_ == other.value_;
+        return bytes_ == other.bytes_;
     }
 
 private:
-    Storage value_;
+    Bytes bytes_;
 };
 
 #endif //VALUE_H

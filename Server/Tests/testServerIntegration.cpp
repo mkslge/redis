@@ -184,7 +184,7 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
     log_runner.run_log(restarted_processor);
 
     ASSERT_TRUE(restarted_storage.get("user").has_value());
-    EXPECT_EQ(restarted_storage.get("user")->get<std::string>(), "alice");
+    EXPECT_EQ(restarted_storage.get("user")->bytes(), "alice");
     EXPECT_TRUE(restarted_storage.exists("user"));
 
 }

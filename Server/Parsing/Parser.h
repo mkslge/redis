@@ -23,8 +23,7 @@ public:
     static std::unique_ptr<Statement> parse(std::vector<Token>& toks);
     static std::unique_ptr<GetStatement> try_parse_get(std::vector<Token>& toks);
 
-    template <typename V>
-    static std::unique_ptr<SetStatement<V>> try_parse_set(std::vector<Token>& toks);
+    static std::unique_ptr<SetStatement> try_parse_set(std::vector<Token>& toks);
     static std::unique_ptr<DeleteStatement> try_parse_del(std::vector<Token>& toks);
     static std::unique_ptr<ExistsStatement> try_parse_exists(std::vector<Token>& toks);
     static std::unique_ptr<ExpireStatement> try_parse_expire(std::vector<Token>& toks);
@@ -42,6 +41,7 @@ private:
     static std::unique_ptr<Statement> parse_set_statement(std::vector<Token>& toks);
     static std::unique_ptr<Statement> parse_expire_statement(std::vector<Token>& toks);
     static std::optional<Key> key_from_token(const Token& tok);
+    static std::optional<Bytes> value_from_token(const Token& tok);
 };
 
 

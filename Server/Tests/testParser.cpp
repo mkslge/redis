@@ -42,31 +42,32 @@ TEST(ParserTest, TryParseGetRejectsNonPrimitiveKey) {
     EXPECT_EQ(parsed, nullptr);
 }
 
-TEST(ParserTest, TryParseSetBuildsSetStatementWithTypedValues) {
+TEST(ParserTest, TryParseSetBuildsSetStatementWithByteValue) {
     std::vector<Token> tokens = {
         Token(TokenType::SET),
         Token(TokenType::STRING, "name"),
         Token(TokenType::INT, 42)
     };
 
-    auto parsed = Parser::try_parse_set<int>(tokens);
+    auto parsed = Parser::try_parse_set(tokens);
 
     ASSERT_NE(parsed, nullptr);
     EXPECT_EQ(parsed->get_type(), StatementType::SET);
     EXPECT_EQ(parsed->key(), "name");
-    EXPECT_EQ(parsed->value(), 42);
+    EXPECT_EQ(parsed->value(), "42");
 }
 
-TEST(ParserTest, TryParseSetRejectsWrongValueType) {
+TEST(ParserTest, TryParseSetAcceptsStringValue) {
     std::vector<Token> tokens = {
         Token(TokenType::SET),
         Token(TokenType::STRING, "name"),
         Token(TokenType::STRING, "forty-two")
     };
 
-    auto parsed = Parser::try_parse_set<int>(tokens);
+    auto parsed = Parser::try_parse_set(tokens);
 
-    EXPECT_EQ(parsed, nullptr);
+    ASSERT_NE(parsed, nullptr);
+    EXPECT_EQ(parsed->value(), "forty-two");
 }
 
 TEST(ParserTest, TryParseDeleteAcceptsPrimitiveKey) {
@@ -134,7 +135,7 @@ TEST(ParserTest, ParseDispatchesSetStatements) {
     ASSERT_NE(parsed, nullptr);
     EXPECT_EQ(parsed->get_type(), StatementType::SET);
 
-    auto* set_statement = dynamic_cast<SetStatement<std::string>*>(parsed.get());
+    auto* set_statement = dynamic_cast<SetStatement*>(parsed.get());
     ASSERT_NE(set_statement, nullptr);
     EXPECT_EQ(set_statement->key(), "user");
     EXPECT_EQ(set_statement->value(), "mark");

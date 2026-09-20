@@ -18,15 +18,9 @@ endif()
 
 FetchContent_MakeAvailable(googletest)
 enable_testing()
-
-add_library(CORE_CLIENT Networking/Client.cpp)
-target_include_directories(CORE_CLIENT PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(Networking)
+add_subdirectory(Tests)
 
 add_executable(redisclient main.cpp)
 target_link_libraries(redisclient PRIVATE CORE_CLIENT)
 
-add_executable(testClient Tests/testClient.cpp)
-target_link_libraries(testClient PRIVATE CORE_CLIENT GTest::gtest_main)
-
-include(GoogleTest)
-gtest_discover_tests(testClient)

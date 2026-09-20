@@ -6,12 +6,11 @@
 #define STATEMENT_H
 
 #include "StatementType.h"
+#include "Key.h"
 
 #include <sstream>
 #include <string>
 #include <optional>
-using Key = std::string;
-
 class Statement {
 private:
 StatementType type_;

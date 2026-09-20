@@ -1,8 +1,8 @@
 #ifndef KEY_H
 #define KEY_H
 
-#include <string>
+#include "Bytes.h"
 
-using Key = std::string;
+using Key = Bytes;
 
 #endif //KEY_H

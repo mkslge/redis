@@ -4,13 +4,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-include(FetchContent)
-FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
-)
-FetchContent_MakeAvailable(googletest)
-enable_testing()
 
 
 add_subdirectory(Utility)
@@ -25,7 +18,7 @@ add_subdirectory(Tests)
 
 add_executable(redisserver main.cpp)
 target_link_libraries(redisserver
-        PRIVATE
+        PUBLIC
         SERVER_RUNTIME
         SERVER_COMMANDS
         SERVER_PARSING

@@ -43,8 +43,7 @@ std::unique_ptr<GetStatement> Parser::try_parse_get(std::vector<Token>& toks) {
     return std::make_unique<GetStatement>(key.value());
 }
 
-template <typename V>
-std::unique_ptr<SetStatement<V>> Parser::try_parse_set(std::vector<Token>& toks) {
+std::unique_ptr<SetStatement> Parser::try_parse_set(std::vector<Token>& toks) {
     if (toks.size() != kBinaryStatementTokenCount ||
         toks[kCommandTokenIndex].get_type() != TokenType::SET ||
         !toks[kFirstArgumentTokenIndex].has_value() ||
@@ -53,12 +52,12 @@ std::unique_ptr<SetStatement<V>> Parser::try_parse_set(std::vector<Token>& toks)
     }
 
     auto key = key_from_token(toks[kFirstArgumentTokenIndex]);
-    auto val = toks[kSecondArgumentTokenIndex].template get_prim<V>();
+    auto val = value_from_token(toks[kSecondArgumentTokenIndex]);
     if (!key.has_value() || !val.has_value()) {
         return nullptr;
     }
 
-    return std::make_unique<SetStatement<V>>(key.value(), val.value());
+    return std::make_unique<SetStatement>(key.value(), val.value());
 }
 
 std::unique_ptr<DeleteStatement> Parser::try_parse_del(std::vector<Token>& toks) {
@@ -143,46 +142,13 @@ std::unique_ptr<Statement> Parser::parse_set_statement(std::vector<Token>& toks)
         return nullptr;
     }
 
-    switch (toks[2].get_type()) {
-        case TokenType::INT: {
-            auto parsed = Parser::try_parse_set<int>(toks);
-            if (parsed == nullptr) {
-                return nullptr;
-            }
-
-            std::unique_ptr<Statement> statement = std::move(parsed);
-            return statement;
-        }
-        case TokenType::DOUBLE: {
-            auto parsed = Parser::try_parse_set<double>(toks);
-            if (parsed == nullptr) {
-                return nullptr;
-            }
-
-            std::unique_ptr<Statement> statement = std::move(parsed);
-            return statement;
-        }
-        case TokenType::CHAR: {
-            auto parsed = Parser::try_parse_set<char>(toks);
-            if (parsed == nullptr) {
-                return nullptr;
-            }
-
-            std::unique_ptr<Statement> statement = std::move(parsed);
-            return statement;
-        }
-        case TokenType::STRING: {
-            auto parsed = Parser::try_parse_set<std::string>(toks);
-            if (parsed == nullptr) {
-                return nullptr;
-            }
-
-            std::unique_ptr<Statement> statement = std::move(parsed);
-            return statement;
-        }
-        default:
-            return nullptr;
+    auto parsed = Parser::try_parse_set(toks);
+    if (parsed == nullptr) {
+        return nullptr;
     }
+
+    std::unique_ptr<Statement> statement = std::move(parsed);
+    return statement;
 }
 
 std::unique_ptr<Statement> Parser::parse_expire_statement(std::vector<Token>& toks) {
@@ -214,7 +180,10 @@ std::optional<Key> Parser::key_from_token(const Token& tok) {
     }
 }
 
-template std::unique_ptr<SetStatement<int>> Parser::try_parse_set<int>(std::vector<Token>& toks);
-template std::unique_ptr<SetStatement<double>> Parser::try_parse_set<double>(std::vector<Token>& toks);
-template std::unique_ptr<SetStatement<char>> Parser::try_parse_set<char>(std::vector<Token>& toks);
-template std::unique_ptr<SetStatement<std::string>> Parser::try_parse_set<std::string>(std::vector<Token>& toks);
+std::optional<Bytes> Parser::value_from_token(const Token& tok) {
+    if (tok.source_text().has_value()) {
+        return tok.source_text().value();
+    }
+
+    return key_from_token(tok);
+}

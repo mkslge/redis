@@ -64,14 +64,14 @@ TEST(ExpirationManagerTest, BackgroundThreadDoesNotRemoveKeyBeforeDeadline) {
 
     EXPECT_TRUE(harness.storage().exists("cache"));
     ASSERT_TRUE(harness.storage().get("cache").has_value());
-    EXPECT_EQ(harness.storage().get("cache")->get<std::string>(), "warm");
+    EXPECT_EQ(harness.storage().get("cache")->bytes(), "warm");
 }
 
 TEST(ExpirationManagerTest, BackgroundThreadRemovesOnlyKeysWhoseDeadlinesPassed) {
     ExpirationManagerThreadHarness harness(5);
 
-    harness.storage().set("short", Value(1));
-    harness.storage().set("long", Value(2));
+    harness.storage().set("short", Value("1"));
+    harness.storage().set("long", Value("2"));
     ASSERT_TRUE(harness.storage().expire("short", std::chrono::milliseconds(20)));
     ASSERT_TRUE(harness.storage().expire("long", std::chrono::milliseconds(100)));
 

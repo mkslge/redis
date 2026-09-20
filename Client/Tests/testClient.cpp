@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "Networking/Client.h"
+#include "Client.h"
 
 TEST(ClientTest, BuildServerAddressUsesRequestedPortAndIp) {
     const sockaddr_in address = Client::build_server_address("127.0.0.1", 6380);
