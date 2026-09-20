@@ -2,6 +2,7 @@
 
 #include "Parser.h"
 #include "Tokenizer.h"
+#include "RespCommandCodec.h"
 
 #include <memory>
 #include <optional>
@@ -46,11 +47,22 @@ CommandProcessResult CommandProcessor::process(const std::string& command_line) 
         return CommandProcessResult::failure("parse failure");
     }
 
+    return process_statement(std::move(statement));
+}
+
+CommandProcessResult CommandProcessor::process_arguments(const CommandArguments& arguments) const {
+    std::unique_ptr<Statement> statement = Parser::parse_arguments(arguments);
+    if (statement == nullptr) return CommandProcessResult::failure("parse failure");
+    return process_statement(std::move(statement));
+}
+
+CommandProcessResult CommandProcessor::process_statement(std::unique_ptr<Statement> statement) const {
     const ExecutionResult result = executor_.execute(*statement);
+    const bool should_log = result.success && statement->mutates();
     return CommandProcessResult::success(ProcessedCommand{
         .statement_type = statement->get_type(),
         .execution_result = result,
-        .should_log = result.success && statement->mutates(),
-        .log_entry = result.success && statement->mutates() ? statement->to_string() : ""
+        .should_log = should_log,
+        .aof_record = should_log ? RespCommandCodec::encode(statement->arguments()) : Bytes{}
     });
 }

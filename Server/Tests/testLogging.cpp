@@ -3,6 +3,7 @@
 #include "LogRunner.h"
 #include "Executor.h"
 #include "StorageEngine.h"
+#include "RespCommandCodec.h"
 
 #include <gtest/gtest.h>
 
@@ -46,26 +47,16 @@ private:
 
 } // namespace
 
-TEST(LoggingTest, AofLoggerAppendsTrailingNewlineWhenNeeded) {
-    TempLogFile log_file("append-newline");
+TEST(LoggingTest, AofLoggerWritesRecordExactly) {
+    TempLogFile log_file("exact-record");
+    const Bytes record = RespCommandCodec::encode({"SET", "name", "mark"});
 
     {
         AOFLogger logger(log_file.path_string());
-        logger.enqueue("SET \"name\" \"mark\"");
+        logger.append_record(record);
     }
 
-    EXPECT_EQ(log_file.read_all(), "SET \"name\" \"mark\"\n");
-}
-
-TEST(LoggingTest, AofLoggerLeavesExistingNewlineUntouched) {
-    TempLogFile log_file("preserve-newline");
-
-    {
-        AOFLogger logger(log_file.path_string());
-        logger.enqueue("DEL \"name\"\n");
-    }
-
-    EXPECT_EQ(log_file.read_all(), "DEL \"name\"\n");
+    EXPECT_EQ(log_file.read_all(), record);
 }
 
 TEST(LoggingTest, AofLoggerAppendsAfterReopening) {
@@ -73,15 +64,16 @@ TEST(LoggingTest, AofLoggerAppendsAfterReopening) {
 
     {
         AOFLogger logger(log_file.path_string());
-        logger.enqueue("SET \"first\" \"1\"");
+        logger.append_record(RespCommandCodec::encode({"SET", "first", "1"}));
     }
     {
         AOFLogger logger(log_file.path_string());
-        logger.enqueue("SET \"second\" \"2\"");
+        logger.append_record(RespCommandCodec::encode({"SET", "second", "2"}));
     }
 
     EXPECT_EQ(log_file.read_all(),
-              "SET \"first\" \"1\"\nSET \"second\" \"2\"\n");
+              RespCommandCodec::encode({"SET", "first", "1"}) +
+              RespCommandCodec::encode({"SET", "second", "2"}));
 }
 
 TEST(LoggingTest, AofLoggerSupportsEverySecondPolicy) {
@@ -89,10 +81,10 @@ TEST(LoggingTest, AofLoggerSupportsEverySecondPolicy) {
 
     {
         AOFLogger logger(log_file.path_string(), AOFFsyncPolicy::EVERY_SECOND);
-        logger.enqueue("SET \"key\" \"value\"");
+        logger.append_record(RespCommandCodec::encode({"SET", "key", "value"}));
     }
 
-    EXPECT_EQ(log_file.read_all(), "SET \"key\" \"value\"\n");
+    EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", "key", "value"}));
 }
 
 TEST(LoggingTest, AofLoggerSupportsNeverPolicy) {
@@ -100,22 +92,22 @@ TEST(LoggingTest, AofLoggerSupportsNeverPolicy) {
 
     {
         AOFLogger logger(log_file.path_string(), AOFFsyncPolicy::NEVER);
-        logger.enqueue("SET \"key\" \"value\"");
+        logger.append_record(RespCommandCodec::encode({"SET", "key", "value"}));
     }
 
-    EXPECT_EQ(log_file.read_all(), "SET \"key\" \"value\"\n");
+    EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", "key", "value"}));
 }
 
 TEST(LoggingTest, AofLoggerWritesLargeEntriesCompletely) {
     TempLogFile log_file("large-entry");
-    const std::string entry(1024 * 1024, 'x');
+    const Bytes entry = RespCommandCodec::encode({"SET", "large", Bytes(1024 * 1024, 'x')});
 
     {
         AOFLogger logger(log_file.path_string());
-        logger.enqueue(entry);
+        logger.append_record(entry);
     }
 
-    EXPECT_EQ(log_file.read_all(), entry + "\n");
+    EXPECT_EQ(log_file.read_all(), entry);
 }
 
 TEST(LoggingTest, AofLoggerThrowsWhenParentDirectoryDoesNotExist) {
@@ -137,8 +129,8 @@ TEST(LoggingTest, AofLoggerSerializesConcurrentWrites) {
         for (int thread_id = 0; thread_id < kThreadCount; ++thread_id) {
             threads.emplace_back([&logger, thread_id] {
                 for (int entry = 0; entry < kEntriesPerThread; ++entry) {
-                    logger.enqueue("SET \"" + std::to_string(thread_id) + ":" +
-                                   std::to_string(entry) + "\" \"value\"");
+                    logger.append_record(RespCommandCodec::encode(
+                        {"SET", std::to_string(thread_id) + ":" + std::to_string(entry), "value"}));
                 }
             });
         }
@@ -148,11 +140,13 @@ TEST(LoggingTest, AofLoggerSerializesConcurrentWrites) {
         }
     }
 
-    std::ifstream stream(log_file.path_string());
+    Bytes contents = log_file.read_all();
     std::unordered_set<std::string> entries;
-    std::string line;
-    while (std::getline(stream, line)) {
-        entries.insert(line);
+    while (!contents.empty()) {
+        const auto decoded = RespCommandCodec::decode(contents);
+        ASSERT_EQ(decoded.status, RespDecodeStatus::COMPLETE);
+        entries.insert(decoded.arguments[1]);
+        contents.erase(0, decoded.bytes_consumed);
     }
 
     EXPECT_EQ(entries.size(), static_cast<std::size_t>(kThreadCount * kEntriesPerThread));
@@ -163,8 +157,8 @@ TEST(LoggingTest, LogRunnerReplaysMutatingCommandsIntoStorage) {
 
     {
         AOFLogger logger(log_file.path_string());
-        logger.enqueue("SET \"user\" \"alice\"");
-        logger.enqueue("EXPIRE \"user\" 30");
+        logger.append_record(RespCommandCodec::encode({"SET", "user", "alice"}));
+        logger.append_record(RespCommandCodec::encode({"EXPIRE", "user", "30"}));
     }
 
     StorageEngine storage;
@@ -183,8 +177,8 @@ TEST(LoggingTest, LogRunnerThrowsForMalformedLogEntry) {
     TempLogFile log_file("invalid-entry");
 
     {
-        std::ofstream stream(log_file.path_string());
-        stream << "SET \"user\"\n";
+        std::ofstream stream(log_file.path_string(), std::ios::binary);
+        stream << "*3\r\n$3\r\nSET\r\n$4\r\nuser\r\n$5\r\nabc";
     }
 
     StorageEngine storage;
@@ -193,4 +187,26 @@ TEST(LoggingTest, LogRunnerThrowsForMalformedLogEntry) {
     LogRunner runner(log_file.path_string());
 
     EXPECT_THROW(runner.run_log(command_processor), std::runtime_error);
+}
+
+TEST(LoggingTest, BinaryKeyAndValueSurviveReplay) {
+    TempLogFile log_file("binary-replay");
+    const Bytes key{"\0k\n\xff", 4};
+    const Bytes value{"v\"\r\n\0\xff", 6};
+    { AOFLogger logger(log_file.path_string()); logger.append_record(RespCommandCodec::encode({"SET", key, value})); }
+    StorageEngine storage;
+    Executor executor(storage);
+    CommandProcessor processor(executor);
+    LogRunner(log_file.path_string()).run_log(processor);
+    ASSERT_TRUE(storage.get(key).has_value());
+    EXPECT_EQ(storage.get(key)->bytes(), value);
+}
+
+TEST(LoggingTest, LogRunnerRejectsNonMutatingCommands) {
+    TempLogFile log_file("read-command");
+    { AOFLogger logger(log_file.path_string()); logger.append_record(RespCommandCodec::encode({"GET", "key"})); }
+    StorageEngine storage;
+    Executor executor(storage);
+    CommandProcessor processor(executor);
+    EXPECT_THROW(LogRunner(log_file.path_string()).run_log(processor), std::runtime_error);
 }

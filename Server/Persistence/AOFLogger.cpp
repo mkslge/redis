@@ -40,14 +40,9 @@ AOFLogger::~AOFLogger() {
     }
 }
 
-void AOFLogger::enqueue(const std::string& log_entry) {
-    if (log_entry.empty()) {
+void AOFLogger::append_record(const Bytes& record) {
+    if (record.empty()) {
         return;
-    }
-
-    std::string record = log_entry;
-    if (record.back() != '\n') {
-        record.push_back('\n');
     }
 
     std::lock_guard<std::mutex> lock{mutex_};

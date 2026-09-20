@@ -37,7 +37,8 @@ private:
     static bool send_response(int client_fd, const std::string& response);
     CommandProcessResult process_and_persist(const std::string& command);
     void handle_client(int client_fd);
-    void mark_client_finished(int client_fd);
+    void run_client_session(int client_fd);
+    void finish_client(int client_fd);
     void reap_finished_clients();
     void shutdown_clients();
 

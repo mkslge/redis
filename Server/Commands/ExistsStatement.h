@@ -22,13 +22,7 @@ public:
         return false;
     }
 
-    std::string to_string() const override {
-        return "EXISTS " + serialize_value(key_);
-    }
-
-    std::optional<Key> get_key() const override {
-        return key_;
-    }
+    CommandArguments arguments() const override { return {"EXISTS", key_}; }
 
 };
 

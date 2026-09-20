@@ -3,6 +3,7 @@
 
 #include "StatementType.h"
 #include "Executor.h"
+#include "Bytes.h"
 
 #include <optional>
 #include <string>
@@ -12,7 +13,7 @@ public:
     StatementType statement_type;
     ExecutionResult execution_result;
     bool should_log{false};
-    std::string log_entry;
+    Bytes aof_record;
 };
 
 class CommandProcessResult {
@@ -37,8 +38,10 @@ public:
     explicit CommandProcessor(Executor& executor);
 
     CommandProcessResult process(const std::string& command_line) const;
+    CommandProcessResult process_arguments(const CommandArguments& arguments) const;
 
 private:
+    CommandProcessResult process_statement(std::unique_ptr<Statement> statement) const;
     Executor& executor_;
 };
 

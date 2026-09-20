@@ -13,16 +13,14 @@ int main() {
     try {
         constexpr std::uint16_t kServerPort = Server::kDefaultPort;
         const std::string aof_path(LogConfig::kDefaultAofPath);
-        Tokenizer tokenizer;
-        Parser parser;
         StorageEngine storage;
         Executor executor(storage);
         CommandProcessor command_processor(executor);
-        AOFLogger logger(aof_path);
-        LogRunner log_runner(aof_path);
-        LogCompactor compactor(aof_path, tokenizer, parser);
+        LogCompactor compactor(aof_path);
         compactor.compact();
+        LogRunner log_runner(aof_path);
         log_runner.run_log(command_processor);
+        AOFLogger logger(aof_path);
         Server server(logger, command_processor, kServerPort);
         ExpirationManager exp_manager(10000);
         std::thread exp_thread{&ExpirationManager::expiration_thread, &exp_manager,  std::ref(storage) };

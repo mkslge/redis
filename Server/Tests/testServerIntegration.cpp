@@ -4,6 +4,7 @@
 #include "Executor.h"
 #include "StorageEngine.h"
 #include "Server.h"
+#include "RespCommandCodec.h"
 
 #include <gtest/gtest.h>
 
@@ -92,6 +93,26 @@ public:
         return read_response();
     }
 
+    void send_command_and_reset(const std::string& command) {
+        std::string framed_command = command;
+        if (framed_command.empty() || framed_command.back() != '\n') {
+            framed_command.push_back('\n');
+        }
+
+        const linger reset_on_close{.l_onoff = 1, .l_linger = 0};
+        if (setsockopt(socket_fd_, SOL_SOCKET, SO_LINGER, &reset_on_close, sizeof(reset_on_close)) != 0) {
+            throw std::runtime_error("Failed to configure reset-on-close");
+        }
+        if (send(socket_fd_, framed_command.data(), framed_command.size(), 0) !=
+            static_cast<ssize_t>(framed_command.size())) {
+            throw std::runtime_error("Failed to send command before reset");
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        close(socket_fd_);
+        socket_fd_ = -1;
+    }
+
 private:
     std::string read_response() {
         std::string response;
@@ -171,7 +192,7 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
         TestConnection connection(first_server.port());
 
         EXPECT_EQ(connection.send_command("SET \"user\" \"alice\""), "SET value=\"alice\"");
-        EXPECT_EQ(log_file.read_all(), "SET \"user\" \"alice\"\n");
+        EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", "user", "alice"}));
         EXPECT_EQ(connection.send_command("EXPIRE \"user\" 30"), "EXPIRE applied=true");
         EXPECT_EQ(connection.send_command("QUIT"), "BYE");
         first_server.shutdown();
@@ -188,4 +209,36 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
     EXPECT_EQ(restarted_storage.get("user")->bytes(), "alice");
     EXPECT_TRUE(restarted_storage.exists("user"));
 
+}
+
+TEST(ServerIntegrationTest, FailedResponseSendCleansUpClientSession) {
+    TempLogFile log_file("failed-response-cleanup");
+    ServerHarness server(log_file.path_string());
+    server.storage().set("large", Value(std::string(16 * 1024 * 1024, 'x')));
+
+    {
+        TestConnection disconnected_client(server.port());
+        disconnected_client.send_command_and_reset("GET \"large\"");
+    }
+
+    bool reconnected = false;
+    for (int attempt = 0; attempt < 50 && !reconnected; ++attempt) {
+        try {
+            TestConnection connection(server.port());
+            reconnected = connection.send_command("EXISTS \"large\"") == "EXISTS exists=true";
+        } catch (const std::exception&) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    }
+
+    EXPECT_TRUE(reconnected);
+    server.shutdown();
+}
+
+TEST(ServerIntegrationTest, ShutdownUnblocksAndJoinsIdleClientWorker) {
+    TempLogFile log_file("idle-client-shutdown");
+    ServerHarness server(log_file.path_string());
+    TestConnection idle_connection(server.port());
+
+    server.shutdown();
 }

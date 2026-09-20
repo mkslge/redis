@@ -2,6 +2,7 @@
 #define AOFLOGGER_H
 
 #include "LogConfig.h"
+#include "Bytes.h"
 
 #include <condition_variable>
 #include <exception>
@@ -26,7 +27,7 @@ public:
     AOFLogger(const AOFLogger&) = delete;
     AOFLogger& operator=(const AOFLogger&) = delete;
 
-    void enqueue(const std::string& log_entry);
+    void append_record(const Bytes& record);
 
 private:
     void write_all(const char* data, std::size_t size);

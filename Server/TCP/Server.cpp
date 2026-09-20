@@ -7,6 +7,26 @@
 #include <stdexcept>
 #include <vector>
 
+namespace {
+bool configure_client_socket(const int client_fd) {
+#ifdef SO_NOSIGPIPE
+    const int disable_sigpipe = 1;
+    return setsockopt(client_fd, SOL_SOCKET, SO_NOSIGPIPE,
+                      &disable_sigpipe, sizeof(disable_sigpipe)) == 0;
+#else
+    return true;
+#endif
+}
+
+int send_flags() {
+#ifdef MSG_NOSIGNAL
+    return MSG_NOSIGNAL;
+#else
+    return 0;
+#endif
+}
+} // namespace
+
 Server::Server(AOFLogger& logger, CommandProcessor& command_processor, const std::uint16_t port)
     : port_(port), logger_(logger), command_processor_(command_processor) {
     socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -75,30 +95,35 @@ void Server::run() {
             continue;
         }
 
-        //a client can disconnect while the accept loop is blocked, and the OS may
-        //reuse that fd for the next connection before we can reap the old entry.
-        reap_finished_clients();
-
-        bool inserted = false;
-        {
-            std::lock_guard<std::mutex> lock{mutex_};
-            inserted = clients_.try_emplace(client_fd, ClientSession{}).second;
-        }
-
-        if (!inserted) {
-            std::cerr << "Client fd " << client_fd << " was reused before the old session was reaped" << std::endl;
-            shutdown(client_fd, SHUT_RDWR);
+        if (!configure_client_socket(client_fd)) {
+            std::cerr << "Failed to configure client socket" << std::endl;
             close(client_fd);
             continue;
         }
 
-        std::thread worker(&Server::handle_client, this, client_fd);
+        //a client can disconnect while the accept loop is blocked, and the OS may
+        //reuse that fd for the next connection before we can reap the old entry.
+        reap_finished_clients();
+
         {
-            std::lock_guard<std::mutex> lock{mutex_};
-            auto it = clients_.find(client_fd);
-            if (it != clients_.end()) {
-                it->second.worker = std::move(worker);
-                it->second.finished = false;
+            std::unique_lock<std::mutex> lock{mutex_};
+            auto [session, inserted] = clients_.try_emplace(client_fd, ClientSession{});
+            if (!inserted) {
+                lock.unlock();
+                std::cerr << "Client fd " << client_fd << " was reused before the old session was reaped" << std::endl;
+                shutdown(client_fd, SHUT_RDWR);
+                close(client_fd);
+                continue;
+            }
+
+            try {
+                session->second.worker = std::thread(&Server::handle_client, this, client_fd);
+            } catch (...) {
+                clients_.erase(session);
+                lock.unlock();
+                shutdown(client_fd, SHUT_RDWR);
+                close(client_fd);
+                throw;
             }
         }
 
@@ -113,7 +138,7 @@ bool Server::send_response(const int client_fd, const std::string& response) {
     std::size_t bytes_remaining = response.size();
 
     while (bytes_remaining > 0) {
-        const ssize_t bytes_sent = send(client_fd, data, bytes_remaining, 0);
+        const ssize_t bytes_sent = send(client_fd, data, bytes_remaining, send_flags());
         if (bytes_sent <= 0) {
             return false;
         }
@@ -130,13 +155,23 @@ CommandProcessResult Server::process_and_persist(const std::string& command) {
     CommandProcessResult result = command_processor_.process(command);
 
     if (result.is_success() && result.processed_command().should_log) {
-        logger_.enqueue(result.processed_command().log_entry);
+        logger_.append_record(result.processed_command().aof_record);
     }
 
     return result;
 }
 
 void Server::handle_client(const int client_fd) {
+    try {
+        run_client_session(client_fd);
+    } catch (...) {
+        finish_client(client_fd);
+        throw;
+    }
+    finish_client(client_fd);
+}
+
+void Server::run_client_session(const int client_fd) {
     char buffer[kBufferSize]{};
     std::string pending_input;
     bool should_send_bye = false;
@@ -194,14 +229,12 @@ void Server::handle_client(const int client_fd) {
     if (should_send_bye) {
         send_response(client_fd, "BYE\n");
     }
-
-    shutdown(client_fd, SHUT_RDWR);
-    close(client_fd);
-    mark_client_finished(client_fd);
 }
 
-void Server::mark_client_finished(const int client_fd) {
+void Server::finish_client(const int client_fd) {
     std::lock_guard<std::mutex> lock{mutex_};
+    shutdown(client_fd, SHUT_RDWR);
+    close(client_fd);
     auto it = clients_.find(client_fd);
     if (it != clients_.end()) {
         it->second.finished = true;
@@ -242,7 +275,9 @@ void Server::shutdown_clients() {
         threads_to_join.reserve(clients_.size());
 
         for (auto& [client_fd, session] : clients_) {
-            client_fds.push_back(client_fd);
+            if (!session.finished) {
+                client_fds.push_back(client_fd);
+            }
             threads_to_join.push_back(std::move(session.worker));
         }
         clients_.clear();
@@ -250,7 +285,6 @@ void Server::shutdown_clients() {
 
     for (const int client_fd : client_fds) {
         shutdown(client_fd, SHUT_RDWR);
-        close(client_fd);
     }
 
     for (auto& thread : threads_to_join) {
