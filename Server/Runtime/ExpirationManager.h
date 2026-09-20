@@ -3,9 +3,11 @@
 
 #include "StorageEngine.h"
 
+#include <atomic>
+
 class ExpirationManager {
 private:
-    bool shutdown_ = false;
+    std::atomic<bool> shutdown_{false};
     int sleep_time_ms_ = 10000;
 
 public:

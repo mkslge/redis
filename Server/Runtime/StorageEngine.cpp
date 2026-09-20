@@ -1,14 +1,14 @@
 #include "StorageEngine.h"
 
 void StorageEngine::set(const Key& key, const Value& value) {
-    std::lock_guard<std::mutex> lg{*get_mutex(key)};
+    std::lock_guard<std::mutex> lock{mutex_};
     data_.insert_or_assign(key, Entry{value, std::nullopt});
 }
 
 std::optional<Value> StorageEngine::get(const Key& key) {
-    std::lock_guard<std::mutex> lg{*get_mutex(key)};
+    std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
-    prune_if_expired(key, now);
+    prune_if_expired_unlocked(key, now);
 
     const auto it = data_.find(key);
     if (it == data_.end()) {
@@ -19,22 +19,23 @@ std::optional<Value> StorageEngine::get(const Key& key) {
 }
 
 bool StorageEngine::del(const Key& key) {
-    std::lock_guard<std::mutex> lg{*get_mutex(key)};
+    std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
-    prune_if_expired(key, now);
+    prune_if_expired_unlocked(key, now);
     return data_.erase(key) > 0;
 }
 
 bool StorageEngine::exists(const Key& key) {
+    std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
-    prune_if_expired(key, now);
+    prune_if_expired_unlocked(key, now);
     return data_.contains(key);
 }
 
 bool StorageEngine::expire(const Key& key, const Duration ttl) {
-    std::lock_guard<std::mutex> lg{*get_mutex(key)};
+    std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
-    prune_if_expired(key, now);
+    prune_if_expired_unlocked(key, now);
 
     const auto it = data_.find(key);
     if (it == data_.end()) {
@@ -53,11 +54,13 @@ bool StorageEngine::expire(const Key& key, const Duration ttl) {
 }
 
 void StorageEngine::clear() {
+    std::lock_guard<std::mutex> lock{mutex_};
     data_.clear();
     possibly_expired_.clear();
 }
 
 std::size_t StorageEngine::size() {
+    std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
 
     for (auto it = data_.begin(); it != data_.end();) {
@@ -76,6 +79,11 @@ bool StorageEngine::is_expired(const Entry& entry, const TimePoint now) const {
 }
 
 void StorageEngine::prune_if_expired(const Key& key, const TimePoint now) {
+    std::lock_guard<std::mutex> lock{mutex_};
+    prune_if_expired_unlocked(key, now);
+}
+
+void StorageEngine::prune_if_expired_unlocked(const Key& key, const TimePoint now) {
     const auto it = data_.find(key);
     if (it == data_.end()) {
         return;
@@ -88,12 +96,6 @@ void StorageEngine::prune_if_expired(const Key& key, const TimePoint now) {
 }
 
 std::unordered_set<Key> StorageEngine::possibly_expired() {
+    std::lock_guard<std::mutex> lock{mutex_};
     return possibly_expired_;
-}
-
-std::mutex* StorageEngine::get_mutex(const Key& key) {
-    if(!mutexes_.contains(key)) {
-        auto [it, success] = mutexes_.try_emplace(key, std::make_unique<std::mutex>());
-    }
-    return mutexes_[key].get();
 }
