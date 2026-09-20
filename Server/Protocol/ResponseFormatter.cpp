@@ -5,25 +5,8 @@
 #include <string>
 
 namespace {
-template <typename T>
-std::string format_scalar(const T& value) {
-    return std::to_string(value);
-}
-
-template <>
-std::string format_scalar<std::string>(const std::string& value) {
-    return '"' + value + '"';
-}
-
-template <>
-std::string format_scalar<char>(const char& value) {
-    return std::string(1, value);
-}
-
 std::string format_value(const Value& value) {
-    return value.visit([](const auto& stored_value) {
-        return format_scalar(stored_value);
-    });
+    return '"' + value.bytes() + '"';
 }
 } // namespace
 

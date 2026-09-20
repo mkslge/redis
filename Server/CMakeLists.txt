@@ -18,7 +18,7 @@ add_subdirectory(Tests)
 
 add_executable(redisserver main.cpp)
 target_link_libraries(redisserver
-        PRIVATE
+        PUBLIC
         SERVER_RUNTIME
         SERVER_COMMANDS
         SERVER_PARSING

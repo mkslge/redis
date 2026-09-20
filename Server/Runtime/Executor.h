@@ -20,8 +20,7 @@ public:
     ExecutionResult execute(Statement& statement);
 
 private:
-    template <typename V>
-    ExecutionResult execute_set(const SetStatement<V>& statement);
+    ExecutionResult execute_set(const SetStatement& statement);
 
     ExecutionResult execute_get(const GetStatement& statement);
     ExecutionResult execute_delete(const DeleteStatement& statement);

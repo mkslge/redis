@@ -25,8 +25,7 @@ ExecutionResult Executor::execute_get(const GetStatement& statement) {
     };
 }
 
-template <typename V>
-ExecutionResult Executor::execute_set(const SetStatement<V>& statement) {
+ExecutionResult Executor::execute_set(const SetStatement& statement) {
     storage_.set(statement.key(), Value(statement.value()));
     return ExecutionResult{
         .success = true,
@@ -40,23 +39,7 @@ ExecutionResult Executor::execute(Statement& statement) {
         case StatementType::GET:
             return execute_get(*dynamic_cast<GetStatement*>(&statement));
         case StatementType::SET:
-            if (auto* int_statement = dynamic_cast<SetStatement<int>*>(&statement); int_statement != nullptr) {
-                return execute_set(*int_statement);
-            }
-            if (auto* double_statement = dynamic_cast<SetStatement<double>*>(&statement); double_statement != nullptr) {
-                return execute_set(*double_statement);
-            }
-            if (auto* char_statement = dynamic_cast<SetStatement<char>*>(&statement); char_statement != nullptr) {
-                return execute_set(*char_statement);
-            }
-            if (auto* string_statement = dynamic_cast<SetStatement<std::string>*>(&statement); string_statement != nullptr) {
-                return execute_set(*string_statement);
-            }
-            return ExecutionResult{
-                .success = false,
-                .message = "Unsupported SET value type",
-                .payload = std::monostate{}
-            };
+            return execute_set(*dynamic_cast<SetStatement*>(&statement));
         case StatementType::DELETE:
             return execute_delete(*dynamic_cast<DeleteStatement*>(&statement));
         case StatementType::EXISTS:
@@ -98,8 +81,3 @@ ExecutionResult Executor::execute_expire(const ExpireStatement& statement) {
         .payload = applied
     };
 }
-
-template ExecutionResult Executor::execute_set<int>(const SetStatement<int>&);
-template ExecutionResult Executor::execute_set<double>(const SetStatement<double>&);
-template ExecutionResult Executor::execute_set<char>(const SetStatement<char>&);
-template ExecutionResult Executor::execute_set<std::string>(const SetStatement<std::string>&);

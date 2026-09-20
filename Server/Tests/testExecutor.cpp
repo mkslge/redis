@@ -52,10 +52,10 @@ TEST(ExecutorTest, ExecuteGetReturnsStoredValueForExistingKey) {
     EXPECT_TRUE(result.success);
     EXPECT_EQ(result.message, "GET");
     ASSERT_TRUE(std::holds_alternative<Value>(result.payload));
-    EXPECT_EQ(std::get<Value>(result.payload).get<std::string>(), "meaning");
+    EXPECT_EQ(std::get<Value>(result.payload).bytes(), "meaning");
 }
 
-TEST(ExecutorTest, ExecuteSetStoresTypedValue) {
+TEST(ExecutorTest, ExecuteSetStoresByteValue) {
     StorageEngine storage;
     Executor executor(storage);
     auto statement = parse_statement("SET \"count\" 7");
@@ -67,9 +67,9 @@ TEST(ExecutorTest, ExecuteSetStoresTypedValue) {
     EXPECT_TRUE(result.success);
     EXPECT_EQ(result.message, "SET");
     ASSERT_TRUE(std::holds_alternative<Value>(result.payload));
-    EXPECT_EQ(std::get<Value>(result.payload).get<int>(), 7);
+    EXPECT_EQ(std::get<Value>(result.payload).bytes(), "7");
     ASSERT_TRUE(storage.get("count").has_value());
-    EXPECT_EQ(storage.get("count")->get<int>(), 7);
+    EXPECT_EQ(storage.get("count")->bytes(), "7");
 }
 
 TEST(ExecutorTest, ExecuteSetQuotesStringValue) {
@@ -84,14 +84,28 @@ TEST(ExecutorTest, ExecuteSetQuotesStringValue) {
     EXPECT_TRUE(result.success);
     EXPECT_EQ(result.message, "SET");
     ASSERT_TRUE(std::holds_alternative<Value>(result.payload));
-    EXPECT_EQ(std::get<Value>(result.payload).get<std::string>(), "payload");
+    EXPECT_EQ(std::get<Value>(result.payload).bytes(), "payload");
     ASSERT_TRUE(storage.get("x").has_value());
-    EXPECT_EQ(storage.get("x")->get<std::string>(), "payload");
+    EXPECT_EQ(storage.get("x")->bytes(), "payload");
+}
+
+TEST(ExecutorTest, ExecuteSetPreservesNumericSpelling) {
+    StorageEngine storage;
+    Executor executor(storage);
+    auto statement = parse_statement("SET \"code\" 00123");
+
+    ASSERT_NE(statement, nullptr);
+
+    const ExecutionResult result = executor.execute(*statement);
+
+    EXPECT_TRUE(result.success);
+    ASSERT_TRUE(storage.get("code").has_value());
+    EXPECT_EQ(storage.get("code")->bytes(), "00123");
 }
 
 TEST(ExecutorTest, ExecuteDeleteReturnsDeletionResult) {
     StorageEngine storage;
-    storage.set("3.5", Value(11));
+    storage.set("3.5", Value("11"));
     Executor executor(storage);
     auto statement = parse_statement("DEL 3.5");
 
@@ -108,7 +122,7 @@ TEST(ExecutorTest, ExecuteDeleteReturnsDeletionResult) {
 
 TEST(ExecutorTest, ExecuteExistsReturnsExistenceResult) {
     StorageEngine storage;
-    storage.set("k", Value('v'));
+    storage.set("k", Value("v"));
     Executor executor(storage);
     auto statement = parse_statement("EXISTS 'k'");
 

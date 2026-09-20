@@ -125,20 +125,22 @@ std::optional<Token> Tokenizer::tokenize_once(const std::string& input, int& idx
     }
 
     {
+        const int start_idx = idx_out;
         int temp_idx = idx_out;
         std::optional<int> opt_int = is_int(input, temp_idx);
         if (opt_int.has_value()) {
             idx_out = temp_idx;
-            return Token(TokenType::INT, opt_int.value());
+            return Token(TokenType::INT, opt_int.value(), input.substr(start_idx, temp_idx - start_idx));
         }
     }
 
     {
+        const int start_idx = idx_out;
         int temp_idx = idx_out;
         std::optional<double> opt_dbl = is_double(input, temp_idx);
         if (opt_dbl.has_value()) {
             idx_out = temp_idx;
-            return Token(TokenType::DOUBLE, opt_dbl.value());
+            return Token(TokenType::DOUBLE, opt_dbl.value(), input.substr(start_idx, temp_idx - start_idx));
         }
     }
 

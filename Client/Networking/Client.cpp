@@ -1,4 +1,4 @@
-#include "Networking/Client.h"
+#include "Client.h"
 
 #include <iostream>
 #include <stdexcept>

@@ -14,6 +14,10 @@ bool Token::has_value() const {
     return !std::holds_alternative<std::monostate>(value_);
 }
 
+const std::optional<std::string>& Token::source_text() const {
+    return source_text_;
+}
+
 bool Token::operator==(const Token& other) const {
     return this->type_ == other.type_ && value_ == other.value_;
 }

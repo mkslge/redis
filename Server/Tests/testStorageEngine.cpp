@@ -13,27 +13,38 @@ TEST(StorageEngineTest, SetAndGetRoundTripsStringValue) {
     const std::optional<Value> result = storage.get("user");
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_TRUE(result->is<std::string>());
-    EXPECT_EQ(result->get<std::string>(), "alice");
+    EXPECT_EQ(result->bytes(), "alice");
+}
+
+TEST(StorageEngineTest, SetAndGetRoundTripsEmbeddedNullBytes) {
+    StorageEngine storage;
+    const Bytes bytes{"a\0b", 3};
+
+    storage.set("binary", Value(bytes));
+
+    const std::optional<Value> result = storage.get("binary");
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result->bytes(), bytes);
+    EXPECT_EQ(result->bytes().size(), 3U);
 }
 
 TEST(StorageEngineTest, SetOverwritesExistingValue) {
     StorageEngine storage;
 
-    storage.set("answer", Value(41));
-    storage.set("answer", Value(42));
+    storage.set("answer", Value("41"));
+    storage.set("answer", Value("42"));
 
     const std::optional<Value> result = storage.get("answer");
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_TRUE(result->is<int>());
-    EXPECT_EQ(result->get<int>(), 42);
+    EXPECT_EQ(result->bytes(), "42");
 }
 
 TEST(StorageEngineTest, DeleteRemovesExistingKey) {
     StorageEngine storage;
 
-    storage.set("session", Value('x'));
+    storage.set("session", Value("x"));
 
     EXPECT_TRUE(storage.del("session"));
     EXPECT_FALSE(storage.exists("session"));
@@ -49,7 +60,7 @@ TEST(StorageEngineTest, DeleteReturnsFalseForMissingKey) {
 TEST(StorageEngineTest, ExistsReflectsStoredKeys) {
     StorageEngine storage;
 
-    storage.set("pi", Value(3.14));
+    storage.set("pi", Value("3.14"));
 
     EXPECT_TRUE(storage.exists("pi"));
     EXPECT_FALSE(storage.exists("tau"));
@@ -84,7 +95,7 @@ TEST(StorageEngineTest, PositiveExpireKeepsKeyUntilDeadline) {
 TEST(StorageEngineTest, ClearRemovesAllEntries) {
     StorageEngine storage;
 
-    storage.set("a", Value(1));
+    storage.set("a", Value("1"));
     storage.set("b", Value("two"));
 
     storage.clear();

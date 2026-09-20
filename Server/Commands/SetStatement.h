@@ -6,13 +6,12 @@
 #define SETSTATEMENT_H
 #include "Statement.h"
 #include "Key.h"
-template <typename V>
 class SetStatement : public Statement{
 private:
     Key key_;
-    V value_;
+    Bytes value_;
 public:
-    SetStatement(const Key& key, const V& value) : Statement(StatementType::SET) , key_(key), value_(value){
+    SetStatement(const Key& key, const Bytes& value) : Statement(StatementType::SET) , key_(key), value_(value){
 
     }
 
@@ -20,7 +19,7 @@ public:
         return key_;
     }
 
-    const V& value() const {
+    const Bytes& value() const {
         return value_;
     }
 

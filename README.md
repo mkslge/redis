@@ -6,7 +6,7 @@ The project currently includes:
 
 - a TCP server with a simple newline-delimited text protocol
 - a CLI client for interactive testing
-- typed values (`int`, `double`, `char`, `string`)
+- byte-string values that preserve the supplied representation
 - key expiration with both lazy pruning and a background expiration thread
 - append-only logging for durable mutation replay
 - unit and integration tests for the parser, runtime, persistence, networking, and client
@@ -42,14 +42,12 @@ Commands are sent as one line each.
 - `QUIT`
 - `EXIT`
 
-### Value Types
+### Values
 
-The parser currently accepts these scalar value types:
-
-- `int`
-- `double`
-- `char`
-- `string`
+Values are stored internally as byte strings. Numeric-looking input is not stored
+as a C++ numeric type, so representations such as `00123` are preserved exactly.
+The current text protocol still limits which bytes a client can send; full
+end-to-end binary safety requires a length-prefixed protocol such as RESP.
 
 Examples:
 

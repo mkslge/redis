@@ -82,7 +82,7 @@ TEST(LoggingTest, LogRunnerReplaysMutatingCommandsIntoStorage) {
     runner.run_log(command_processor);
 
     ASSERT_TRUE(storage.get("user").has_value());
-    EXPECT_EQ(storage.get("user")->get<std::string>(), "alice");
+    EXPECT_EQ(storage.get("user")->bytes(), "alice");
     EXPECT_TRUE(storage.exists("user"));
 }
 
