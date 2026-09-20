@@ -125,6 +125,17 @@ bool Server::send_response(const int client_fd, const std::string& response) {
     return true;
 }
 
+CommandProcessResult Server::process_and_persist(const std::string& command) {
+    std::lock_guard<std::mutex> lock{command_mutex_};
+    CommandProcessResult result = command_processor_.process(command);
+
+    if (result.is_success() && result.processed_command().should_log) {
+        logger_.enqueue(result.processed_command().log_entry);
+    }
+
+    return result;
+}
+
 void Server::handle_client(const int client_fd) {
     char buffer[kBufferSize]{};
     std::string pending_input;
@@ -153,7 +164,15 @@ void Server::handle_client(const int client_fd) {
             }
 
             if (!command.empty()) {
-                const CommandProcessResult result = command_processor_.process(command);
+                const CommandProcessResult result = [&] {
+                    try {
+                        return process_and_persist(command);
+                    } catch (const std::exception& error) {
+                        std::cerr << "Fatal persistence error: " << error.what() << std::endl;
+                        std::terminate();
+                    }
+                }();
+
                 const std::string response = result.is_success()
                     ? ResponseFormatter::format_result(result.processed_command().statement_type,
                                                        result.processed_command().execution_result)
@@ -161,9 +180,6 @@ void Server::handle_client(const int client_fd) {
 
                 if (!send_response(client_fd, response)) {
                     return;
-                }
-                if (result.is_success() && result.processed_command().should_log) {
-                    logger_.enqueue(result.processed_command().log_entry);
                 }
             }
 

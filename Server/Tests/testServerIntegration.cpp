@@ -171,6 +171,7 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
         TestConnection connection(first_server.port());
 
         EXPECT_EQ(connection.send_command("SET \"user\" \"alice\""), "SET value=\"alice\"");
+        EXPECT_EQ(log_file.read_all(), "SET \"user\" \"alice\"\n");
         EXPECT_EQ(connection.send_command("EXPIRE \"user\" 30"), "EXPIRE applied=true");
         EXPECT_EQ(connection.send_command("QUIT"), "BYE");
         first_server.shutdown();

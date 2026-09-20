@@ -31,9 +31,11 @@ private:
     std::atomic<bool> stopping_{false};
     std::unordered_map<int, ClientSession> clients_;
     std::mutex mutex_;
+    std::mutex command_mutex_;
 
     void bind_and_listen();
     static bool send_response(int client_fd, const std::string& response);
+    CommandProcessResult process_and_persist(const std::string& command);
     void handle_client(int client_fd);
     void mark_client_finished(int client_fd);
     void reap_finished_clients();

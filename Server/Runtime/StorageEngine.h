@@ -8,9 +8,7 @@
 #include <optional>
 #include <unordered_map>
 #include <unordered_set>
-#include <thread>
 #include <mutex>
-#include <memory>
 
 class StorageEngine {
 public:
@@ -34,11 +32,10 @@ private:
     };
 
     bool is_expired(const Entry& entry, TimePoint now) const;
-    std::mutex* get_mutex(const Key& key); //returns keys mutex, creates a new one if it doesnt exist yet
-    
+    void prune_if_expired_unlocked(const Key& key, TimePoint now);
 
+    std::mutex mutex_;
     std::unordered_map<Key, Entry> data_;
-    std::unordered_map<Key, std::unique_ptr<std::mutex>> mutexes_;
     std::unordered_set<Key> possibly_expired_;
 };
 

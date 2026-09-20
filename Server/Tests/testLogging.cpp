@@ -9,6 +9,9 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <thread>
+#include <unordered_set>
+#include <vector>
 
 namespace {
 
@@ -63,6 +66,96 @@ TEST(LoggingTest, AofLoggerLeavesExistingNewlineUntouched) {
     }
 
     EXPECT_EQ(log_file.read_all(), "DEL \"name\"\n");
+}
+
+TEST(LoggingTest, AofLoggerAppendsAfterReopening) {
+    TempLogFile log_file("reopen-append");
+
+    {
+        AOFLogger logger(log_file.path_string());
+        logger.enqueue("SET \"first\" \"1\"");
+    }
+    {
+        AOFLogger logger(log_file.path_string());
+        logger.enqueue("SET \"second\" \"2\"");
+    }
+
+    EXPECT_EQ(log_file.read_all(),
+              "SET \"first\" \"1\"\nSET \"second\" \"2\"\n");
+}
+
+TEST(LoggingTest, AofLoggerSupportsEverySecondPolicy) {
+    TempLogFile log_file("every-second");
+
+    {
+        AOFLogger logger(log_file.path_string(), AOFFsyncPolicy::EVERY_SECOND);
+        logger.enqueue("SET \"key\" \"value\"");
+    }
+
+    EXPECT_EQ(log_file.read_all(), "SET \"key\" \"value\"\n");
+}
+
+TEST(LoggingTest, AofLoggerSupportsNeverPolicy) {
+    TempLogFile log_file("never-sync");
+
+    {
+        AOFLogger logger(log_file.path_string(), AOFFsyncPolicy::NEVER);
+        logger.enqueue("SET \"key\" \"value\"");
+    }
+
+    EXPECT_EQ(log_file.read_all(), "SET \"key\" \"value\"\n");
+}
+
+TEST(LoggingTest, AofLoggerWritesLargeEntriesCompletely) {
+    TempLogFile log_file("large-entry");
+    const std::string entry(1024 * 1024, 'x');
+
+    {
+        AOFLogger logger(log_file.path_string());
+        logger.enqueue(entry);
+    }
+
+    EXPECT_EQ(log_file.read_all(), entry + "\n");
+}
+
+TEST(LoggingTest, AofLoggerThrowsWhenParentDirectoryDoesNotExist) {
+    const std::filesystem::path missing_path =
+        std::filesystem::temp_directory_path() / "redisimpl-missing-directory" / "aof.log";
+    std::filesystem::remove_all(missing_path.parent_path());
+
+    EXPECT_THROW(AOFLogger logger(missing_path.string()), std::runtime_error);
+}
+
+TEST(LoggingTest, AofLoggerSerializesConcurrentWrites) {
+    TempLogFile log_file("concurrent-writes");
+    constexpr int kThreadCount = 4;
+    constexpr int kEntriesPerThread = 50;
+
+    {
+        AOFLogger logger(log_file.path_string());
+        std::vector<std::thread> threads;
+        for (int thread_id = 0; thread_id < kThreadCount; ++thread_id) {
+            threads.emplace_back([&logger, thread_id] {
+                for (int entry = 0; entry < kEntriesPerThread; ++entry) {
+                    logger.enqueue("SET \"" + std::to_string(thread_id) + ":" +
+                                   std::to_string(entry) + "\" \"value\"");
+                }
+            });
+        }
+
+        for (auto& thread : threads) {
+            thread.join();
+        }
+    }
+
+    std::ifstream stream(log_file.path_string());
+    std::unordered_set<std::string> entries;
+    std::string line;
+    while (std::getline(stream, line)) {
+        entries.insert(line);
+    }
+
+    EXPECT_EQ(entries.size(), static_cast<std::size_t>(kThreadCount * kEntriesPerThread));
 }
 
 TEST(LoggingTest, LogRunnerReplaysMutatingCommandsIntoStorage) {
