@@ -1,83 +1,50 @@
-//
-// Created by Mark on 4/10/26.
-//
-
 #include "Executor.h"
-
-#include <string>
 
 Executor::Executor(StorageEngine& storage) : storage_(storage) {}
 
-ExecutionResult Executor::execute_get(const GetStatement& statement) {
-    const auto value = storage_.get(statement.key());
-    if (value.has_value()) {
-        return ExecutionResult{
-            .success = true,
-            .message = "GET",
-            .payload = value.value()
-        };
-    }
-
-    return ExecutionResult{
-        .success = true,
-        .message = "GET",
-        .payload = std::monostate{}
-    };
+ExecutionResult Executor::execute(const Command& command) {
+    return std::visit([this](const auto& concrete) {
+        return execute_command(concrete);
+    }, command);
 }
 
-ExecutionResult Executor::execute_set(const SetStatement& statement) {
-    storage_.set(statement.key(), Value(statement.value()));
-    return ExecutionResult{
-        .success = true,
-        .message = "SET",
-        .payload = Value(statement.value())
-    };
+ExecutionResult Executor::execute_command(const GetCommand& command) {
+    const auto value = storage_.get(command.key);
+    return {.success = true,
+            .payload = value.has_value() ? ExecutionPayload{*value}
+                                         : ExecutionPayload{std::monostate{}}};
 }
 
-ExecutionResult Executor::execute(Statement& statement) {
-    switch (statement.get_type()) {
-        case StatementType::GET:
-            return execute_get(*dynamic_cast<GetStatement*>(&statement));
-        case StatementType::SET:
-            return execute_set(*dynamic_cast<SetStatement*>(&statement));
-        case StatementType::DELETE:
-            return execute_delete(*dynamic_cast<DeleteStatement*>(&statement));
-        case StatementType::EXISTS:
-            return execute_exists(*dynamic_cast<ExistsStatement*>(&statement));
-        case StatementType::EXPIRE:
-            return execute_expire(*dynamic_cast<ExpireStatement*>(&statement));
-        default:
-            return ExecutionResult{
-                .success = false,
-                .message = "Unsupported statement type",
-                .payload = std::monostate{}
-            };
-    }
+ExecutionResult Executor::execute_command(const SetCommand& command) {
+    storage_.set(command.key, Value(command.value));
+    return {.success = true, .did_mutate = true, .payload = Value(command.value)};
 }
 
-ExecutionResult Executor::execute_delete(const DeleteStatement& statement) {
-    const bool deleted = storage_.del(statement.key());
-    return ExecutionResult{
-        .success = true,
-        .message = "DELETE",
-        .payload = deleted
-    };
+ExecutionResult Executor::execute_command(const DeleteCommand& command) {
+    const bool deleted = storage_.del(command.key);
+    return {.success = true, .did_mutate = deleted, .payload = deleted};
 }
 
-ExecutionResult Executor::execute_exists(const ExistsStatement& statement) {
-    const bool exists = storage_.exists(statement.key());
-    return ExecutionResult{
-        .success = true,
-        .message = "EXISTS",
-        .payload = exists
-    };
+ExecutionResult Executor::execute_command(const ExistsCommand& command) {
+    return {.success = true, .payload = storage_.exists(command.key)};
 }
 
-ExecutionResult Executor::execute_expire(const ExpireStatement& statement) {
-    const bool applied = storage_.expire_at(statement.key(), statement.expires_at());
-    return ExecutionResult{
-        .success = true,
-        .message = "EXPIRE",
-        .payload = applied
-    };
+ExecutionResult Executor::execute_command(const ExpireCommand& command) {
+    const bool applied = storage_.expire_at(command.key, command.expires_at);
+    return {.success = true, .did_mutate = applied, .payload = applied};
+}
+
+ExecutionResult Executor::execute_command(const TtlCommand& command) {
+    std::int64_t ttl = storage_.ttl_milliseconds(command.key);
+    if (ttl >= 0) ttl = ttl / 1000 + (ttl % 1000 >= 500 ? 1 : 0);
+    return {.success = true, .payload = ttl};
+}
+
+ExecutionResult Executor::execute_command(const PttlCommand& command) {
+    return {.success = true, .payload = storage_.ttl_milliseconds(command.key)};
+}
+
+ExecutionResult Executor::execute_command(const PersistCommand& command) {
+    const bool removed = storage_.persist(command.key);
+    return {.success = true, .did_mutate = removed, .payload = removed};
 }

@@ -191,6 +191,24 @@ TEST(LoggingTest, LogRunnerDoesNotRenewAnExpirationThatPassedWhileStopped) {
     EXPECT_FALSE(storage.exists("session"));
 }
 
+TEST(LoggingTest, LogRunnerReplaysPersistAfterExpiration) {
+    TempLogFile log_file("persist-replay");
+    {
+        AOFLogger logger(log_file.path_string());
+        logger.append_record(RespCommandCodec::encode({"SET", "session", "token"}));
+        logger.append_record(RespCommandCodec::encode({"PEXPIREAT", "session", "4102444800000"}));
+        logger.append_record(RespCommandCodec::encode({"PERSIST", "session"}));
+    }
+
+    StorageEngine storage;
+    Executor executor(storage);
+    CommandProcessor processor(executor);
+    LogRunner(log_file.path_string()).run_log(processor);
+
+    EXPECT_TRUE(storage.exists("session"));
+    EXPECT_EQ(storage.ttl_milliseconds("session"), -1);
+}
+
 TEST(LoggingTest, ExpireIsSerializedAsAnAbsoluteUnixMillisecondDeadline) {
     StorageEngine storage;
     storage.set("session", Value("token"));
@@ -214,6 +232,21 @@ TEST(LoggingTest, ExpireIsSerializedAsAnAbsoluteUnixMillisecondDeadline) {
         (after + std::chrono::seconds(30)).time_since_epoch()).count();
     EXPECT_GE(deadline, earliest);
     EXPECT_LE(deadline, latest);
+}
+
+TEST(LoggingTest, NoOpPersistDoesNotProduceAnAofRecord) {
+    StorageEngine storage;
+    Executor executor(storage);
+    CommandProcessor processor(executor);
+
+    const auto missing = processor.process("PERSIST \"missing\"");
+    storage.set("permanent", Value("value"));
+    const auto permanent = processor.process("PERSIST \"permanent\"");
+
+    ASSERT_TRUE(missing.is_success());
+    ASSERT_TRUE(permanent.is_success());
+    EXPECT_FALSE(missing.processed_command().should_log);
+    EXPECT_FALSE(permanent.processed_command().should_log);
 }
 
 TEST(LoggingTest, LogRunnerThrowsForMalformedLogEntry) {

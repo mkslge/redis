@@ -1,51 +1,65 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "CommandProcessor.h"
 #include "AOFLogger.h"
+#include "CommandProcessor.h"
+#include "StorageEngine.h"
 
 #include <arpa/inet.h>
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <string>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <thread>
 #include <unordered_map>
-#include <mutex>
 
 class Server {
 private:
     static constexpr std::size_t kBufferSize = 1024;
+    static constexpr std::size_t kMaxReadPerEvent = 64 * 1024;
+    static constexpr std::size_t kMaxWritePerEvent = 64 * 1024;
+    static constexpr std::size_t kMaxInputBuffer = 1024 * 1024;
+    static constexpr std::size_t kMaxOutputBuffer = 32 * 1024 * 1024;
+    static constexpr std::size_t kExpirationCandidatesPerSweep = 200;
 
     struct ClientSession {
-        std::thread worker;
-        bool finished{false};
+        std::string input_buffer;
+        std::string output_buffer;
+        std::size_t output_offset{0};
+        bool close_after_write{false};
     };
 
     std::uint16_t port_;
     int socket_fd_{-1};
+    int wakeup_fds_[2]{-1, -1};
     sockaddr_in serveraddr_{};
     AOFLogger& logger_;
     CommandProcessor& command_processor_;
+    StorageEngine& storage_;
+    std::chrono::milliseconds expiration_sweep_interval_;
     std::atomic<bool> stopping_{false};
     std::unordered_map<int, ClientSession> clients_;
-    std::mutex mutex_;
-    std::mutex command_mutex_;
 
     void bind_and_listen();
-    static bool send_response(int client_fd, const std::string& response);
+    void initialize_wakeup_pipe();
+    void accept_ready_clients();
+    bool read_from_client(int client_fd);
+    bool process_client_input(int client_fd);
+    bool flush_client_output(int client_fd);
+    bool queue_response(ClientSession& session, std::string response);
     CommandProcessResult process_and_persist(const std::string& command);
-    void handle_client(int client_fd);
-    void run_client_session(int client_fd);
-    void finish_client(int client_fd);
-    void reap_finished_clients();
-    void shutdown_clients();
+    void close_client(int client_fd);
+    void close_all_clients();
+    void drain_wakeup_pipe() const;
+    void run_expiration_sweep();
 
 public:
     static constexpr std::uint16_t kDefaultPort = 6380;
 
-    explicit Server(AOFLogger& logger, CommandProcessor& command_processor, std::uint16_t port = kDefaultPort);
+    explicit Server(AOFLogger& logger,
+                    CommandProcessor& command_processor,
+                    StorageEngine& storage,
+                    std::uint16_t port = kDefaultPort,
+                    std::chrono::milliseconds expiration_sweep_interval = std::chrono::milliseconds(100));
     ~Server();
 
     Server(const Server&) = delete;

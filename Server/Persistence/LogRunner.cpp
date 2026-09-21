@@ -33,7 +33,7 @@ void LogRunner::run_log(CommandProcessor& command_processor) const {
             }
 
             const CommandProcessResult result = command_processor.process_arguments(decoded.arguments);
-            if (!result.is_success() || !result.processed_command().should_log) {
+            if (!result.is_success() || !result.processed_command().mutating_command) {
                 const std::string detail = result.is_success() ? "non-mutating command" : result.error_message();
                 throw std::runtime_error("Invalid AOF command at byte offset " +
                                          std::to_string(consumed_offset) + ": " + detail);

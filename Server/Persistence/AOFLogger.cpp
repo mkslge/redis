@@ -57,7 +57,7 @@ void AOFLogger::append_record(const Bytes& record) {
             sync();
             break;
         case AOFFsyncPolicy::EVERY_SECOND:
-            dirty_ = true;
+            ++write_generation_;
             break;
         case AOFFsyncPolicy::NEVER:
             break;
@@ -86,35 +86,34 @@ void AOFLogger::sync() {
     if (::fsync(fd_) != 0) {
         throw_io_error("fsync");
     }
-    dirty_ = false;
 }
 
 void AOFLogger::periodic_sync_loop() {
     std::unique_lock<std::mutex> lock{mutex_};
 
-    while (!stopping_) {
+    while (true) {
         sync_condition_.wait_for(lock, std::chrono::seconds(1), [this] {
             return stopping_;
         });
 
-        if (!dirty_) {
+        if (synced_generation_ == write_generation_) {
+            if (stopping_) return;
             continue;
         }
 
+        const std::uint64_t generation_to_sync = write_generation_;
+        lock.unlock();
+
         try {
             sync();
         } catch (...) {
+            lock.lock();
             background_error_ = std::current_exception();
             return;
         }
-    }
-
-    if (dirty_) {
-        try {
-            sync();
-        } catch (...) {
-            background_error_ = std::current_exception();
-        }
+        lock.lock();
+        synced_generation_ = generation_to_sync;
+        if (stopping_ && synced_generation_ == write_generation_) return;
     }
 }
 

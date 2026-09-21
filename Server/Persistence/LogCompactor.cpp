@@ -10,12 +10,16 @@
 #include <fstream>
 #include <fcntl.h>
 #include <stdexcept>
+#include <type_traits>
 #include <unordered_map>
 #include <unistd.h>
 #include <vector>
 
 namespace {
-struct Record { CommandArguments arguments; bool keep{true}; };
+template<class>
+inline constexpr bool always_false = false;
+
+struct Record { CommandArguments arguments; Command command; bool keep{true}; };
 
 std::vector<Record> read_records(const std::string& path) {
     std::ifstream input(path, std::ios::binary);
@@ -29,9 +33,9 @@ std::vector<Record> read_records(const std::string& path) {
             const std::string detail = decoded.status == RespDecodeStatus::INVALID ? decoded.error : "incomplete RESP record";
             throw std::runtime_error("Malformed AOF at byte offset " + std::to_string(offset) + ": " + detail);
         }
-        auto statement = Parser::parse_arguments(decoded.arguments);
-        if (!statement || !statement->mutates()) throw std::runtime_error("Invalid AOF command at byte offset " + std::to_string(offset));
-        records.push_back({std::move(decoded.arguments), true});
+        auto command = Parser::parse_arguments(decoded.arguments);
+        if (!command || !is_mutating(*command)) throw std::runtime_error("Invalid AOF command at byte offset " + std::to_string(offset));
+        records.push_back({std::move(decoded.arguments), std::move(*command), true});
         offset += decoded.bytes_consumed;
     }
     return records;
@@ -83,28 +87,31 @@ void LogCompactor::compact() const {
     std::vector<Record> records = read_records(file_path_);
     std::unordered_map<Bytes, std::size_t> latest_set, latest_expire, latest_delete;
     for (std::size_t index = 0; index < records.size(); ++index) {
-        const Bytes& command = records[index].arguments[0];
-        const Bytes& key = records[index].arguments[1];
-        if (command == "SET") {
-            for (auto* map : {&latest_set, &latest_expire, &latest_delete}) {
-                if (const auto found = map->find(key); found != map->end()) {
-                    records[found->second].keep = false;
-                    map->erase(found);
+        std::visit([&](const auto& command) {
+            using Type = std::decay_t<decltype(command)>;
+            const Bytes& key = command.key;
+            if constexpr (std::is_same_v<Type, SetCommand> || std::is_same_v<Type, DeleteCommand>) {
+                for (auto* map : {&latest_set, &latest_expire, &latest_delete}) {
+                    if (const auto found = map->find(key); found != map->end()) {
+                        records[found->second].keep = false;
+                        map->erase(found);
+                    }
                 }
-            }
-            latest_set[key] = index;
-        } else if (command == "PEXPIREAT") {
-            if (const auto found = latest_expire.find(key); found != latest_expire.end()) records[found->second].keep = false;
-            latest_expire[key] = index;
-        } else if (command == "DEL") {
-            for (auto* map : {&latest_set, &latest_expire, &latest_delete}) {
-                if (const auto found = map->find(key); found != map->end()) {
+                if constexpr (std::is_same_v<Type, SetCommand>) latest_set[key] = index;
+                else latest_delete[key] = index;
+            } else if constexpr (std::is_same_v<Type, ExpireCommand> ||
+                                 std::is_same_v<Type, PersistCommand>) {
+                if (const auto found = latest_expire.find(key); found != latest_expire.end()) {
                     records[found->second].keep = false;
-                    map->erase(found);
                 }
-            }
-            latest_delete[key] = index;
-        }
+                latest_expire[key] = index;
+            } else if constexpr (std::is_same_v<Type, GetCommand> ||
+                                 std::is_same_v<Type, ExistsCommand> ||
+                                 std::is_same_v<Type, TtlCommand> ||
+                                 std::is_same_v<Type, PttlCommand>) {
+                throw std::logic_error("Non-mutating command reached AOF compaction");
+            } else static_assert(always_false<Type>, "Compactor missing command alternative");
+        }, records[index].command);
     }
     Bytes output;
     for (const Record& record : records) if (record.keep) output += RespCommandCodec::encode(record.arguments);

@@ -1,5 +1,5 @@
 add_library(SERVER_COMMANDS STATIC
-        Statement.cpp
+        Command.cpp
 )
 
 target_include_directories(SERVER_COMMANDS

@@ -23,14 +23,15 @@ bool socket_io::configure_for_writes(const int socket_fd) {
 #endif
 }
 
+ssize_t socket_io::send_some(const int socket_fd, const std::string_view data) {
+    return send(socket_fd, data.data(), data.size(), send_flags());
+}
+
 bool socket_io::send_all(const int socket_fd, const std::string_view data) {
     std::size_t bytes_sent = 0;
 
     while (bytes_sent < data.size()) {
-        const ssize_t result = send(socket_fd,
-                                    data.data() + bytes_sent,
-                                    data.size() - bytes_sent,
-                                    send_flags());
+        const ssize_t result = send_some(socket_fd, data.substr(bytes_sent));
         if (result > 0) {
             bytes_sent += static_cast<std::size_t>(result);
             continue;

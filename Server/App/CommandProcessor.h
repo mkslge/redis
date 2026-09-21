@@ -1,7 +1,7 @@
 #ifndef COMMANDPROCESSOR_H
 #define COMMANDPROCESSOR_H
 
-#include "StatementType.h"
+#include "Command.h"
 #include "Executor.h"
 #include "Bytes.h"
 
@@ -10,8 +10,9 @@
 
 class ProcessedCommand {
 public:
-    StatementType statement_type;
+    Command command;
     ExecutionResult execution_result;
+    bool mutating_command{false};
     bool should_log{false};
     Bytes aof_record;
 };
@@ -41,7 +42,7 @@ public:
     CommandProcessResult process_arguments(const CommandArguments& arguments) const;
 
 private:
-    CommandProcessResult process_statement(std::unique_ptr<Statement> statement) const;
+    CommandProcessResult process_command(Command command) const;
     Executor& executor_;
 };
 

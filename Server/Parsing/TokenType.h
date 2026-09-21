@@ -8,7 +8,7 @@
 #include <string>
 
 enum class TokenType {
-   SET, GET, DEL, EXISTS, EXPIRE,
+   SET, GET, DEL, EXISTS, EXPIRE, TTL, PTTL, PERSIST,
    INT, DOUBLE, CHAR, STRING
 };
 
@@ -24,6 +24,12 @@ inline std::string token_type_str(const TokenType& type) {
          return "EXISTS";
       case TokenType::EXPIRE:
          return "EXPIRE";
+      case TokenType::TTL:
+         return "TTL";
+      case TokenType::PTTL:
+         return "PTTL";
+      case TokenType::PERSIST:
+         return "PERSIST";
       case TokenType::INT:
          return "INT";
       case TokenType::DOUBLE:

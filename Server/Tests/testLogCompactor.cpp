@@ -77,6 +77,20 @@ TEST(LogCompactorTest, KeepsLatestExpireForSameKey) {
         RespCommandCodec::encode({"PEXPIREAT", "session", "4102444860000"}));
 }
 
+TEST(LogCompactorTest, PersistReplacesPriorExpiration) {
+    TempLogFile log_file(
+        "persist-replaces-expire",
+        RespCommandCodec::encode({"SET", "session", "token"}) +
+        RespCommandCodec::encode({"PEXPIREAT", "session", "0"}) +
+        RespCommandCodec::encode({"PERSIST", "session"}));
+
+    compact_log(log_file.path_string());
+
+    EXPECT_EQ(log_file.read_all(),
+              RespCommandCodec::encode({"SET", "session", "token"}) +
+              RespCommandCodec::encode({"PERSIST", "session"}));
+}
+
 TEST(LogCompactorTest, DeleteRemovesPriorMutationsForKey) {
     TempLogFile log_file(
         "delete-key",

@@ -2,17 +2,8 @@
 
 ## High priority correctness
 
-
-- [x] Handle partial client writes. Extract a shared `send_all()` helper and use
-  it from both the client and server.
-- [ ] WE SHould go from a per client rhead model to a single thread liike the actual redis implementation
-
-
 ## Expiration correctness
 
-- [ ] Replace the expiration thread's `sleep_for()` with a condition variable so
-  shutdown does not wait for the entire sleep interval.
-- [ ] Add `TTL`, `PTTL`, and `PERSIST` commands.
 
 ## Protocol and binary safety
 
@@ -27,10 +18,10 @@
 
 ## Command model cleanup
 
-- [ ] Replace the duplicated `StatementType` plus dynamic-class representation
+- [x] Replace the duplicated `StatementType` plus dynamic-class representation
   with one authoritative command representation, likely `std::variant`. This
   should also become the serializable command format used by the future Raft log.
-- [ ] Replace unchecked `dynamic_cast` dereferences in `Executor`.
+- [x] Replace unchecked `dynamic_cast` dereferences in `Executor`.
 - [ ] Replace `CommandProcessResult`'s two independent optionals with a type that
   represents exactly one outcome, such as `std::variant<ProcessedCommand, Error>`.
 - [ ] Remove repetitive parser pass-through functions and accept token vectors by
