@@ -12,7 +12,7 @@ void ExpirationManager::expiration_thread(StorageEngine& storage_engine) {
     while (!shutdown_) {
         const std::unordered_set<Key> possibly_exp_set = storage_engine.possibly_expired();
         for (const auto& key : possibly_exp_set) {
-            storage_engine.prune_if_expired(key, std::chrono::steady_clock::now());
+            storage_engine.prune_if_expired(key, StorageEngine::Clock::now());
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time_ms_));
     }

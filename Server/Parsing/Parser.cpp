@@ -8,6 +8,7 @@
 #include <sstream>
 #include <charconv>
 #include <cctype>
+#include <chrono>
 
 namespace {
 std::string uppercase_ascii(const Bytes& bytes) {
@@ -28,13 +29,25 @@ std::unique_ptr<Statement> Parser::parse_arguments(const CommandArguments& argum
     if (command == "SET" && arguments.size() == 3) return std::make_unique<SetStatement>(arguments[1], arguments[2]);
     if (command == "DEL" && arguments.size() == 2) return std::make_unique<DeleteStatement>(arguments[1]);
     if (command == "EXISTS" && arguments.size() == 2) return std::make_unique<ExistsStatement>(arguments[1]);
-    if (command == "EXPIRE" && arguments.size() == 3) {
-        int seconds = 0;
+    if (command == "PEXPIREAT" && arguments.size() == 3) {
+        std::int64_t unix_milliseconds = 0;
         const char* first = arguments[2].data();
         const char* last = first + arguments[2].size();
-        const auto parsed = std::from_chars(first, last, seconds);
+        const auto parsed = std::from_chars(first, last, unix_milliseconds);
         if (parsed.ec != std::errc{} || parsed.ptr != last) return nullptr;
-        return std::make_unique<ExpireStatement>(arguments[1], seconds);
+
+        using Clock = ExpireStatement::Clock;
+        using Milliseconds = std::chrono::milliseconds;
+        const auto minimum = std::chrono::duration_cast<Milliseconds>(
+            Clock::time_point::min().time_since_epoch()).count();
+        const auto maximum = std::chrono::duration_cast<Milliseconds>(
+            Clock::time_point::max().time_since_epoch()).count();
+        if (unix_milliseconds < minimum || unix_milliseconds > maximum) return nullptr;
+
+        const auto duration = std::chrono::duration_cast<Clock::duration>(
+            Milliseconds(unix_milliseconds));
+        return std::make_unique<ExpireStatement>(
+            arguments[1], Clock::time_point(duration));
     }
     return nullptr;
 }

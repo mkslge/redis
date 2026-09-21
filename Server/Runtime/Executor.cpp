@@ -74,7 +74,7 @@ ExecutionResult Executor::execute_exists(const ExistsStatement& statement) {
 }
 
 ExecutionResult Executor::execute_expire(const ExpireStatement& statement) {
-    const bool applied = storage_.expire(statement.key(), std::chrono::seconds(statement.expire_time()));
+    const bool applied = storage_.expire_at(statement.key(), statement.expires_at());
     return ExecutionResult{
         .success = true,
         .message = "EXPIRE",

@@ -12,7 +12,7 @@
 
 class StorageEngine {
 public:
-    using Clock = std::chrono::steady_clock;
+    using Clock = std::chrono::system_clock;
     using Duration = Clock::duration;
     using TimePoint = Clock::time_point;
 
@@ -21,6 +21,7 @@ public:
     bool del(const Key& key);
     bool exists(const Key& key);
     bool expire(const Key& key, Duration ttl);
+    bool expire_at(const Key& key, TimePoint expires_at);
     void clear();
     std::size_t size();
     std::unordered_set<Key> possibly_expired();

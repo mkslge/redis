@@ -1,6 +1,7 @@
 #include "Server.h"
 
 #include "ResponseFormatter.h"
+#include "SocketIO.h"
 
 #include <cstring>
 #include <iostream>
@@ -9,21 +10,7 @@
 
 namespace {
 bool configure_client_socket(const int client_fd) {
-#ifdef SO_NOSIGPIPE
-    const int disable_sigpipe = 1;
-    return setsockopt(client_fd, SOL_SOCKET, SO_NOSIGPIPE,
-                      &disable_sigpipe, sizeof(disable_sigpipe)) == 0;
-#else
-    return true;
-#endif
-}
-
-int send_flags() {
-#ifdef MSG_NOSIGNAL
-    return MSG_NOSIGNAL;
-#else
-    return 0;
-#endif
+    return socket_io::configure_for_writes(client_fd);
 }
 } // namespace
 
@@ -134,20 +121,7 @@ void Server::run() {
 }
 
 bool Server::send_response(const int client_fd, const std::string& response) {
-    const char* data = response.c_str();
-    std::size_t bytes_remaining = response.size();
-
-    while (bytes_remaining > 0) {
-        const ssize_t bytes_sent = send(client_fd, data, bytes_remaining, send_flags());
-        if (bytes_sent <= 0) {
-            return false;
-        }
-
-        data += bytes_sent;
-        bytes_remaining -= static_cast<std::size_t>(bytes_sent);
-    }
-
-    return true;
+    return socket_io::send_all(client_fd, response);
 }
 
 CommandProcessResult Server::process_and_persist(const std::string& command) {

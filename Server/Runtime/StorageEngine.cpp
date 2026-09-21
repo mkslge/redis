@@ -3,6 +3,7 @@
 void StorageEngine::set(const Key& key, const Value& value) {
     std::lock_guard<std::mutex> lock{mutex_};
     data_.insert_or_assign(key, Entry{value, std::nullopt});
+    possibly_expired_.erase(key);
 }
 
 std::optional<Value> StorageEngine::get(const Key& key) {
@@ -22,6 +23,7 @@ bool StorageEngine::del(const Key& key) {
     std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
     prune_if_expired_unlocked(key, now);
+    possibly_expired_.erase(key);
     return data_.erase(key) > 0;
 }
 
@@ -33,6 +35,10 @@ bool StorageEngine::exists(const Key& key) {
 }
 
 bool StorageEngine::expire(const Key& key, const Duration ttl) {
+    return expire_at(key, Clock::now() + ttl);
+}
+
+bool StorageEngine::expire_at(const Key& key, const TimePoint expires_at) {
     std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
     prune_if_expired_unlocked(key, now);
@@ -42,14 +48,14 @@ bool StorageEngine::expire(const Key& key, const Duration ttl) {
         return false;
     }
 
-    if (ttl <= Duration::zero()) {
+    if (expires_at <= now) {
         possibly_expired_.erase(it->first);
         data_.erase(it);
         return true;
     }
 
     possibly_expired_.insert(key);
-    it->second.expires_at = now + ttl;
+    it->second.expires_at = expires_at;
     return true;
 }
 
@@ -65,6 +71,7 @@ std::size_t StorageEngine::size() {
 
     for (auto it = data_.begin(); it != data_.end();) {
         if (is_expired(it->second, now)) {
+            possibly_expired_.erase(it->first);
             it = data_.erase(it);
             continue;
         }
@@ -86,6 +93,7 @@ void StorageEngine::prune_if_expired(const Key& key, const TimePoint now) {
 void StorageEngine::prune_if_expired_unlocked(const Key& key, const TimePoint now) {
     const auto it = data_.find(key);
     if (it == data_.end()) {
+        possibly_expired_.erase(key);
         return;
     }
 

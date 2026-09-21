@@ -35,7 +35,10 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-            client.send_command(line);
+            if (!client.send_command(line)) {
+                std::cerr << "Failed to send command to server" << std::endl;
+                break;
+            }
             std::string response = client.get_response();
             std::cout << response << std::endl;
             if(response == "BYE") {

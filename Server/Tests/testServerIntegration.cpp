@@ -5,6 +5,7 @@
 #include "StorageEngine.h"
 #include "Server.h"
 #include "RespCommandCodec.h"
+#include "SocketIO.h"
 
 #include <gtest/gtest.h>
 
@@ -85,8 +86,7 @@ public:
             framed_command.push_back('\n');
         }
 
-        const ssize_t sent = send(socket_fd_, framed_command.c_str(), framed_command.size(), 0);
-        if (sent <= 0) {
+        if (!socket_io::send_all(socket_fd_, framed_command)) {
             throw std::runtime_error("Failed to send command to server");
         }
 
@@ -103,8 +103,7 @@ public:
         if (setsockopt(socket_fd_, SOL_SOCKET, SO_LINGER, &reset_on_close, sizeof(reset_on_close)) != 0) {
             throw std::runtime_error("Failed to configure reset-on-close");
         }
-        if (send(socket_fd_, framed_command.data(), framed_command.size(), 0) !=
-            static_cast<ssize_t>(framed_command.size())) {
+        if (!socket_io::send_all(socket_fd_, framed_command)) {
             throw std::runtime_error("Failed to send command before reset");
         }
 

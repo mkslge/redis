@@ -3,17 +3,13 @@
 ## High priority correctness
 
 
-- [ ] Handle partial client writes. Extract a shared `send_all()` helper and use
+- [x] Handle partial client writes. Extract a shared `send_all()` helper and use
   it from both the client and server.
 - [ ] WE SHould go from a per client rhead model to a single thread liike the actual redis implementation
-- [ ] We should fix the issue with the log compactor being in the server build dir, bad oractice
+
 
 ## Expiration correctness
 
-- [ ] Remove keys from `possibly_expired_` when `SET` clears an existing TTL.
-- [ ] Remove keys from `possibly_expired_` when `size()` prunes expired entries.
-- [ ] Persist absolute expiration timestamps. Replaying `EXPIRE key 30` currently
-  grants a fresh 30 seconds after every restart instead of accounting for downtime.
 - [ ] Replace the expiration thread's `sleep_for()` with a condition variable so
   shutdown does not wait for the entire sleep interval.
 - [ ] Add `TTL`, `PTTL`, and `PERSIST` commands.

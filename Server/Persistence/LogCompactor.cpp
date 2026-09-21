@@ -93,7 +93,7 @@ void LogCompactor::compact() const {
                 }
             }
             latest_set[key] = index;
-        } else if (command == "EXPIRE") {
+        } else if (command == "PEXPIREAT") {
             if (const auto found = latest_expire.find(key); found != latest_expire.end()) records[found->second].keep = false;
             latest_expire[key] = index;
         } else if (command == "DEL") {

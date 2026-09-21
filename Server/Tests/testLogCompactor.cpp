@@ -66,22 +66,22 @@ TEST(LogCompactorTest, KeepsLatestExpireForSameKey) {
     TempLogFile log_file(
         "latest-expire",
         RespCommandCodec::encode({"SET", "session", "token"}) +
-        RespCommandCodec::encode({"EXPIRE", "session", "30"}) +
-        RespCommandCodec::encode({"EXPIRE", "session", "60"}));
+        RespCommandCodec::encode({"PEXPIREAT", "session", "4102444800000"}) +
+        RespCommandCodec::encode({"PEXPIREAT", "session", "4102444860000"}));
 
     compact_log(log_file.path_string());
 
     EXPECT_EQ(
         log_file.read_all(),
         RespCommandCodec::encode({"SET", "session", "token"}) +
-        RespCommandCodec::encode({"EXPIRE", "session", "60"}));
+        RespCommandCodec::encode({"PEXPIREAT", "session", "4102444860000"}));
 }
 
 TEST(LogCompactorTest, DeleteRemovesPriorMutationsForKey) {
     TempLogFile log_file(
         "delete-key",
         RespCommandCodec::encode({"SET", "session", "token"}) +
-        RespCommandCodec::encode({"EXPIRE", "session", "30"}) +
+        RespCommandCodec::encode({"PEXPIREAT", "session", "4102444800000"}) +
         RespCommandCodec::encode({"DEL", "session"}) +
         RespCommandCodec::encode({"SET", "other", "value"}));
 
@@ -98,7 +98,7 @@ TEST(LogCompactorTest, LeavesIndependentKeysInOriginalOrder) {
         "independent-keys",
         RespCommandCodec::encode({"SET", "a", "1"}) +
         RespCommandCodec::encode({"SET", "b", "2"}) +
-        RespCommandCodec::encode({"EXPIRE", "a", "10"}) +
+        RespCommandCodec::encode({"PEXPIREAT", "a", "4102444800000"}) +
         RespCommandCodec::encode({"SET", "c", "3"}));
 
     compact_log(log_file.path_string());
@@ -107,7 +107,7 @@ TEST(LogCompactorTest, LeavesIndependentKeysInOriginalOrder) {
         log_file.read_all(),
         RespCommandCodec::encode({"SET", "a", "1"}) +
         RespCommandCodec::encode({"SET", "b", "2"}) +
-        RespCommandCodec::encode({"EXPIRE", "a", "10"}) +
+        RespCommandCodec::encode({"PEXPIREAT", "a", "4102444800000"}) +
         RespCommandCodec::encode({"SET", "c", "3"}));
 }
 
@@ -124,7 +124,7 @@ TEST(LogCompactorTest, PreservesBinaryKeyAndValue) {
 TEST(LogCompactorTest, LaterSetRemovesPriorExpirationAndDelete) {
     TempLogFile log_file("set-resets-state",
         RespCommandCodec::encode({"SET", "key", "old"}) +
-        RespCommandCodec::encode({"EXPIRE", "key", "10"}) +
+        RespCommandCodec::encode({"PEXPIREAT", "key", "4102444800000"}) +
         RespCommandCodec::encode({"DEL", "key"}) +
         RespCommandCodec::encode({"SET", "key", "new"}));
     LogCompactor(log_file.path_string()).compact();

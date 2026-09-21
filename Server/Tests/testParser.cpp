@@ -3,6 +3,7 @@
 //
 
 #include <gtest/gtest.h>
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -97,6 +98,7 @@ TEST(ParserTest, TryParseExistsAcceptsPrimitiveKey) {
 }
 
 TEST(ParserTest, TryParseExpireParsesKeyAndTtl) {
+    const auto before = ExpireStatement::Clock::now();
     std::vector<Token> tokens = {
         Token(TokenType::EXPIRE),
         Token(TokenType::STRING, "session-key"),
@@ -104,11 +106,30 @@ TEST(ParserTest, TryParseExpireParsesKeyAndTtl) {
     };
 
     auto parsed = Parser::try_parse_expire(tokens);
+    const auto after = ExpireStatement::Clock::now();
 
     ASSERT_NE(parsed, nullptr);
     EXPECT_EQ(parsed->get_type(), StatementType::EXPIRE);
     EXPECT_EQ(parsed->key(), "session-key");
-    EXPECT_EQ(parsed->expire_time(), 30);
+    EXPECT_GE(parsed->expires_at(), before + std::chrono::seconds(30));
+    EXPECT_LE(parsed->expires_at(), after + std::chrono::seconds(30));
+}
+
+TEST(ParserTest, ParseArgumentsReadsAbsoluteExpirationFromAof) {
+    constexpr std::int64_t deadline_milliseconds = 4'102'444'800'000;
+
+    auto statement = Parser::parse_arguments(
+        {"PEXPIREAT", "session-key", std::to_string(deadline_milliseconds)});
+
+    ASSERT_NE(statement, nullptr);
+    auto* expiration = dynamic_cast<ExpireStatement*>(statement.get());
+    ASSERT_NE(expiration, nullptr);
+    EXPECT_EQ(expiration->key(), "session-key");
+    EXPECT_EQ(expiration->expires_at_unix_milliseconds(), deadline_milliseconds);
+}
+
+TEST(ParserTest, ParseArgumentsRejectsRelativeExpireInAof) {
+    EXPECT_EQ(Parser::parse_arguments({"EXPIRE", "session-key", "30"}), nullptr);
 }
 
 TEST(ParserTest, TryParseExpireRejectsNonIntegerTtl) {
