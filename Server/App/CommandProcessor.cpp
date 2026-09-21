@@ -9,28 +9,29 @@
 #include <vector>
 
 CommandProcessResult CommandProcessResult::success(ProcessedCommand processed_command) {
-    return CommandProcessResult(std::move(processed_command), std::nullopt);
+    return CommandProcessResult(Outcome{
+        std::in_place_type<ProcessedCommand>, std::move(processed_command)});
 }
 
 CommandProcessResult CommandProcessResult::failure(std::string error_message) {
-    return CommandProcessResult(std::nullopt, std::move(error_message));
+    return CommandProcessResult(Outcome{
+        std::in_place_type<CommandProcessError>, CommandProcessError{std::move(error_message)}});
 }
 
 bool CommandProcessResult::is_success() const {
-    return processed_command_.has_value();
+    return std::holds_alternative<ProcessedCommand>(outcome_);
 }
 
 const ProcessedCommand& CommandProcessResult::processed_command() const {
-    return processed_command_.value();
+    return std::get<ProcessedCommand>(outcome_);
 }
 
 const std::string& CommandProcessResult::error_message() const {
-    return error_message_.value();
+    return std::get<CommandProcessError>(outcome_).message;
 }
 
-CommandProcessResult::CommandProcessResult(std::optional<ProcessedCommand> processed_command,
-                                           std::optional<std::string> error_message)
-    : processed_command_(std::move(processed_command)), error_message_(std::move(error_message)) {}
+CommandProcessResult::CommandProcessResult(Outcome outcome)
+    : outcome_(std::move(outcome)) {}
 
 CommandProcessor::CommandProcessor(Executor& executor) : executor_(executor) {}
 

@@ -5,8 +5,8 @@
 #include "Executor.h"
 #include "Bytes.h"
 
-#include <optional>
 #include <string>
+#include <variant>
 
 class ProcessedCommand {
 public:
@@ -15,6 +15,10 @@ public:
     bool mutating_command{false};
     bool should_log{false};
     Bytes aof_record;
+};
+
+struct CommandProcessError {
+    std::string message;
 };
 
 class CommandProcessResult {
@@ -27,11 +31,11 @@ public:
     const std::string& error_message() const;
 
 private:
-    explicit CommandProcessResult(std::optional<ProcessedCommand> processed_command,
-                                  std::optional<std::string> error_message);
+    using Outcome = std::variant<ProcessedCommand, CommandProcessError>;
 
-    std::optional<ProcessedCommand> processed_command_;
-    std::optional<std::string> error_message_;
+    explicit CommandProcessResult(Outcome outcome);
+
+    Outcome outcome_;
 };
 
 class CommandProcessor {

@@ -18,17 +18,6 @@
 
 ## Command model cleanup
 
-- [x] Replace the duplicated `StatementType` plus dynamic-class representation
-  with one authoritative command representation, likely `std::variant`. This
-  should also become the serializable command format used by the future Raft log.
-- [x] Replace unchecked `dynamic_cast` dereferences in `Executor`.
-- [ ] Replace `CommandProcessResult`'s two independent optionals with a type that
-  represents exactly one outcome, such as `std::variant<ProcessedCommand, Error>`.
-- [ ] Remove repetitive parser pass-through functions and accept token vectors by
-  const reference where parsing does not modify them.
-- [ ] Remove repeated statement key/serialization boilerplate where the new
-  command representation makes it unnecessary.
-
 ## Networking and lifecycle
 
 - [ ] Include `errno` details in socket errors so bind, connect, accept, send, and
@@ -39,7 +28,6 @@
 
 ## Commands and functionality
 
-- [ ] Add `APPEND`.
 - [ ] Add `INCR`, `DECR`, `INCRBY`, and `DECRBY`. Numeric commands should parse
   byte-string values on demand and store their results as bytes.
 - [ ] Optimize AOF compaction so repeated mutations such as setting the same key

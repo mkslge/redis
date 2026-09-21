@@ -21,6 +21,9 @@ target_link_libraries(testExecutor PRIVATE SERVER_RUNTIME SERVER_COMMANDS SERVER
 add_executable(testStorageEngine testStorageEngine.cpp)
 target_link_libraries(testStorageEngine PRIVATE SERVER_RUNTIME GTest::gtest_main)
 
+add_executable(testCommandProcessor testCommandProcessor.cpp)
+target_link_libraries(testCommandProcessor PRIVATE SERVER_APP GTest::gtest_main)
+
 add_executable(testLogging testLogging.cpp)
 target_link_libraries(testLogging
         PRIVATE
@@ -67,6 +70,7 @@ gtest_discover_tests(testTokenizer)
 gtest_discover_tests(testParser)
 gtest_discover_tests(testExecutor)
 gtest_discover_tests(testStorageEngine)
+gtest_discover_tests(testCommandProcessor)
 gtest_discover_tests(testLogging)
 gtest_discover_tests(testLogCompactor)
 gtest_discover_tests(testServerIntegration PROPERTIES TIMEOUT 10)
