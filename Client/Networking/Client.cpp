@@ -1,4 +1,5 @@
 #include "Client.h"
+#include "SocketIO.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -8,6 +9,12 @@ Client::Client(const std::string& server_ip, const std::uint16_t port)
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd == -1) {
         throw std::runtime_error("Could not create socket");
+    }
+
+    if (!socket_io::configure_for_writes(socket_fd)) {
+        close(socket_fd);
+        socket_fd = -1;
+        throw std::runtime_error("Could not configure socket");
     }
 
     if (connect(socket_fd, reinterpret_cast<sockaddr*>(&server), sizeof(server)) < 0) {
@@ -41,13 +48,13 @@ std::string Client::response_from_buffer(const char* response_buffer, const std:
     return std::string(response_buffer, bytes_read);
 }
 
-void Client::send_command(const std::string& command) {
+bool Client::send_command(const std::string& command) {
     std::string framed_command = command;
     if (framed_command.empty() || framed_command.back() != '\n') {
         framed_command.push_back('\n');
     }
 
-    send(socket_fd, framed_command.c_str(), framed_command.size(), 0);
+    return socket_io::send_all(socket_fd, framed_command);
 }
 
 std::string Client::get_response() {

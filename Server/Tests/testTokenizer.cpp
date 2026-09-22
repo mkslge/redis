@@ -88,6 +88,14 @@ TEST(TokenizerTest, ExistsExpireSeconds) {
     EXPECT_EQ(tokens, expected);
 }
 
+TEST(TokenizerTest, TokenizesExpirationInspectionCommands) {
+    auto result = Tokenizer::tokenize("TTL PTTL PERSIST");
+
+    auto tokens = unwrap(result);
+    EXPECT_EQ(tokens, (std::vector<Token>{
+        Token(TokenType::TTL), Token(TokenType::PTTL), Token(TokenType::PERSIST)}));
+}
+
 TEST(TokenizerTest, BasicInt) {
     std::string input = "123";
     auto result = Tokenizer::tokenize(input);

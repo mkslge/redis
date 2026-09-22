@@ -3,8 +3,7 @@ project(redisserver)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Common ${CMAKE_CURRENT_BINARY_DIR}/Common)
 
 add_subdirectory(Utility)
 add_subdirectory(Runtime)

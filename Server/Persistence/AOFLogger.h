@@ -5,6 +5,7 @@
 #include "Bytes.h"
 
 #include <condition_variable>
+#include <cstdint>
 #include <exception>
 #include <mutex>
 #include <string>
@@ -41,7 +42,8 @@ private:
     std::mutex mutex_;
     std::condition_variable sync_condition_;
     std::thread sync_thread_;
-    bool dirty_{false};
+    std::uint64_t write_generation_{0};
+    std::uint64_t synced_generation_{0};
     bool stopping_{false};
     std::exception_ptr background_error_;
 };

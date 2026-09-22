@@ -1,19 +1,24 @@
 #ifndef COMMANDPROCESSOR_H
 #define COMMANDPROCESSOR_H
 
-#include "StatementType.h"
+#include "Command.h"
 #include "Executor.h"
 #include "Bytes.h"
 
-#include <optional>
 #include <string>
+#include <variant>
 
 class ProcessedCommand {
 public:
-    StatementType statement_type;
+    Command command;
     ExecutionResult execution_result;
+    bool mutating_command{false};
     bool should_log{false};
     Bytes aof_record;
+};
+
+struct CommandProcessError {
+    std::string message;
 };
 
 class CommandProcessResult {
@@ -26,11 +31,11 @@ public:
     const std::string& error_message() const;
 
 private:
-    explicit CommandProcessResult(std::optional<ProcessedCommand> processed_command,
-                                  std::optional<std::string> error_message);
+    using Outcome = std::variant<ProcessedCommand, CommandProcessError>;
 
-    std::optional<ProcessedCommand> processed_command_;
-    std::optional<std::string> error_message_;
+    explicit CommandProcessResult(Outcome outcome);
+
+    Outcome outcome_;
 };
 
 class CommandProcessor {
@@ -41,7 +46,7 @@ public:
     CommandProcessResult process_arguments(const CommandArguments& arguments) const;
 
 private:
-    CommandProcessResult process_statement(std::unique_ptr<Statement> statement) const;
+    CommandProcessResult process_command(Command command) const;
     Executor& executor_;
 };
 

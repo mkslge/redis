@@ -3,14 +3,16 @@
 
 #include "Value.h"
 
+#include <cstdint>
 #include <string>
 #include <variant>
 
-using ExecutionPayload = std::variant<std::monostate, Value, bool>;
+using ExecutionPayload = std::variant<std::monostate, Value, bool, std::int64_t>;
 
 class ExecutionResult {
 public:
     bool success{true};
+    bool did_mutate{false};
     std::string message;
     ExecutionPayload payload;
 };

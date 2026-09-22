@@ -1,31 +1,25 @@
-//
-// Created by Mark on 4/10/26.
-//
-
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
 
-#include "DeleteStatement.h"
-#include "ExistsStatement.h"
-#include "ExpireStatement.h"
-#include "GetStatement.h"
-#include "SetStatement.h"
+#include "Command.h"
 #include "ExecutionResult.h"
 #include "StorageEngine.h"
 
 class Executor {
 public:
     explicit Executor(StorageEngine& storage);
-
-    ExecutionResult execute(Statement& statement);
+    ExecutionResult execute(const Command& command);
 
 private:
-    ExecutionResult execute_set(const SetStatement& statement);
+    ExecutionResult execute_command(const GetCommand& command);
+    ExecutionResult execute_command(const SetCommand& command);
+    ExecutionResult execute_command(const DeleteCommand& command);
+    ExecutionResult execute_command(const ExistsCommand& command);
+    ExecutionResult execute_command(const ExpireCommand& command);
+    ExecutionResult execute_command(const TtlCommand& command);
+    ExecutionResult execute_command(const PttlCommand& command);
+    ExecutionResult execute_command(const PersistCommand& command);
 
-    ExecutionResult execute_get(const GetStatement& statement);
-    ExecutionResult execute_delete(const DeleteStatement& statement);
-    ExecutionResult execute_exists(const ExistsStatement& statement);
-    ExecutionResult execute_expire(const ExpireStatement& statement);
     StorageEngine& storage_;
 };
 

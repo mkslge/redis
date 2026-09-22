@@ -4,34 +4,34 @@
 #include "Tokenizer.h"
 #include "RespCommandCodec.h"
 
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
 CommandProcessResult CommandProcessResult::success(ProcessedCommand processed_command) {
-    return CommandProcessResult(std::move(processed_command), std::nullopt);
+    return CommandProcessResult(Outcome{
+        std::in_place_type<ProcessedCommand>, std::move(processed_command)});
 }
 
 CommandProcessResult CommandProcessResult::failure(std::string error_message) {
-    return CommandProcessResult(std::nullopt, std::move(error_message));
+    return CommandProcessResult(Outcome{
+        std::in_place_type<CommandProcessError>, CommandProcessError{std::move(error_message)}});
 }
 
 bool CommandProcessResult::is_success() const {
-    return processed_command_.has_value();
+    return std::holds_alternative<ProcessedCommand>(outcome_);
 }
 
 const ProcessedCommand& CommandProcessResult::processed_command() const {
-    return processed_command_.value();
+    return std::get<ProcessedCommand>(outcome_);
 }
 
 const std::string& CommandProcessResult::error_message() const {
-    return error_message_.value();
+    return std::get<CommandProcessError>(outcome_).message;
 }
 
-CommandProcessResult::CommandProcessResult(std::optional<ProcessedCommand> processed_command,
-                                           std::optional<std::string> error_message)
-    : processed_command_(std::move(processed_command)), error_message_(std::move(error_message)) {}
+CommandProcessResult::CommandProcessResult(Outcome outcome)
+    : outcome_(std::move(outcome)) {}
 
 CommandProcessor::CommandProcessor(Executor& executor) : executor_(executor) {}
 
@@ -41,28 +41,32 @@ CommandProcessResult CommandProcessor::process(const std::string& command_line) 
         return CommandProcessResult::failure("invalid command");
     }
 
-    std::vector<Token> parsed_tokens = tokens.value();
-    std::unique_ptr<Statement> statement = Parser::parse(parsed_tokens);
-    if (statement == nullptr) {
+    std::optional<Command> command = Parser::parse(tokens.value());
+    if (!command.has_value()) {
         return CommandProcessResult::failure("parse failure");
     }
 
-    return process_statement(std::move(statement));
+    return process_command(std::move(*command));
 }
 
 CommandProcessResult CommandProcessor::process_arguments(const CommandArguments& arguments) const {
-    std::unique_ptr<Statement> statement = Parser::parse_arguments(arguments);
-    if (statement == nullptr) return CommandProcessResult::failure("parse failure");
-    return process_statement(std::move(statement));
+    std::optional<Command> command = Parser::parse_arguments(arguments);
+    if (!command.has_value()) return CommandProcessResult::failure("parse failure");
+    return process_command(std::move(*command));
 }
 
-CommandProcessResult CommandProcessor::process_statement(std::unique_ptr<Statement> statement) const {
-    const ExecutionResult result = executor_.execute(*statement);
-    const bool should_log = result.success && statement->mutates();
+CommandProcessResult CommandProcessor::process_command(Command command) const {
+    const ExecutionResult result = executor_.execute(command);
+    const bool mutating_command = is_mutating(command);
+    const bool should_log = result.success && mutating_command && result.did_mutate;
+    Bytes aof_record = should_log
+        ? RespCommandCodec::encode(command_arguments(command))
+        : Bytes{};
     return CommandProcessResult::success(ProcessedCommand{
-        .statement_type = statement->get_type(),
+        .command = std::move(command),
         .execution_result = result,
+        .mutating_command = mutating_command,
         .should_log = should_log,
-        .aof_record = should_log ? RespCommandCodec::encode(statement->arguments()) : Bytes{}
+        .aof_record = std::move(aof_record)
     });
 }

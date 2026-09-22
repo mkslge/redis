@@ -1,50 +1,26 @@
-//
-// Created by Mark on 4/5/26.
-//
-
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "DeleteStatement.h"
-#include "ExistsStatement.h"
-#include "ExpireStatement.h"
-#include "GetStatement.h"
-#include "SetStatement.h"
-#include "Statement.h"
+#include "Command.h"
 #include "Token.h"
-#include "Key.h"
-#include <memory>
+
 #include <optional>
 #include <vector>
 
-
 class Parser {
 public:
-    static std::unique_ptr<Statement> parse(std::vector<Token>& toks);
-    static std::unique_ptr<Statement> parse_arguments(const CommandArguments& arguments);
-    static std::unique_ptr<GetStatement> try_parse_get(std::vector<Token>& toks);
-
-    static std::unique_ptr<SetStatement> try_parse_set(std::vector<Token>& toks);
-    static std::unique_ptr<DeleteStatement> try_parse_del(std::vector<Token>& toks);
-    static std::unique_ptr<ExistsStatement> try_parse_exists(std::vector<Token>& toks);
-    static std::unique_ptr<ExpireStatement> try_parse_expire(std::vector<Token>& toks);
+    static std::optional<Command> parse(const std::vector<Token>& tokens);
+    static std::optional<Command> parse_arguments(const CommandArguments& arguments);
 
 private:
-    static constexpr std::size_t kUnaryStatementTokenCount = 2;
-    static constexpr std::size_t kBinaryStatementTokenCount = 3;
+    static constexpr std::size_t kUnaryCommandTokenCount = 2;
+    static constexpr std::size_t kBinaryCommandTokenCount = 3;
     static constexpr std::size_t kCommandTokenIndex = 0;
     static constexpr std::size_t kFirstArgumentTokenIndex = 1;
     static constexpr std::size_t kSecondArgumentTokenIndex = 2;
 
-    static std::unique_ptr<Statement> parse_get_statement(std::vector<Token>& toks);
-    static std::unique_ptr<Statement> parse_del_statement(std::vector<Token>& toks);
-    static std::unique_ptr<Statement> parse_exists_statement(std::vector<Token>& toks);
-    static std::unique_ptr<Statement> parse_set_statement(std::vector<Token>& toks);
-    static std::unique_ptr<Statement> parse_expire_statement(std::vector<Token>& toks);
-    static std::optional<Key> key_from_token(const Token& tok);
-    static std::optional<Bytes> value_from_token(const Token& tok);
+    static std::optional<Key> key_from_token(const Token& token);
+    static std::optional<Bytes> value_from_token(const Token& token);
 };
-
-
 
 #endif //PARSER_H

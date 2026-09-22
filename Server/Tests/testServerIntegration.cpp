@@ -5,6 +5,7 @@
 #include "StorageEngine.h"
 #include "Server.h"
 #include "RespCommandCodec.h"
+#include "SocketIO.h"
 
 #include <gtest/gtest.h>
 
@@ -85,12 +86,32 @@ public:
             framed_command.push_back('\n');
         }
 
-        const ssize_t sent = send(socket_fd_, framed_command.c_str(), framed_command.size(), 0);
-        if (sent <= 0) {
-            throw std::runtime_error("Failed to send command to server");
-        }
+        send_bytes(framed_command);
 
         return read_response();
+    }
+
+    void send_bytes(const std::string& bytes) {
+        if (!socket_io::send_all(socket_fd_, bytes)) {
+            throw std::runtime_error("Failed to send bytes to server");
+        }
+    }
+
+    std::string read_response() {
+        char buffer[1024]{};
+
+        while (pending_response_.find('\n') == std::string::npos) {
+            const ssize_t bytes_read = recv(socket_fd_, buffer, sizeof(buffer), 0);
+            if (bytes_read <= 0) {
+                throw std::runtime_error("Server closed connection before response");
+            }
+            pending_response_.append(buffer, static_cast<std::size_t>(bytes_read));
+        }
+
+        const std::size_t newline = pending_response_.find('\n');
+        std::string response = pending_response_.substr(0, newline);
+        pending_response_.erase(0, newline + 1);
+        return response;
     }
 
     void send_command_and_reset(const std::string& command) {
@@ -103,8 +124,7 @@ public:
         if (setsockopt(socket_fd_, SOL_SOCKET, SO_LINGER, &reset_on_close, sizeof(reset_on_close)) != 0) {
             throw std::runtime_error("Failed to configure reset-on-close");
         }
-        if (send(socket_fd_, framed_command.data(), framed_command.size(), 0) !=
-            static_cast<ssize_t>(framed_command.size())) {
+        if (!socket_io::send_all(socket_fd_, framed_command)) {
             throw std::runtime_error("Failed to send command before reset");
         }
 
@@ -114,33 +134,20 @@ public:
     }
 
 private:
-    std::string read_response() {
-        std::string response;
-        char buffer[1024]{};
-
-        while (response.find('\n') == std::string::npos) {
-            const ssize_t bytes_read = recv(socket_fd_, buffer, sizeof(buffer), 0);
-            if (bytes_read <= 0) {
-                throw std::runtime_error("Server closed connection before response");
-            }
-            response.append(buffer, static_cast<std::size_t>(bytes_read));
-        }
-
-        response.resize(response.find('\n'));
-        return response;
-    }
-
     int socket_fd_{-1};
+    std::string pending_response_;
 };
 
 class ServerHarness {
 public:
-    explicit ServerHarness(const std::string& log_path)
+    explicit ServerHarness(
+        const std::string& log_path,
+        const std::chrono::milliseconds expiration_sweep_interval = std::chrono::milliseconds(100))
         : storage_(),
           executor_(storage_),
           command_processor_(executor_),
-          logger_(log_path),
-          server_(logger_, command_processor_, 0),
+          logger_(log_path, AOFFsyncPolicy::EVERY_SECOND),
+          server_(logger_, command_processor_, storage_, 0, expiration_sweep_interval),
           thread_([this] { server_.run(); }) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
@@ -235,10 +242,59 @@ TEST(ServerIntegrationTest, FailedResponseSendCleansUpClientSession) {
     server.shutdown();
 }
 
-TEST(ServerIntegrationTest, ShutdownUnblocksAndJoinsIdleClientWorker) {
+TEST(ServerIntegrationTest, ShutdownWakesEventLoopWithIdleClient) {
     TempLogFile log_file("idle-client-shutdown");
     ServerHarness server(log_file.path_string());
     TestConnection idle_connection(server.port());
 
     server.shutdown();
+}
+
+TEST(ServerIntegrationTest, PartialCommandFromOneClientDoesNotBlockAnother) {
+    TempLogFile log_file("partial-command-fairness");
+    ServerHarness server(log_file.path_string());
+    TestConnection partial_client(server.port());
+    TestConnection complete_client(server.port());
+
+    partial_client.send_bytes("SET \"partial\"");
+
+    EXPECT_EQ(complete_client.send_command("SET \"complete\" \"value\""),
+              "SET value=\"value\"");
+
+    partial_client.send_bytes(" \"finished\"\n");
+    EXPECT_EQ(partial_client.read_response(), "SET value=\"finished\"");
+}
+
+TEST(ServerIntegrationTest, PipelinedCommandsPreserveResponseOrder) {
+    TempLogFile log_file("pipelined-commands");
+    ServerHarness server(log_file.path_string());
+    TestConnection connection(server.port());
+
+    connection.send_bytes("SET \"key\" \"value\"\nGET \"key\"\n");
+
+    EXPECT_EQ(connection.read_response(), "SET value=\"value\"");
+    EXPECT_EQ(connection.read_response(), "GET value=\"value\"");
+}
+
+TEST(ServerIntegrationTest, SlowReaderDoesNotBlockOtherClients) {
+    TempLogFile log_file("slow-reader-fairness");
+    ServerHarness server(log_file.path_string());
+    server.storage().set("large", Value(std::string(16 * 1024 * 1024, 'x')));
+    TestConnection slow_reader(server.port());
+    TestConnection active_client(server.port());
+
+    slow_reader.send_bytes("GET \"large\"\n");
+
+    EXPECT_EQ(active_client.send_command("EXISTS \"large\""), "EXISTS exists=true");
+}
+
+TEST(ServerIntegrationTest, EventLoopPrunesExpiredKeysOnTimer) {
+    TempLogFile log_file("event-loop-expiration");
+    ServerHarness server(log_file.path_string(), std::chrono::milliseconds(5));
+    server.storage().set("short-lived", Value("value"));
+    ASSERT_TRUE(server.storage().expire("short-lived", std::chrono::milliseconds(5)));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
+
+    EXPECT_FALSE(server.storage().possibly_expired().contains("short-lived"));
 }

@@ -3,6 +3,8 @@ project(redisclient)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Common ${CMAKE_CURRENT_BINARY_DIR}/Common)
+
 include(FetchContent)
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../Server/build/_deps/googletest-src/CMakeLists.txt")
     FetchContent_Declare(
@@ -23,4 +25,3 @@ add_subdirectory(Tests)
 
 add_executable(redisclient main.cpp)
 target_link_libraries(redisclient PRIVATE CORE_CLIENT)
-

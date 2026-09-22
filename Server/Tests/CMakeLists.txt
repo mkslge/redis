@@ -21,8 +21,8 @@ target_link_libraries(testExecutor PRIVATE SERVER_RUNTIME SERVER_COMMANDS SERVER
 add_executable(testStorageEngine testStorageEngine.cpp)
 target_link_libraries(testStorageEngine PRIVATE SERVER_RUNTIME GTest::gtest_main)
 
-add_executable(testExpirationManager testExpirationManager.cpp)
-target_link_libraries(testExpirationManager PRIVATE SERVER_RUNTIME GTest::gtest_main)
+add_executable(testCommandProcessor testCommandProcessor.cpp)
+target_link_libraries(testCommandProcessor PRIVATE SERVER_APP GTest::gtest_main)
 
 add_executable(testLogging testLogging.cpp)
 target_link_libraries(testLogging
@@ -61,14 +61,18 @@ target_link_libraries(testServerIntegration
 add_executable(testRespCommandCodec testRespCommandCodec.cpp)
 target_link_libraries(testRespCommandCodec PRIVATE SERVER_PROTOCOL SERVER_RUNTIME GTest::gtest_main)
 
+add_executable(testSocketIO testSocketIO.cpp)
+target_link_libraries(testSocketIO PRIVATE REDISIMPL_SOCKET_IO GTest::gtest_main)
+
 
 include(GoogleTest)
 gtest_discover_tests(testTokenizer)
 gtest_discover_tests(testParser)
 gtest_discover_tests(testExecutor)
 gtest_discover_tests(testStorageEngine)
-gtest_discover_tests(testExpirationManager)
+gtest_discover_tests(testCommandProcessor)
 gtest_discover_tests(testLogging)
 gtest_discover_tests(testLogCompactor)
 gtest_discover_tests(testServerIntegration PROPERTIES TIMEOUT 10)
 gtest_discover_tests(testRespCommandCodec)
+gtest_discover_tests(testSocketIO)

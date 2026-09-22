@@ -1,6 +1,5 @@
 add_library(SERVER_RUNTIME STATIC
         Executor.cpp
-        ExpirationManager.cpp
         StorageEngine.cpp
 )
 

@@ -158,7 +158,7 @@ TEST(LoggingTest, LogRunnerReplaysMutatingCommandsIntoStorage) {
     {
         AOFLogger logger(log_file.path_string());
         logger.append_record(RespCommandCodec::encode({"SET", "user", "alice"}));
-        logger.append_record(RespCommandCodec::encode({"EXPIRE", "user", "30"}));
+        logger.append_record(RespCommandCodec::encode({"PEXPIREAT", "user", "4102444800000"}));
     }
 
     StorageEngine storage;
@@ -171,6 +171,82 @@ TEST(LoggingTest, LogRunnerReplaysMutatingCommandsIntoStorage) {
     ASSERT_TRUE(storage.get("user").has_value());
     EXPECT_EQ(storage.get("user")->bytes(), "alice");
     EXPECT_TRUE(storage.exists("user"));
+}
+
+TEST(LoggingTest, LogRunnerDoesNotRenewAnExpirationThatPassedWhileStopped) {
+    TempLogFile log_file("expired-during-downtime");
+
+    {
+        AOFLogger logger(log_file.path_string());
+        logger.append_record(RespCommandCodec::encode({"SET", "session", "token"}));
+        logger.append_record(RespCommandCodec::encode({"PEXPIREAT", "session", "0"}));
+    }
+
+    StorageEngine storage;
+    Executor executor(storage);
+    CommandProcessor command_processor(executor);
+
+    LogRunner(log_file.path_string()).run_log(command_processor);
+
+    EXPECT_FALSE(storage.exists("session"));
+}
+
+TEST(LoggingTest, LogRunnerReplaysPersistAfterExpiration) {
+    TempLogFile log_file("persist-replay");
+    {
+        AOFLogger logger(log_file.path_string());
+        logger.append_record(RespCommandCodec::encode({"SET", "session", "token"}));
+        logger.append_record(RespCommandCodec::encode({"PEXPIREAT", "session", "4102444800000"}));
+        logger.append_record(RespCommandCodec::encode({"PERSIST", "session"}));
+    }
+
+    StorageEngine storage;
+    Executor executor(storage);
+    CommandProcessor processor(executor);
+    LogRunner(log_file.path_string()).run_log(processor);
+
+    EXPECT_TRUE(storage.exists("session"));
+    EXPECT_EQ(storage.ttl_milliseconds("session"), -1);
+}
+
+TEST(LoggingTest, ExpireIsSerializedAsAnAbsoluteUnixMillisecondDeadline) {
+    StorageEngine storage;
+    storage.set("session", Value("token"));
+    Executor executor(storage);
+    CommandProcessor command_processor(executor);
+    const auto before = std::chrono::system_clock::now();
+
+    const auto result = command_processor.process("EXPIRE \"session\" 30");
+    const auto after = std::chrono::system_clock::now();
+
+    ASSERT_TRUE(result.is_success());
+    const auto decoded = RespCommandCodec::decode(result.processed_command().aof_record);
+    ASSERT_EQ(decoded.status, RespDecodeStatus::COMPLETE);
+    ASSERT_EQ(decoded.arguments.size(), 3U);
+    EXPECT_EQ(decoded.arguments[0], "PEXPIREAT");
+    EXPECT_EQ(decoded.arguments[1], "session");
+    const auto deadline = std::stoll(decoded.arguments[2]);
+    const auto earliest = std::chrono::duration_cast<std::chrono::milliseconds>(
+        (before + std::chrono::seconds(30)).time_since_epoch()).count();
+    const auto latest = std::chrono::duration_cast<std::chrono::milliseconds>(
+        (after + std::chrono::seconds(30)).time_since_epoch()).count();
+    EXPECT_GE(deadline, earliest);
+    EXPECT_LE(deadline, latest);
+}
+
+TEST(LoggingTest, NoOpPersistDoesNotProduceAnAofRecord) {
+    StorageEngine storage;
+    Executor executor(storage);
+    CommandProcessor processor(executor);
+
+    const auto missing = processor.process("PERSIST \"missing\"");
+    storage.set("permanent", Value("value"));
+    const auto permanent = processor.process("PERSIST \"permanent\"");
+
+    ASSERT_TRUE(missing.is_success());
+    ASSERT_TRUE(permanent.is_success());
+    EXPECT_FALSE(missing.processed_command().should_log);
+    EXPECT_FALSE(permanent.processed_command().should_log);
 }
 
 TEST(LoggingTest, LogRunnerThrowsForMalformedLogEntry) {

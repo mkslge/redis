@@ -22,6 +22,9 @@ constexpr std::string_view kSetKeyword = "set";
 constexpr std::string_view kDelKeyword = "del";
 constexpr std::string_view kExistsKeyword = "exists";
 constexpr std::string_view kExpireKeyword = "expire";
+constexpr std::string_view kTtlKeyword = "ttl";
+constexpr std::string_view kPttlKeyword = "pttl";
+constexpr std::string_view kPersistKeyword = "persist";
 
 struct KeywordSpec {
     std::string_view keyword;
@@ -32,11 +35,20 @@ constexpr KeywordSpec kThreeCharKeywords[] = {
     {kGetKeyword, TokenType::GET},
     {kSetKeyword, TokenType::SET},
     {kDelKeyword, TokenType::DEL},
+    {kTtlKeyword, TokenType::TTL},
+};
+
+constexpr KeywordSpec kFourCharKeywords[] = {
+    {kPttlKeyword, TokenType::PTTL},
 };
 
 constexpr KeywordSpec kSixCharKeywords[] = {
     {kExistsKeyword, TokenType::EXISTS},
     {kExpireKeyword, TokenType::EXPIRE},
+};
+
+constexpr KeywordSpec kSevenCharKeywords[] = {
+    {kPersistKeyword, TokenType::PERSIST},
 };
 
 bool is_token_boundary(const std::string& input, int idx) {
@@ -120,7 +132,15 @@ std::optional<Token> Tokenizer::tokenize_once(const std::string& input, int& idx
         return token;
     }
 
+    if (auto token = try_keyword(input, idx_out, kFourCharKeywords, std::size(kFourCharKeywords))) {
+        return token;
+    }
+
     if (auto token = try_keyword(input, idx_out, kSixCharKeywords, std::size(kSixCharKeywords))) {
+        return token;
+    }
+
+    if (auto token = try_keyword(input, idx_out, kSevenCharKeywords, std::size(kSevenCharKeywords))) {
         return token;
     }
 

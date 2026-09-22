@@ -2,21 +2,8 @@
 
 ## High priority correctness
 
-
-- [ ] Handle partial client writes. Extract a shared `send_all()` helper and use
-  it from both the client and server.
-- [ ] WE SHould go from a per client rhead model to a single thread liike the actual redis implementation
-- [ ] We should fix the issue with the log compactor being in the server build dir, bad oractice
-
 ## Expiration correctness
 
-- [ ] Remove keys from `possibly_expired_` when `SET` clears an existing TTL.
-- [ ] Remove keys from `possibly_expired_` when `size()` prunes expired entries.
-- [ ] Persist absolute expiration timestamps. Replaying `EXPIRE key 30` currently
-  grants a fresh 30 seconds after every restart instead of accounting for downtime.
-- [ ] Replace the expiration thread's `sleep_for()` with a condition variable so
-  shutdown does not wait for the entire sleep interval.
-- [ ] Add `TTL`, `PTTL`, and `PERSIST` commands.
 
 ## Protocol and binary safety
 
@@ -31,17 +18,6 @@
 
 ## Command model cleanup
 
-- [ ] Replace the duplicated `StatementType` plus dynamic-class representation
-  with one authoritative command representation, likely `std::variant`. This
-  should also become the serializable command format used by the future Raft log.
-- [ ] Replace unchecked `dynamic_cast` dereferences in `Executor`.
-- [ ] Replace `CommandProcessResult`'s two independent optionals with a type that
-  represents exactly one outcome, such as `std::variant<ProcessedCommand, Error>`.
-- [ ] Remove repetitive parser pass-through functions and accept token vectors by
-  const reference where parsing does not modify them.
-- [ ] Remove repeated statement key/serialization boilerplate where the new
-  command representation makes it unnecessary.
-
 ## Networking and lifecycle
 
 - [ ] Include `errno` details in socket errors so bind, connect, accept, send, and
@@ -52,7 +28,6 @@
 
 ## Commands and functionality
 
-- [ ] Add `APPEND`.
 - [ ] Add `INCR`, `DECR`, `INCRBY`, and `DECRBY`. Numeric commands should parse
   byte-string values on demand and store their results as bytes.
 - [ ] Optimize AOF compaction so repeated mutations such as setting the same key

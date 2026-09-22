@@ -29,7 +29,7 @@ public:
     static sockaddr_in build_server_address(const std::string& server_ip, std::uint16_t port);
     static std::string response_from_buffer(const char* response_buffer, std::size_t bytes_read);
 
-    void send_command(const std::string& command);
+    bool send_command(const std::string& command);
     std::string get_response();
 };
 
