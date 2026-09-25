@@ -173,35 +173,44 @@ another thread must join that thread before destroying the `Server` object.
 
 ## Architecture
 
-The server pipeline is intentionally split into small layers:
+One client command flows through these files, in order:
 
 ```text
-TCP event loop
-  -> newline command framing
-  -> ArgumentSplitter
-  -> Parser
-  -> Command std::variant
-  -> Executor
-  -> StorageEngine
-  -> AOF append for successful mutations
-  -> ResponseFormatter
-  -> buffered nonblocking write
+Network/Server              poll loop: accept, recv, send
+  -> Network/ClientSession    per-client buffers, newline framing
+  -> App/CommandProcessor     orchestrates the steps below
+     -> Protocol/ArgumentSplitter   line -> byte-string arguments
+     -> Commands/Parser             arguments -> Command
+     -> Commands/Executor           runs the Command
+        -> Storage/StorageEngine    keyspace and expiration
+     -> Persistence/AofRecords      which AOF records the result needs
+  -> Persistence/AofWriter    appends those records before responding
+  -> Protocol/ResponseFormatter    result -> response line
 ```
 
-`Command` is the authoritative, value-based command representation. Processing
-also has one authoritative outcome: `CommandProcessResult` holds either a
-processed command or an error. AOF replay decodes RESP command arguments and
-feeds them back through the same command model.
+On startup, `main.cpp` runs `AofCompactor`, then `AofReplayer`, which decodes each
+RESP record and executes it through the same `Parser` and `Executor`.
 
-### Main Components
+`Command` is the authoritative, value-based command representation. Each command
+struct declares its wire `name` and whether it is `mutating`.
 
-- `Server/App/*`: command orchestration from raw command line to execution result
-- `Server/Parsing/*`: argument splitting and parsing
-- `Server/Commands/*`: value-based command types and command serialization
-- `Server/Runtime/*`: storage engine, executor, values, and expiration handling
-- `Server/Protocol/*`: response formatting and RESP AOF encoding/decoding
-- `Server/Persistence/*`: append-only logging, replay, and compaction
-- `Server/TCP/*`: nonblocking event loop and buffered client sessions
+### Modules
+
+Modules form a single dependency chain. A module may include only itself and
+modules before it, and headers are always included by module path, such as
+`#include "Commands/Parser.h"`.
+
+```text
+Core -> Storage -> Commands -> Protocol -> Persistence -> App -> Network
+```
+
+- `Server/Core/*`: vocabulary types (`Bytes`, `Key`, `Value`), integer parsing, visitor helpers
+- `Server/Storage/*`: the thread-safe keyspace and expiration bookkeeping
+- `Server/Commands/*`: command types, parsing arguments into commands, and executing them
+- `Server/Protocol/*`: every byte format: request lines, response lines, RESP
+- `Server/Persistence/*`: AOF record selection, writing, replay, and compaction
+- `Server/App/*`: one client command line from parsing to AOF record
+- `Server/Network/*`: nonblocking event loop and per-client sessions
 - `Common/Networking/*`: socket I/O shared by the server, client, and tests
 - `Client/Networking/*`: TCP client implementation
 
@@ -214,16 +223,17 @@ redisimpl/
 │   ├── Tests/
 │   ├── CMakeLists.txt
 │   └── main.cpp
+├── Common/
+│   └── Networking/
 ├── Server/
-│   ├── App/
+│   ├── Core/
+│   ├── Storage/
 │   ├── Commands/
-│   ├── Parsing/
-│   ├── Persistence/
 │   ├── Protocol/
-│   ├── Runtime/
-│   ├── TCP/
+│   ├── Persistence/
+│   ├── App/
+│   ├── Network/
 │   ├── Tests/
-│   ├── Utility/
 │   ├── CMakeLists.txt
 │   └── main.cpp
 ├── data/
@@ -325,9 +335,8 @@ BYE
 
 The server test suite covers:
 
-- tokenization
-- parsing
-- command processing and result outcomes
+- argument splitting and parsing
+- command processing, result outcomes, and response formatting
 - executor behavior
 - storage engine behavior
 - expiration behavior, including `TTL`, `PTTL`, and `PERSIST`
@@ -335,6 +344,7 @@ The server test suite covers:
 - append-only logging, absolute-expiration replay, sync policies, and compaction
 - malformed and truncated AOF input
 - shared socket writes, including partial writes
+- client-session framing and buffer limits
 - TCP event-loop behavior with multiple simultaneous clients and clean shutdown
 
 Run them with:

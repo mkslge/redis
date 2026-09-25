@@ -25,6 +25,9 @@
 
 ## Testing and quality
 
+- [ ] Fix flaky shutdown tests: `ShutdownClosesClientsInDifferentSessionStates`
+  fails about half the time on macOS (a connection sometimes never sees the close),
+  and `ConcurrentStopRequestsAreIdempotent` fails about 1 run in 20.
 - [ ] Add ThreadSanitizer, AddressSanitizer, and UndefinedBehaviorSanitizer jobs.
 - [ ] Add concurrent storage, client-session lifecycle, and AOF ordering tests.
 - [ ] Add crash/fault-injection tests for truncated writes, failed flushes,
