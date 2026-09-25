@@ -43,7 +43,6 @@ public:
     explicit CommandProcessor(Executor& executor);
 
     CommandProcessResult process(const std::string& command_line) const;
-    CommandProcessResult process_arguments(const CommandArguments& arguments) const;
 
 private:
     CommandProcessResult process_command(Command command) const;

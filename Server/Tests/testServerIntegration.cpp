@@ -251,10 +251,9 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
 
     StorageEngine restarted_storage;
     Executor restarted_executor(restarted_storage);
-    CommandProcessor restarted_processor(restarted_executor);
     LogRunner log_runner(log_file.path_string());
 
-    log_runner.run_log(restarted_processor);
+    log_runner.run_log(restarted_executor);
 
     ASSERT_TRUE(restarted_storage.get("user").has_value());
     EXPECT_EQ(restarted_storage.get("user")->bytes(), "alice");

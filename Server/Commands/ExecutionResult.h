@@ -17,7 +17,8 @@ public:
     bool did_mutate{false};
     std::string message;
     ExecutionPayload payload;
-    std::optional<SetStateCommand> aof_state;
+    // The key's full state after a mutation, when the executor knows it.
+    std::optional<SetStateCommand> resulting_state;
 };
 
 #endif //EXECUTIONRESULT_H

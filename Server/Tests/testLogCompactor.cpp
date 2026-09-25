@@ -1,5 +1,7 @@
 #include "App/CommandProcessor.h"
 #include "Commands/Executor.h"
+#include "Commands/Parser.h"
+#include "Persistence/AofRecords.h"
 #include "Persistence/LogCompactor.h"
 #include "Persistence/LogRunner.h"
 #include "Protocol/RespCommandCodec.h"
@@ -10,6 +12,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <string>
 #include <thread>
 
@@ -173,8 +176,7 @@ TEST(LogCompactorTest, CompactingNumericMutationsPreservesFinalState) {
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "15");
     EXPECT_FALSE(replayed_storage.exists("removed"));
@@ -194,11 +196,12 @@ TEST(LogCompactorTest, CompactingNumericMutationsPreservesExpirationState) {
     const auto deadline_milliseconds =
         std::chrono::duration_cast<std::chrono::milliseconds>(
             (StorageEngine::Clock::now() + std::chrono::minutes(1)).time_since_epoch()).count();
-    const CommandProcessResult expire_result = source_processor.process_arguments(
+    const std::optional<Command> expire_command = Parser::parse_arguments(
         {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)});
-    ASSERT_TRUE(expire_result.is_success());
-    ASSERT_TRUE(expire_result.processed_command().execution_result.success);
-    contents += expire_result.processed_command().aof_record;
+    ASSERT_TRUE(expire_command.has_value());
+    const ExecutionResult expire_result = source_executor.execute(*expire_command);
+    ASSERT_TRUE(expire_result.success);
+    contents += aof_records_for(*expire_command, expire_result);
 
     const CommandProcessResult increment_result = source_processor.process("INCR \"counter\"");
     ASSERT_TRUE(increment_result.is_success());
@@ -210,8 +213,7 @@ TEST(LogCompactorTest, CompactingNumericMutationsPreservesExpirationState) {
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
     EXPECT_GT(replayed_storage.ttl_milliseconds("counter"), 0);
@@ -250,8 +252,7 @@ TEST(LogCompactorTest, NumericStateFollowedByPersistSurvivesCompactionAndOldExpi
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
     EXPECT_EQ(replayed_storage.ttl_milliseconds("counter"), -1);

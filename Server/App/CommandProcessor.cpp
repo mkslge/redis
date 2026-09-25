@@ -2,7 +2,7 @@
 
 #include "Protocol/ArgumentSplitter.h"
 #include "Commands/Parser.h"
-#include "Protocol/RespCommandCodec.h"
+#include "Persistence/AofRecords.h"
 
 #include <optional>
 #include <string>
@@ -49,25 +49,11 @@ CommandProcessResult CommandProcessor::process(const std::string& command_line) 
     return process_command(std::get<Command>(std::move(parsed)));
 }
 
-CommandProcessResult CommandProcessor::process_arguments(const CommandArguments& arguments) const {
-    std::optional<Command> command = Parser::parse_arguments(arguments);
-    if (!command.has_value()) return CommandProcessResult::failure("parse failure");
-    return process_command(std::move(*command));
-}
-
 CommandProcessResult CommandProcessor::process_command(Command command) const {
     const ExecutionResult result = executor_.execute(command);
     const bool mutating_command = is_mutating(command);
-    const bool should_log = result.success && mutating_command && result.did_mutate;
-    Bytes aof_record;
-    if (should_log) {
-        if (std::holds_alternative<ExpireCommand>(command) || !result.aof_state) {
-            aof_record = RespCommandCodec::encode(command_arguments(command));
-        }
-        if (result.aof_state) {
-            aof_record += RespCommandCodec::encode(command_arguments(Command{*result.aof_state}));
-        }
-    }
+    Bytes aof_record = aof_records_for(command, result);
+    const bool should_log = !aof_record.empty();
     return CommandProcessResult::success(ProcessedCommand{
         .command = std::move(command),
         .execution_result = result,

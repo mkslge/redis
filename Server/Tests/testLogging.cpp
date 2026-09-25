@@ -184,10 +184,9 @@ TEST(LoggingTest, LogRunnerReplaysMutatingCommandsIntoStorage) {
 
     StorageEngine storage;
     Executor executor(storage);
-    CommandProcessor command_processor(executor);
     LogRunner runner(log_file.path_string());
 
-    runner.run_log(command_processor);
+    runner.run_log(executor);
 
     ASSERT_TRUE(storage.get("user").has_value());
     EXPECT_EQ(storage.get("user")->bytes(), "alice");
@@ -205,9 +204,8 @@ TEST(LoggingTest, LogRunnerDoesNotRenewAnExpirationThatPassedWhileStopped) {
 
     StorageEngine storage;
     Executor executor(storage);
-    CommandProcessor command_processor(executor);
 
-    LogRunner(log_file.path_string()).run_log(command_processor);
+    LogRunner(log_file.path_string()).run_log(executor);
 
     EXPECT_FALSE(storage.exists("session"));
 }
@@ -223,8 +221,7 @@ TEST(LoggingTest, LogRunnerReplaysPersistAfterExpiration) {
 
     StorageEngine storage;
     Executor executor(storage);
-    CommandProcessor processor(executor);
-    LogRunner(log_file.path_string()).run_log(processor);
+    LogRunner(log_file.path_string()).run_log(executor);
 
     EXPECT_TRUE(storage.exists("session"));
     EXPECT_EQ(storage.ttl_milliseconds("session"), -1);
@@ -280,10 +277,9 @@ TEST(LoggingTest, LogRunnerThrowsForMalformedLogEntry) {
 
     StorageEngine storage;
     Executor executor(storage);
-    CommandProcessor command_processor(executor);
     LogRunner runner(log_file.path_string());
 
-    EXPECT_THROW(runner.run_log(command_processor), std::runtime_error);
+    EXPECT_THROW(runner.run_log(executor), std::runtime_error);
 }
 
 TEST(LoggingTest, BinaryKeyAndValueSurviveReplay) {
@@ -293,8 +289,7 @@ TEST(LoggingTest, BinaryKeyAndValueSurviveReplay) {
     { AOFLogger logger(log_file.path_string()); logger.append_record(RespCommandCodec::encode({"SET", key, value})); }
     StorageEngine storage;
     Executor executor(storage);
-    CommandProcessor processor(executor);
-    LogRunner(log_file.path_string()).run_log(processor);
+    LogRunner(log_file.path_string()).run_log(executor);
     ASSERT_TRUE(storage.get(key).has_value());
     EXPECT_EQ(storage.get(key)->bytes(), value);
 }
@@ -304,8 +299,7 @@ TEST(LoggingTest, LogRunnerRejectsNonMutatingCommands) {
     { AOFLogger logger(log_file.path_string()); logger.append_record(RespCommandCodec::encode({"GET", "key"})); }
     StorageEngine storage;
     Executor executor(storage);
-    CommandProcessor processor(executor);
-    EXPECT_THROW(LogRunner(log_file.path_string()).run_log(processor), std::runtime_error);
+    EXPECT_THROW(LogRunner(log_file.path_string()).run_log(executor), std::runtime_error);
 }
 
 TEST(LoggingTest, GeneratedNumericAofRecordsRestoreTheResult) {
@@ -325,8 +319,7 @@ TEST(LoggingTest, GeneratedNumericAofRecordsRestoreTheResult) {
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "12");
@@ -356,8 +349,7 @@ TEST(LoggingTest, NumericReplayPreservesAFutureExpiration) {
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
@@ -388,8 +380,7 @@ TEST(LoggingTest, NumericReplayDoesNotRecreateAKeyThatExpiredDuringDowntime) {
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
 
     EXPECT_FALSE(replayed_storage.exists("counter"));
 }
@@ -418,8 +409,7 @@ TEST(LoggingTest, NumericReplayPreservesAKeyRecreatedAfterExpiration) {
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "1");
@@ -451,8 +441,7 @@ TEST(LoggingTest, PersistAfterNumericMutationSurvivesTheOldDeadline) {
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
@@ -484,8 +473,7 @@ TEST(LoggingTest, ExtendingExpirationAfterNumericMutationSurvivesTheOldDeadline)
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    CommandProcessor replayed_processor(replayed_executor);
-    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    LogRunner(log_file.path_string()).run_log(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");

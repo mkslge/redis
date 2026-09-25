@@ -1,4 +1,6 @@
 #include "Persistence/LogRunner.h"
+
+#include "Commands/Parser.h"
 #include "Protocol/RespCommandCodec.h"
 
 #include <filesystem>
@@ -8,7 +10,7 @@
 
 LogRunner::LogRunner(const std::string& file_path) : file_path_(file_path) {}
 
-void LogRunner::run_log(CommandProcessor& command_processor) const {
+void LogRunner::run_log(Executor& executor) const {
     if (!std::filesystem::exists(file_path_)) return;
 
     std::ifstream stream(file_path_, std::ios::binary);
@@ -32,16 +34,16 @@ void LogRunner::run_log(CommandProcessor& command_processor) const {
                                          std::to_string(consumed_offset) + ": " + decoded.error);
             }
 
-            const CommandProcessResult result = command_processor.process_arguments(decoded.arguments);
-            if (!result.is_success() || !result.processed_command().mutating_command) {
-                const std::string detail = result.is_success() ? "non-mutating command" : result.error_message();
+            const std::optional<Command> command = Parser::parse_arguments(decoded.arguments);
+            if (!command || !is_mutating(*command)) {
+                const std::string detail = command ? "non-mutating command" : "parse failure";
                 throw std::runtime_error("Invalid AOF command at byte offset " +
                                          std::to_string(consumed_offset) + ": " + detail);
             }
-            if (!result.processed_command().execution_result.success) {
+            const ExecutionResult result = executor.execute(*command);
+            if (!result.success) {
                 throw std::runtime_error("AOF command failed at byte offset " +
-                                         std::to_string(consumed_offset) + ": " +
-                                         result.processed_command().execution_result.message);
+                                         std::to_string(consumed_offset) + ": " + result.message);
             }
             pending.erase(0, decoded.bytes_consumed);
             consumed_offset += decoded.bytes_consumed;

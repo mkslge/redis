@@ -17,7 +17,7 @@ int main() {
         LogCompactor compactor(aof_path);
         compactor.compact();
         LogRunner log_runner(aof_path);
-        log_runner.run_log(command_processor);
+        log_runner.run_log(executor);
         AOFLogger logger(aof_path, AOFFsyncPolicy::EVERY_SECOND);
         Server server(logger, command_processor, storage, kServerPort);
 

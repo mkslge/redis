@@ -21,10 +21,10 @@ add_executable(testCommandProcessor testCommandProcessor.cpp)
 target_link_libraries(testCommandProcessor PRIVATE SERVER_APP GTest::gtest_main)
 
 add_executable(testLogging testLogging.cpp)
-target_link_libraries(testLogging PRIVATE SERVER_PERSISTENCE GTest::gtest_main)
+target_link_libraries(testLogging PRIVATE SERVER_APP GTest::gtest_main)
 
 add_executable(testLogCompactor testLogCompactor.cpp)
-target_link_libraries(testLogCompactor PRIVATE SERVER_PERSISTENCE GTest::gtest_main)
+target_link_libraries(testLogCompactor PRIVATE SERVER_APP GTest::gtest_main)
 
 add_executable(testServerIntegration testServerIntegration.cpp)
 target_link_libraries(testServerIntegration PRIVATE SERVER_NETWORK GTest::gtest_main)

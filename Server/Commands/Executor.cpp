@@ -32,7 +32,7 @@ ExecutionResult Executor::execute_command(const ExistsCommand& command) {
 ExecutionResult Executor::execute_command(const ExpireCommand& command) {
     const auto result = storage_.expire_at(command.key, command.expires_at);
     return {.success = true, .did_mutate = result.applied, .payload = result.applied,
-            .aof_state = result.value
+            .resulting_state = result.value
                 ? std::optional<SetStateCommand>{SetStateCommand{
                     command.key, result.value->bytes(), command.expires_at}}
                 : std::nullopt};
@@ -52,7 +52,7 @@ ExecutionResult Executor::execute_command(const PersistCommand& command) {
     const auto value = storage_.persist(command.key);
     const bool removed = value.has_value();
     return {.success = true, .did_mutate = removed, .payload = removed,
-            .aof_state = removed
+            .resulting_state = removed
                 ? std::optional<SetStateCommand>{SetStateCommand{command.key, value->bytes(), std::nullopt}}
                 : std::nullopt};
 }
@@ -74,7 +74,7 @@ ExecutionResult Executor::integer_result(const Key& key,
     if (result.error == StorageEngine::IntegerError::WOULD_OVERFLOW)
         return {.success = false, .message = "increment or decrement would overflow"};
     return {.success = true, .did_mutate = true, .payload = result.value,
-            .aof_state = SetStateCommand{key, std::to_string(result.value), result.expires_at}};
+            .resulting_state = SetStateCommand{key, std::to_string(result.value), result.expires_at}};
 }
 
 ExecutionResult Executor::execute_command(const IncrCommand& command) {
