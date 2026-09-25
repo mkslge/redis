@@ -8,10 +8,6 @@
 ## Protocol and binary safety
 
 
-- [ ] Decode command arguments as byte strings. Only commands that require
-  numbers, such as `EXPIRE` and `INCR`, should parse their arguments numerically.
-- [ ] Remove the token variant/source-text dual representation after RESP parsing
-  becomes the server command boundary.
 - [ ] Make response formatting length-aware so arbitrary bytes can be returned.
 - [ ] Add request and value size limits to prevent unbounded buffering.
 

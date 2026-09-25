@@ -49,28 +49,36 @@ Commands are sent as one line each.
 - `QUIT`
 - `EXIT`
 
-### Values
+### Arguments and values
 
-Values are stored internally as byte strings. Numeric-looking input is not stored
-as a C++ numeric type, so representations such as `00123` are preserved exactly.
-The current text protocol still limits which bytes a client can send; full
+Every argument is decoded as a byte string, and keys and values are stored exactly
+as sent: `GET 007` reads key `007`, not `7`. Only commands that need numbers parse
+them: `EXPIRE` seconds and `INCRBY`/`DECRBY` amounts must be canonical signed
+64-bit decimals (no `+`, leading zeros, `-0`, or decimals).
+
+Arguments follow `redis-cli` quoting rules:
+
+- unquoted words are split on whitespace
+- `"..."` supports the escapes `\"`, `\\`, `\n`, `\r`, `\t`, `\b`, `\a`, and `\xHH`
+- `'...'` is literal except for `\'`
+- a closing quote must be followed by whitespace or the end of the line
+
+The line protocol still cannot return arbitrary bytes in responses; full
 end-to-end binary safety requires a length-prefixed protocol such as RESP.
 
 Examples:
 
 ```text
-SET "name" "mark"
-SET "age" 22
-SET "pi" 3.14159
-SET "middle_initial" 'A'
-GET "name"
-EXISTS "age"
-EXPIRE "name" 30
-DEL "pi"
+SET name mark
+SET "full name" "Mark S"
+SET code 00123
+SET bytes "\x00\xff"
+GET name
+EXISTS code
+EXPIRE name 30
+DEL code
 QUIT
 ```
-
-Keys are normalized to strings internally, even if the input token is numeric or character-based.
 
 ### Integer commands
 
@@ -78,7 +86,7 @@ Integer commands interpret stored byte strings as signed 64-bit decimal integers
 and write the result back as canonical decimal bytes. Missing keys start at zero.
 Existing expiration deadlines are retained. Invalid integers and arithmetic
 overflow return an error without changing the key. `INCRBY` and `DECRBY` accept
-negative amounts; quote malformed amounts to send them through the text protocol.
+negative amounts. A malformed amount is an execution error, not a parse error.
 
 ### Expiration
 
@@ -114,7 +122,8 @@ INCR value=1
 INCRBY value=6
 DELETE deleted=true
 BYE
-ERROR parse failure
+ERROR unknown command
+ERROR wrong number of arguments for 'get' command
 ```
 
 ## Persistence
@@ -169,7 +178,7 @@ The server pipeline is intentionally split into small layers:
 ```text
 TCP event loop
   -> newline command framing
-  -> Tokenizer
+  -> ArgumentSplitter
   -> Parser
   -> Command std::variant
   -> Executor
@@ -187,7 +196,7 @@ feeds them back through the same command model.
 ### Main Components
 
 - `Server/App/*`: command orchestration from raw command line to execution result
-- `Server/Parsing/*`: tokenization and parsing
+- `Server/Parsing/*`: argument splitting and parsing
 - `Server/Commands/*`: value-based command types and command serialization
 - `Server/Runtime/*`: storage engine, executor, values, and expiration handling
 - `Server/Protocol/*`: response formatting and RESP AOF encoding/decoding

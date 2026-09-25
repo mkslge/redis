@@ -14,21 +14,24 @@
 #include <thread>
 #include <vector>
 
+#include "ArgumentSplitter.h"
 #include "Parser.h"
-#include "Tokenizer.h"
 #include "ExecutionResult.h"
 #include "Executor.h"
 
 namespace {
 
 std::optional<Command> parse_command(const std::string& command) {
-    auto tokens = Tokenizer::tokenize(command);
-    if (!tokens.has_value()) {
+    const auto arguments = ArgumentSplitter::split(command);
+    if (!arguments.has_value()) {
         return std::nullopt;
     }
 
-    std::vector<Token> parsed_tokens = tokens.value();
-    return Parser::parse(parsed_tokens);
+    ParseResult parsed = Parser::parse_request(*arguments);
+    if (std::holds_alternative<ParseError>(parsed)) {
+        return std::nullopt;
+    }
+    return std::get<Command>(std::move(parsed));
 }
 
 std::optional<ExecutionResult> execute_text(Executor& executor, const std::string& command) {

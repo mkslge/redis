@@ -9,8 +9,8 @@ enable_testing()
 
 
 
-add_executable(testTokenizer testTokenizer.cpp)
-target_link_libraries(testTokenizer PRIVATE SERVER_PARSING SERVER_COMMANDS SERVER_RUNTIME GTest::gtest_main)
+add_executable(testArgumentSplitter testArgumentSplitter.cpp)
+target_link_libraries(testArgumentSplitter PRIVATE SERVER_PARSING GTest::gtest_main)
 
 add_executable(testParser testParser.cpp)
 target_link_libraries(testParser PRIVATE SERVER_PARSING SERVER_COMMANDS SERVER_RUNTIME GTest::gtest_main)
@@ -66,7 +66,7 @@ target_link_libraries(testSocketIO PRIVATE REDISIMPL_SOCKET_IO GTest::gtest_main
 
 
 include(GoogleTest)
-gtest_discover_tests(testTokenizer)
+gtest_discover_tests(testArgumentSplitter)
 gtest_discover_tests(testParser)
 gtest_discover_tests(testExecutor)
 gtest_discover_tests(testStorageEngine)

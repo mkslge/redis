@@ -1,13 +1,43 @@
 #include "Parser.h"
 
+#include "Integer.h"
+
 #include <charconv>
 #include <chrono>
 #include <cctype>
-#include <limits>
-#include <sstream>
 #include <string>
+#include <string_view>
 
 namespace {
+constexpr std::size_t kCommandIndex = 0;
+constexpr std::size_t kKeyIndex = 1;
+constexpr std::size_t kSecondArgumentIndex = 2;
+
+struct KeyCommandSpec {
+    std::string_view name;
+    std::size_t argument_count;
+    Command (*build)(const CommandArguments& arguments);
+};
+
+// Commands whose arguments are all byte strings, shared by client requests and AOF replay.
+const KeyCommandSpec kKeyCommands[] = {
+    {"GET", 2, [](const CommandArguments& a) -> Command { return GetCommand{a[1]}; }},
+    {"SET", 3, [](const CommandArguments& a) -> Command { return SetCommand{a[1], a[2]}; }},
+    {"DEL", 2, [](const CommandArguments& a) -> Command { return DeleteCommand{a[1]}; }},
+    {"EXISTS", 2, [](const CommandArguments& a) -> Command { return ExistsCommand{a[1]}; }},
+    {"TTL", 2, [](const CommandArguments& a) -> Command { return TtlCommand{a[1]}; }},
+    {"PTTL", 2, [](const CommandArguments& a) -> Command { return PttlCommand{a[1]}; }},
+    {"PERSIST", 2, [](const CommandArguments& a) -> Command { return PersistCommand{a[1]}; }},
+    {"INCR", 2, [](const CommandArguments& a) -> Command { return IncrCommand{a[1]}; }},
+    {"DECR", 2, [](const CommandArguments& a) -> Command { return DecrCommand{a[1]}; }},
+    // The amount stays as bytes; StorageEngine validates it at execution time.
+    {"INCRBY", 3, [](const CommandArguments& a) -> Command { return IncrByCommand{a[1], a[2]}; }},
+    {"DECRBY", 3, [](const CommandArguments& a) -> Command { return DecrByCommand{a[1], a[2]}; }},
+};
+
+constexpr std::string_view kExpireName = "EXPIRE";
+constexpr std::size_t kExpireArgumentCount = 3;
+
 std::string uppercase_ascii(const Bytes& bytes) {
     std::string result;
     result.reserve(bytes.size());
@@ -16,6 +46,43 @@ std::string uppercase_ascii(const Bytes& bytes) {
         result.push_back(static_cast<char>(std::toupper(byte)));
     }
     return result;
+}
+
+std::string lowercase_ascii(const std::string_view text) {
+    std::string result;
+    result.reserve(text.size());
+    for (const unsigned char byte : text) result.push_back(static_cast<char>(std::tolower(byte)));
+    return result;
+}
+
+const KeyCommandSpec* find_key_command(const std::string_view name) {
+    for (const KeyCommandSpec& spec : kKeyCommands) {
+        if (spec.name == name) return &spec;
+    }
+    return nullptr;
+}
+
+ParseError wrong_argument_count(const std::string_view name) {
+    return {"wrong number of arguments for '" + lowercase_ascii(name) + "' command"};
+}
+
+ParseResult parse_expire(const CommandArguments& arguments) {
+    if (arguments.size() != kExpireArgumentCount) return wrong_argument_count(kExpireName);
+    const auto seconds = parse_integer(arguments[kSecondArgumentIndex]);
+    if (!seconds) return ParseError{"value is not an integer or out of range"};
+
+    const auto now = ExpireCommand::Clock::now();
+    const auto requested = std::chrono::duration<long double>(*seconds);
+    const auto current_offset = std::chrono::duration<long double>(now.time_since_epoch());
+    const auto maximum_offset =
+        std::chrono::duration<long double>(ExpireCommand::TimePoint::max().time_since_epoch());
+    const auto minimum_offset =
+        std::chrono::duration<long double>(ExpireCommand::TimePoint::min().time_since_epoch());
+    if (requested > maximum_offset - current_offset ||
+        requested < minimum_offset - current_offset) {
+        return ParseError{"invalid expire time in 'expire' command"};
+    }
+    return ExpireCommand{arguments[kKeyIndex], now + std::chrono::seconds(*seconds)};
 }
 
 std::optional<ExpireCommand::TimePoint> parse_millisecond_deadline(const Bytes& bytes) {
@@ -38,20 +105,24 @@ std::optional<ExpireCommand::TimePoint> parse_millisecond_deadline(const Bytes& 
 }
 }
 
+ParseResult Parser::parse_request(const CommandArguments& arguments) {
+    if (arguments.empty()) return ParseError{"empty command"};
+    const std::string command = uppercase_ascii(arguments[kCommandIndex]);
+    if (command == kExpireName) return parse_expire(arguments);
+
+    const KeyCommandSpec* spec = find_key_command(command);
+    if (!spec) return ParseError{"unknown command"};
+    if (arguments.size() != spec->argument_count) return wrong_argument_count(spec->name);
+    return spec->build(arguments);
+}
+
 std::optional<Command> Parser::parse_arguments(const CommandArguments& arguments) {
     if (arguments.empty()) return std::nullopt;
-    const std::string command = uppercase_ascii(arguments[0]);
-    if (command == "GET" && arguments.size() == 2) return GetCommand{arguments[1]};
-    if (command == "SET" && arguments.size() == 3) return SetCommand{arguments[1], arguments[2]};
-    if (command == "DEL" && arguments.size() == 2) return DeleteCommand{arguments[1]};
-    if (command == "EXISTS" && arguments.size() == 2) return ExistsCommand{arguments[1]};
-    if (command == "TTL" && arguments.size() == 2) return TtlCommand{arguments[1]};
-    if (command == "PTTL" && arguments.size() == 2) return PttlCommand{arguments[1]};
-    if (command == "PERSIST" && arguments.size() == 2) return PersistCommand{arguments[1]};
-    if (command == "INCR" && arguments.size() == 2) return IncrCommand{arguments[1]};
-    if (command == "DECR" && arguments.size() == 2) return DecrCommand{arguments[1]};
-    if (command == "INCRBY" && arguments.size() == 3) return IncrByCommand{arguments[1], arguments[2]};
-    if (command == "DECRBY" && arguments.size() == 3) return DecrByCommand{arguments[1], arguments[2]};
+    const std::string command = uppercase_ascii(arguments[kCommandIndex]);
+    if (const KeyCommandSpec* spec = find_key_command(command)) {
+        if (arguments.size() != spec->argument_count) return std::nullopt;
+        return spec->build(arguments);
+    }
     if (command == "PEXPIREAT" && arguments.size() == 3) {
         auto deadline = parse_millisecond_deadline(arguments[2]);
         if (!deadline) return std::nullopt;
@@ -64,91 +135,4 @@ std::optional<Command> Parser::parse_arguments(const CommandArguments& arguments
         return SetStateCommand{arguments[1], arguments[2], *deadline};
     }
     return std::nullopt;
-}
-
-std::optional<Command> Parser::parse(const std::vector<Token>& tokens) {
-    if (tokens.empty()) return std::nullopt;
-    const TokenType type = tokens[kCommandTokenIndex].get_type();
-
-    if (type == TokenType::SET) {
-        if (tokens.size() != kBinaryCommandTokenCount ||
-            !tokens[kFirstArgumentTokenIndex].has_value() ||
-            !tokens[kSecondArgumentTokenIndex].has_value()) return std::nullopt;
-        auto key = key_from_token(tokens[kFirstArgumentTokenIndex]);
-        auto value = value_from_token(tokens[kSecondArgumentTokenIndex]);
-        if (!key || !value) return std::nullopt;
-        return SetCommand{std::move(*key), std::move(*value)};
-    }
-
-    if (type == TokenType::EXPIRE) {
-        if (tokens.size() != kBinaryCommandTokenCount ||
-            tokens[kSecondArgumentTokenIndex].get_type() != TokenType::INT ||
-            !tokens[kFirstArgumentTokenIndex].has_value()) return std::nullopt;
-        auto key = key_from_token(tokens[kFirstArgumentTokenIndex]);
-        auto seconds = tokens[kSecondArgumentTokenIndex].template get_prim<std::int64_t>();
-        if (!key || !seconds) return std::nullopt;
-        const auto now = ExpireCommand::Clock::now();
-        const auto requested = std::chrono::duration<long double>(*seconds);
-        const auto current_offset = std::chrono::duration<long double>(now.time_since_epoch());
-        const auto maximum_offset =
-            std::chrono::duration<long double>(ExpireCommand::TimePoint::max().time_since_epoch());
-        const auto minimum_offset =
-            std::chrono::duration<long double>(ExpireCommand::TimePoint::min().time_since_epoch());
-        if (requested > maximum_offset - current_offset ||
-            requested < minimum_offset - current_offset) {
-            return std::nullopt;
-        }
-        return ExpireCommand{std::move(*key),
-            now + std::chrono::seconds(*seconds)};
-    }
-
-    if (type == TokenType::INCRBY || type == TokenType::DECRBY) {
-        if (tokens.size() != kBinaryCommandTokenCount) return std::nullopt;
-        auto key = key_from_token(tokens[kFirstArgumentTokenIndex]);
-        auto amount = value_from_token(tokens[kSecondArgumentTokenIndex]);
-        if (!key || !amount) return std::nullopt;
-        if (type == TokenType::INCRBY) return IncrByCommand{std::move(*key), std::move(*amount)};
-        return DecrByCommand{std::move(*key), std::move(*amount)};
-    }
-
-    if (tokens.size() != kUnaryCommandTokenCount ||
-        !tokens[kFirstArgumentTokenIndex].has_value()) return std::nullopt;
-    auto key = key_from_token(tokens[kFirstArgumentTokenIndex]);
-    if (!key) return std::nullopt;
-
-    switch (type) {
-        case TokenType::GET: return GetCommand{std::move(*key)};
-        case TokenType::DEL: return DeleteCommand{std::move(*key)};
-        case TokenType::EXISTS: return ExistsCommand{std::move(*key)};
-        case TokenType::TTL: return TtlCommand{std::move(*key)};
-        case TokenType::PTTL: return PttlCommand{std::move(*key)};
-        case TokenType::PERSIST: return PersistCommand{std::move(*key)};
-        case TokenType::INCR: return IncrCommand{std::move(*key)};
-        case TokenType::DECR: return DecrCommand{std::move(*key)};
-        default: return std::nullopt;
-    }
-}
-
-std::optional<Key> Parser::key_from_token(const Token& token) {
-    switch (token.get_type()) {
-        case TokenType::INT:
-            return std::to_string(token.template get_prim<std::int64_t>().value());
-        case TokenType::DOUBLE: {
-            std::ostringstream stream;
-            stream.precision(std::numeric_limits<double>::max_digits10);
-            stream << token.template get_prim<double>().value();
-            return stream.str();
-        }
-        case TokenType::CHAR:
-            return std::string(1, token.template get_prim<char>().value());
-        case TokenType::STRING:
-            return token.template get_prim<std::string>().value();
-        default:
-            return std::nullopt;
-    }
-}
-
-std::optional<Bytes> Parser::value_from_token(const Token& token) {
-    if (token.source_text().has_value()) return token.source_text().value();
-    return key_from_token(token);
 }

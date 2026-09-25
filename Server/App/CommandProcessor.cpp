@@ -1,7 +1,7 @@
 #include "CommandProcessor.h"
 
+#include "ArgumentSplitter.h"
 #include "Parser.h"
-#include "Tokenizer.h"
 #include "RespCommandCodec.h"
 
 #include <optional>
@@ -36,17 +36,17 @@ CommandProcessResult::CommandProcessResult(Outcome outcome)
 CommandProcessor::CommandProcessor(Executor& executor) : executor_(executor) {}
 
 CommandProcessResult CommandProcessor::process(const std::string& command_line) const {
-    const std::optional<std::vector<Token>> tokens = Tokenizer::tokenize(command_line);
-    if (!tokens.has_value()) {
-        return CommandProcessResult::failure("invalid command");
+    const std::optional<CommandArguments> arguments = ArgumentSplitter::split(command_line);
+    if (!arguments.has_value()) {
+        return CommandProcessResult::failure("unbalanced quotes in request");
     }
 
-    std::optional<Command> command = Parser::parse(tokens.value());
-    if (!command.has_value()) {
-        return CommandProcessResult::failure("parse failure");
+    ParseResult parsed = Parser::parse_request(*arguments);
+    if (const auto* error = std::get_if<ParseError>(&parsed)) {
+        return CommandProcessResult::failure(error->message);
     }
 
-    return process_command(std::move(*command));
+    return process_command(std::get<Command>(std::move(parsed)));
 }
 
 CommandProcessResult CommandProcessor::process_arguments(const CommandArguments& arguments) const {
