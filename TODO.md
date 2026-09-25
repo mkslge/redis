@@ -7,8 +7,7 @@
 
 ## Protocol and binary safety
 
-- [ ] Implement the required RESP2 subset: arrays, bulk strings, simple strings,
-  errors, integers, and null bulk strings.
+
 - [ ] Decode command arguments as byte strings. Only commands that require
   numbers, such as `EXPIRE` and `INCR`, should parse their arguments numerically.
 - [ ] Remove the token variant/source-text dual representation after RESP parsing
@@ -20,16 +19,11 @@
 
 ## Networking and lifecycle
 
-- [ ] Include `errno` details in socket errors so bind, connect, accept, send, and
-  receive failures are diagnosable.
-- [ ] Simplify server worker-thread bookkeeping and verify descriptor reuse,
-  shutdown, and worker completion cannot race.
+
 - [ ] Add connection, read, and write timeouts suitable for deployment.
 
 ## Commands and functionality
 
-- [ ] Add `INCR`, `DECR`, `INCRBY`, and `DECRBY`. Numeric commands should parse
-  byte-string values on demand and store their results as bytes.
 - [ ] Optimize AOF compaction so repeated mutations such as setting the same key
   many times retain only the state needed for recovery.
 
@@ -52,3 +46,8 @@
   fixed three-node cluster before attempting dynamic membership or sharding.
 - [ ] Add snapshots, follower catch-up, leader redirection, linearizable reads,
   metrics, and reproducible failure demonstrations.
+
+## Out of Scope For Now
+
+- [ ] Implement the required RESP2 subset: arrays, bulk strings, simple strings,
+  errors, integers, and null bulk strings.

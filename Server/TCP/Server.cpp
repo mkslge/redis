@@ -24,6 +24,13 @@ bool set_close_on_exec(const int fd) {
     const int flags = fcntl(fd, F_GETFD, 0);
     return flags >= 0 && fcntl(fd, F_SETFD, flags | FD_CLOEXEC) == 0;
 }
+
+int pending_socket_error(const int fd) {
+    int error_number = 0;
+    socklen_t length = sizeof(error_number);
+    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error_number, &length) != 0) return errno;
+    return error_number;
+}
 }
 
 Server::Server(AOFLogger& logger,
@@ -52,7 +59,6 @@ Server::Server(AOFLogger& logger,
 }
 
 Server::~Server() {
-    stop();
     close_all_clients();
     if (socket_fd_ >= 0) close(socket_fd_);
     if (wakeup_fds_[0] >= 0) close(wakeup_fds_[0]);
@@ -66,9 +72,11 @@ void Server::bind_and_listen() {
     serveraddr_.sin_port = htons(port_);
 
     if (bind(socket_fd_, reinterpret_cast<sockaddr*>(&serveraddr_), sizeof(serveraddr_)) != 0) {
+        const int error_number = errno;
         close(socket_fd_);
         socket_fd_ = -1;
-        throw std::runtime_error("Error binding to port");
+        throw std::runtime_error(socket_io::error_message(
+            "bind to port " + std::to_string(port_) + " failed", error_number));
     }
 
     sockaddr_in bound_address{};
@@ -131,18 +139,31 @@ void Server::run() {
         for (std::size_t index = 2; index < descriptors.size(); ++index) {
             const int client_fd = descriptors[index].fd;
             const short events = descriptors[index].revents;
-            if (events == 0 || !clients_.contains(client_fd)) continue;
+            if (events == 0) continue;
+
+            const auto found = clients_.find(client_fd);
+            if (found == clients_.end()) continue;
+            ClientSession& session = found->second;
 
             bool keep_open = true;
-            if (events & POLLIN) keep_open = read_from_client(client_fd);
-            if (keep_open && clients_.contains(client_fd) && events & POLLOUT) {
-                keep_open = flush_client_output(client_fd);
+            const bool has_pending_output = session.output_offset < session.output_buffer.size();
+            if ((events & POLLOUT) || (has_pending_output && events & (POLLERR | POLLHUP))) {
+                keep_open = flush_client_output(client_fd, session);
             }
-            if (events & (POLLERR | POLLNVAL)) keep_open = false;
+            if (keep_open && events & (POLLIN | POLLERR)) {
+                keep_open = read_from_client(client_fd, session);
+            }
+            if (events & POLLNVAL) keep_open = false;
             if (keep_open && events & POLLHUP && !(events & POLLIN)) {
-                ClientSession& session = clients_.at(client_fd);
-                session.close_after_write = true;
-                keep_open = session.output_offset < session.output_buffer.size();
+                const int error_number = pending_socket_error(client_fd);
+                if (error_number != 0) {
+                    std::cerr << socket_io::error_message(
+                        "receive from client " + std::to_string(client_fd) + " failed", error_number) << std::endl;
+                    keep_open = false;
+                } else {
+                    session.close_after_write = true;
+                    keep_open = session.output_offset < session.output_buffer.size();
+                }
             }
             if (!keep_open) close_client(client_fd);
         }
@@ -160,9 +181,10 @@ void Server::accept_ready_clients() {
     while (true) {
         const int client_fd = accept(socket_fd_, nullptr, nullptr);
         if (client_fd < 0) {
-            if (errno == EINTR) continue;
-            if (errno == EAGAIN || errno == EWOULDBLOCK) return;
-            std::cerr << "Failed to accept client: " << std::strerror(errno) << std::endl;
+            const int error_number = errno;
+            if (error_number == EINTR) continue;
+            if (error_number == EAGAIN || error_number == EWOULDBLOCK) return;
+            std::cerr << socket_io::error_message("accept client failed", error_number) << std::endl;
             return;
         }
 
@@ -177,10 +199,7 @@ void Server::accept_ready_clients() {
     }
 }
 
-bool Server::read_from_client(const int client_fd) {
-    auto found = clients_.find(client_fd);
-    if (found == clients_.end()) return false;
-    ClientSession& session = found->second;
+bool Server::read_from_client(const int client_fd, ClientSession& session) {
     std::size_t bytes_this_event = 0;
     char buffer[kBufferSize];
 
@@ -189,7 +208,7 @@ bool Server::read_from_client(const int client_fd) {
         if (count > 0) {
             bytes_this_event += static_cast<std::size_t>(count);
             session.input_buffer.append(buffer, static_cast<std::size_t>(count));
-            if (session.input_buffer.size() > kMaxInputBuffer || !process_client_input(client_fd)) return false;
+            if (session.input_buffer.size() > kMaxInputBuffer || !process_client_input(session)) return false;
             if (session.close_after_write) return true;
             continue;
         }
@@ -197,15 +216,17 @@ bool Server::read_from_client(const int client_fd) {
             session.close_after_write = true;
             return session.output_offset < session.output_buffer.size();
         }
-        if (errno == EINTR) continue;
-        if (errno == EAGAIN || errno == EWOULDBLOCK) return true;
+        const int error_number = errno;
+        if (error_number == EINTR) continue;
+        if (error_number == EAGAIN || error_number == EWOULDBLOCK) return true;
+        std::cerr << socket_io::error_message(
+            "receive from client " + std::to_string(client_fd) + " failed", error_number) << std::endl;
         return false;
     }
     return true;
 }
 
-bool Server::process_client_input(const int client_fd) {
-    ClientSession& session = clients_.at(client_fd);
+bool Server::process_client_input(ClientSession& session) {
     std::size_t newline_position = session.input_buffer.find('\n');
     while (newline_position != std::string::npos) {
         std::string command = session.input_buffer.substr(0, newline_position);
@@ -250,8 +271,7 @@ bool Server::queue_response(ClientSession& session, std::string response) {
     return true;
 }
 
-bool Server::flush_client_output(const int client_fd) {
-    ClientSession& session = clients_.at(client_fd);
+bool Server::flush_client_output(const int client_fd, ClientSession& session) {
     std::size_t bytes_this_event = 0;
 
     while (session.output_offset < session.output_buffer.size() && bytes_this_event < kMaxWritePerEvent) {
@@ -264,8 +284,11 @@ bool Server::flush_client_output(const int client_fd) {
             bytes_this_event += static_cast<std::size_t>(count);
             continue;
         }
-        if (count < 0 && errno == EINTR) continue;
-        if (count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) return true;
+        const int error_number = count < 0 ? errno : EIO;
+        if (error_number == EINTR) continue;
+        if (error_number == EAGAIN || error_number == EWOULDBLOCK) return true;
+        std::cerr << socket_io::error_message(
+            "send to client " + std::to_string(client_fd) + " failed", error_number) << std::endl;
         return false;
     }
 

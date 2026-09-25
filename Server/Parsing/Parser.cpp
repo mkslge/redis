@@ -17,23 +17,11 @@ std::string uppercase_ascii(const Bytes& bytes) {
     }
     return result;
 }
-}
 
-std::optional<Command> Parser::parse_arguments(const CommandArguments& arguments) {
-    if (arguments.empty()) return std::nullopt;
-    const std::string command = uppercase_ascii(arguments[0]);
-    if (command == "GET" && arguments.size() == 2) return GetCommand{arguments[1]};
-    if (command == "SET" && arguments.size() == 3) return SetCommand{arguments[1], arguments[2]};
-    if (command == "DEL" && arguments.size() == 2) return DeleteCommand{arguments[1]};
-    if (command == "EXISTS" && arguments.size() == 2) return ExistsCommand{arguments[1]};
-    if (command == "TTL" && arguments.size() == 2) return TtlCommand{arguments[1]};
-    if (command == "PTTL" && arguments.size() == 2) return PttlCommand{arguments[1]};
-    if (command == "PERSIST" && arguments.size() == 2) return PersistCommand{arguments[1]};
-    if (command != "PEXPIREAT" || arguments.size() != 3) return std::nullopt;
-
+std::optional<ExpireCommand::TimePoint> parse_millisecond_deadline(const Bytes& bytes) {
     std::int64_t unix_milliseconds = 0;
-    const char* first = arguments[2].data();
-    const char* last = first + arguments[2].size();
+    const char* first = bytes.data();
+    const char* last = first + bytes.size();
     const auto parsed = std::from_chars(first, last, unix_milliseconds);
     if (parsed.ec != std::errc{} || parsed.ptr != last) return std::nullopt;
 
@@ -46,7 +34,36 @@ std::optional<Command> Parser::parse_arguments(const CommandArguments& arguments
 
     const auto duration = std::chrono::duration_cast<ExpireCommand::Clock::duration>(
         Milliseconds(unix_milliseconds));
-    return ExpireCommand{arguments[1], ExpireCommand::TimePoint(duration)};
+    return ExpireCommand::TimePoint(duration);
+}
+}
+
+std::optional<Command> Parser::parse_arguments(const CommandArguments& arguments) {
+    if (arguments.empty()) return std::nullopt;
+    const std::string command = uppercase_ascii(arguments[0]);
+    if (command == "GET" && arguments.size() == 2) return GetCommand{arguments[1]};
+    if (command == "SET" && arguments.size() == 3) return SetCommand{arguments[1], arguments[2]};
+    if (command == "DEL" && arguments.size() == 2) return DeleteCommand{arguments[1]};
+    if (command == "EXISTS" && arguments.size() == 2) return ExistsCommand{arguments[1]};
+    if (command == "TTL" && arguments.size() == 2) return TtlCommand{arguments[1]};
+    if (command == "PTTL" && arguments.size() == 2) return PttlCommand{arguments[1]};
+    if (command == "PERSIST" && arguments.size() == 2) return PersistCommand{arguments[1]};
+    if (command == "INCR" && arguments.size() == 2) return IncrCommand{arguments[1]};
+    if (command == "DECR" && arguments.size() == 2) return DecrCommand{arguments[1]};
+    if (command == "INCRBY" && arguments.size() == 3) return IncrByCommand{arguments[1], arguments[2]};
+    if (command == "DECRBY" && arguments.size() == 3) return DecrByCommand{arguments[1], arguments[2]};
+    if (command == "PEXPIREAT" && arguments.size() == 3) {
+        auto deadline = parse_millisecond_deadline(arguments[2]);
+        if (!deadline) return std::nullopt;
+        return ExpireCommand{arguments[1], *deadline};
+    }
+    if (command == "SETSTATE" && arguments.size() == 4) {
+        if (arguments[3] == "PERSIST") return SetStateCommand{arguments[1], arguments[2], std::nullopt};
+        auto deadline = parse_millisecond_deadline(arguments[3]);
+        if (!deadline) return std::nullopt;
+        return SetStateCommand{arguments[1], arguments[2], *deadline};
+    }
+    return std::nullopt;
 }
 
 std::optional<Command> Parser::parse(const std::vector<Token>& tokens) {
@@ -68,10 +85,30 @@ std::optional<Command> Parser::parse(const std::vector<Token>& tokens) {
             tokens[kSecondArgumentTokenIndex].get_type() != TokenType::INT ||
             !tokens[kFirstArgumentTokenIndex].has_value()) return std::nullopt;
         auto key = key_from_token(tokens[kFirstArgumentTokenIndex]);
-        auto seconds = tokens[kSecondArgumentTokenIndex].template get_prim<int>();
+        auto seconds = tokens[kSecondArgumentTokenIndex].template get_prim<std::int64_t>();
         if (!key || !seconds) return std::nullopt;
+        const auto now = ExpireCommand::Clock::now();
+        const auto requested = std::chrono::duration<long double>(*seconds);
+        const auto current_offset = std::chrono::duration<long double>(now.time_since_epoch());
+        const auto maximum_offset =
+            std::chrono::duration<long double>(ExpireCommand::TimePoint::max().time_since_epoch());
+        const auto minimum_offset =
+            std::chrono::duration<long double>(ExpireCommand::TimePoint::min().time_since_epoch());
+        if (requested > maximum_offset - current_offset ||
+            requested < minimum_offset - current_offset) {
+            return std::nullopt;
+        }
         return ExpireCommand{std::move(*key),
-            ExpireCommand::Clock::now() + std::chrono::seconds(*seconds)};
+            now + std::chrono::seconds(*seconds)};
+    }
+
+    if (type == TokenType::INCRBY || type == TokenType::DECRBY) {
+        if (tokens.size() != kBinaryCommandTokenCount) return std::nullopt;
+        auto key = key_from_token(tokens[kFirstArgumentTokenIndex]);
+        auto amount = value_from_token(tokens[kSecondArgumentTokenIndex]);
+        if (!key || !amount) return std::nullopt;
+        if (type == TokenType::INCRBY) return IncrByCommand{std::move(*key), std::move(*amount)};
+        return DecrByCommand{std::move(*key), std::move(*amount)};
     }
 
     if (tokens.size() != kUnaryCommandTokenCount ||
@@ -86,6 +123,8 @@ std::optional<Command> Parser::parse(const std::vector<Token>& tokens) {
         case TokenType::TTL: return TtlCommand{std::move(*key)};
         case TokenType::PTTL: return PttlCommand{std::move(*key)};
         case TokenType::PERSIST: return PersistCommand{std::move(*key)};
+        case TokenType::INCR: return IncrCommand{std::move(*key)};
+        case TokenType::DECR: return DecrCommand{std::move(*key)};
         default: return std::nullopt;
     }
 }
@@ -93,7 +132,7 @@ std::optional<Command> Parser::parse(const std::vector<Token>& tokens) {
 std::optional<Key> Parser::key_from_token(const Token& token) {
     switch (token.get_type()) {
         case TokenType::INT:
-            return std::to_string(token.template get_prim<int>().value());
+            return std::to_string(token.template get_prim<std::int64_t>().value());
         case TokenType::DOUBLE: {
             std::ostringstream stream;
             stream.precision(std::numeric_limits<double>::max_digits10);

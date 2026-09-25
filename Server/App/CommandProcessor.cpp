@@ -59,9 +59,15 @@ CommandProcessResult CommandProcessor::process_command(Command command) const {
     const ExecutionResult result = executor_.execute(command);
     const bool mutating_command = is_mutating(command);
     const bool should_log = result.success && mutating_command && result.did_mutate;
-    Bytes aof_record = should_log
-        ? RespCommandCodec::encode(command_arguments(command))
-        : Bytes{};
+    Bytes aof_record;
+    if (should_log) {
+        if (std::holds_alternative<ExpireCommand>(command) || !result.aof_state) {
+            aof_record = RespCommandCodec::encode(command_arguments(command));
+        }
+        if (result.aof_state) {
+            aof_record += RespCommandCodec::encode(command_arguments(Command{*result.aof_state}));
+        }
+    }
     return CommandProcessResult::success(ProcessedCommand{
         .command = std::move(command),
         .execution_result = result,

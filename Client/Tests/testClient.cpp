@@ -1,9 +1,13 @@
 #include <gtest/gtest.h>
 
 #include <arpa/inet.h>
+#include <cerrno>
+#include <chrono>
 #include <cstring>
+#include <initializer_list>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <unistd.h>
 
 #include "Client.h"
@@ -18,9 +22,59 @@ public:
 
     int get() const { return descriptor_; }
 
+    void reset() {
+        if (descriptor_ >= 0) close(descriptor_);
+        descriptor_ = -1;
+    }
+
 private:
     int descriptor_;
 };
+
+std::uint16_t bind_socket_to_unused_loopback_port(const int socket_fd) {
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    address.sin_port = 0;
+    if (bind(socket_fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
+        throw std::runtime_error("Failed to bind test socket");
+    }
+
+    socklen_t address_size = sizeof(address);
+    if (getsockname(socket_fd, reinterpret_cast<sockaddr*>(&address), &address_size) != 0) {
+        throw std::runtime_error("Failed to get test socket address");
+    }
+    return ntohs(address.sin_port);
+}
+
+template <typename Action>
+std::string thrown_socket_error(Action action) {
+    try {
+        action();
+    } catch (const std::exception& error) {
+        return error.what();
+    }
+
+    ADD_FAILURE() << "Expected the socket operation to throw";
+    return {};
+}
+
+void expect_errno_details(const std::string& message,
+                          const std::string& operation,
+                          const std::initializer_list<int> possible_errors) {
+    EXPECT_NE(message.find(operation), std::string::npos) << message;
+
+    for (const int error_number : possible_errors) {
+        const std::string description = std::strerror(error_number);
+        const std::string number = "errno " + std::to_string(error_number);
+        if (message.find(description) != std::string::npos &&
+            message.find(number) != std::string::npos) {
+            return;
+        }
+    }
+
+    ADD_FAILURE() << "Missing matching errno description and number in: " << message;
+}
 }
 
 TEST(ClientTest, BuildServerAddressUsesRequestedPortAndIp) {
@@ -74,4 +128,60 @@ TEST(ClientTest, SendCommandSendsCompleteNewlineTerminatedCommand) {
         received.append(buffer, static_cast<std::size_t>(count));
     }
     EXPECT_EQ(received, "SET key value\n");
+}
+
+TEST(ClientIntegrationTest, ConnectFailureIncludesErrnoDetails) {
+    SocketHandle unavailable_endpoint(socket(AF_INET, SOCK_STREAM, 0));
+    ASSERT_GE(unavailable_endpoint.get(), 0);
+    const std::uint16_t port = bind_socket_to_unused_loopback_port(unavailable_endpoint.get());
+    unavailable_endpoint.reset();
+
+    const std::string message = thrown_socket_error([&] {
+        Client client("127.0.0.1", port);
+    });
+
+    expect_errno_details(message, "connect", {ECONNREFUSED});
+}
+
+TEST(ClientIntegrationTest, SendFailureIncludesErrnoDetails) {
+    SocketHandle listener(socket(AF_INET, SOCK_STREAM, 0));
+    ASSERT_GE(listener.get(), 0);
+    const std::uint16_t port = bind_socket_to_unused_loopback_port(listener.get());
+    ASSERT_EQ(listen(listener.get(), 1), 0);
+
+    Client client("127.0.0.1", port);
+    SocketHandle connection(accept(listener.get(), nullptr, nullptr));
+    ASSERT_GE(connection.get(), 0);
+    const linger reset_on_close{.l_onoff = 1, .l_linger = 0};
+    ASSERT_EQ(setsockopt(connection.get(), SOL_SOCKET, SO_LINGER,
+                         &reset_on_close, sizeof(reset_on_close)), 0);
+    connection.reset();
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    const std::string message = thrown_socket_error([&] {
+        client.send_command("PING");
+    });
+
+    expect_errno_details(message, "send", {EPIPE, ECONNRESET});
+}
+
+TEST(ClientIntegrationTest, ReceiveFailureIncludesErrnoDetails) {
+    SocketHandle listener(socket(AF_INET, SOCK_STREAM, 0));
+    ASSERT_GE(listener.get(), 0);
+    const std::uint16_t port = bind_socket_to_unused_loopback_port(listener.get());
+    ASSERT_EQ(listen(listener.get(), 1), 0);
+
+    Client client("127.0.0.1", port);
+    SocketHandle connection(accept(listener.get(), nullptr, nullptr));
+    ASSERT_GE(connection.get(), 0);
+    const linger reset_on_close{.l_onoff = 1, .l_linger = 0};
+    ASSERT_EQ(setsockopt(connection.get(), SOL_SOCKET, SO_LINGER,
+                         &reset_on_close, sizeof(reset_on_close)), 0);
+    connection.reset();
+
+    const std::string message = thrown_socket_error([&] {
+        client.get_response();
+    });
+
+    expect_errno_details(message, "receive", {ECONNRESET});
 }

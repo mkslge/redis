@@ -1,9 +1,80 @@
 #include "StorageEngine.h"
 
+#include <charconv>
+#include <limits>
+#include <string_view>
+
+namespace {
+std::optional<std::int64_t> parse_integer(const std::string_view bytes) {
+    if (bytes.empty()) return std::nullopt;
+    std::size_t digit = bytes.front() == '-' ? 1 : 0;
+    if (digit == bytes.size()) return std::nullopt;
+    if (bytes[digit] == '0' && (digit != 0 || bytes.size() != 1)) return std::nullopt;
+    for (; digit < bytes.size(); ++digit) {
+        if (bytes[digit] < '0' || bytes[digit] > '9') return std::nullopt;
+    }
+    std::int64_t value = 0;
+    const auto parsed = std::from_chars(bytes.data(), bytes.data() + bytes.size(), value);
+    if (parsed.ec != std::errc{} || parsed.ptr != bytes.data() + bytes.size()) return std::nullopt;
+    return value;
+}
+}
+
 void StorageEngine::set(const Key& key, const Value& value) {
     std::lock_guard<std::mutex> lock{mutex_};
     data_.insert_or_assign(key, Entry{value, std::nullopt});
     expiration_generations_.erase(key);
+}
+
+void StorageEngine::restore_state(const Key& key, const Value& value,
+                                  const std::optional<TimePoint> expires_at) {
+    std::lock_guard<std::mutex> lock{mutex_};
+    expiration_generations_.erase(key);
+    if (expires_at && *expires_at <= Clock::now()) {
+        data_.erase(key);
+        return;
+    }
+    data_.insert_or_assign(key, Entry{value, expires_at});
+    if (expires_at) {
+        const std::uint64_t generation = ++next_expiration_generation_;
+        expiration_generations_.insert_or_assign(key, generation);
+        expiration_queue_.push_back({key, generation});
+    }
+}
+
+StorageEngine::IntegerResult StorageEngine::adjust_integer(
+    const Key& key, const Bytes& amount, const bool subtract) {
+    const auto parsed = parse_integer(amount);
+    if (!parsed) return {.error = IntegerError::INVALID_INTEGER};
+    return adjust_integer(key, *parsed, subtract);
+}
+
+StorageEngine::IntegerResult StorageEngine::adjust_integer(
+    const Key& key, const std::int64_t amount, const bool subtract) {
+    std::lock_guard<std::mutex> lock{mutex_};
+    prune_if_expired_unlocked(key, Clock::now());
+    auto it = data_.find(key);
+    std::int64_t current = 0;
+    if (it != data_.end()) {
+        const auto parsed = parse_integer(it->second.value.bytes());
+        if (!parsed) return {.error = IntegerError::INVALID_INTEGER};
+        current = *parsed;
+    }
+
+    // DECRBY cannot negate the smallest signed integer, even if a result might fit.
+    if (subtract && amount == std::numeric_limits<std::int64_t>::min()) {
+        return {.error = IntegerError::WOULD_OVERFLOW};
+    }
+    const std::int64_t delta = subtract ? -amount : amount;
+    if ((delta > 0 && current > std::numeric_limits<std::int64_t>::max() - delta) ||
+        (delta < 0 && current < std::numeric_limits<std::int64_t>::min() - delta)) {
+        return {.error = IntegerError::WOULD_OVERFLOW};
+    }
+    const std::int64_t next = current + delta;
+    const auto expires_at = it == data_.end() ? std::optional<TimePoint>{} : it->second.expires_at;
+    if (it == data_.end()) data_.emplace(key, Entry{Value(std::to_string(next)), std::nullopt});
+    else it->second.value = Value(std::to_string(next));
+    return {.value = next, .expires_at = expires_at};
 }
 
 std::optional<Value> StorageEngine::get(const Key& key) {
@@ -39,26 +110,31 @@ bool StorageEngine::expire(const Key& key, const Duration ttl) {
 }
 
 bool StorageEngine::expire_at(const Key& key, const TimePoint expires_at) {
+    return expire_at_state(key, expires_at).applied;
+}
+
+StorageEngine::ExpireResult StorageEngine::expire_at_state(
+    const Key& key, const TimePoint expires_at) {
     std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
     prune_if_expired_unlocked(key, now);
 
     const auto it = data_.find(key);
     if (it == data_.end()) {
-        return false;
+        return {};
     }
 
     if (expires_at <= now) {
         expiration_generations_.erase(it->first);
         data_.erase(it);
-        return true;
+        return {.applied = true};
     }
 
     const std::uint64_t generation = ++next_expiration_generation_;
     expiration_generations_.insert_or_assign(key, generation);
     expiration_queue_.push_back({key, generation});
     it->second.expires_at = expires_at;
-    return true;
+    return {.applied = true, .value = it->second.value};
 }
 
 std::int64_t StorageEngine::ttl_milliseconds(const Key& key) {
@@ -76,16 +152,20 @@ std::int64_t StorageEngine::ttl_milliseconds(const Key& key) {
 }
 
 bool StorageEngine::persist(const Key& key) {
+    return persist_state(key).has_value();
+}
+
+std::optional<Value> StorageEngine::persist_state(const Key& key) {
     std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
     prune_if_expired_unlocked(key, now);
 
     const auto it = data_.find(key);
-    if (it == data_.end() || !it->second.expires_at.has_value()) return false;
+    if (it == data_.end() || !it->second.expires_at.has_value()) return std::nullopt;
 
     it->second.expires_at.reset();
     expiration_generations_.erase(key);
-    return true;
+    return it->second.value;
 }
 
 void StorageEngine::clear() {

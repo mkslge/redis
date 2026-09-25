@@ -39,34 +39,51 @@ private:
     std::atomic<bool> stopping_{false};
     std::unordered_map<int, ClientSession> clients_;
 
+    // Binds the listening socket and records its kernel-assigned port when port zero is requested.
     void bind_and_listen();
+    // Creates the nonblocking pipe used to interrupt poll() from Server::stop().
     void initialize_wakeup_pipe();
+    // Accepts every connection currently queued on the nonblocking listening socket.
     void accept_ready_clients();
-    bool read_from_client(int client_fd);
-    bool process_client_input(int client_fd);
-    bool flush_client_output(int client_fd);
+    // Reads one fair-share batch into a session and reports whether the connection should remain open.
+    bool read_from_client(int client_fd, ClientSession& session);
+    // Processes complete commands already buffered for one session.
+    bool process_client_input(ClientSession& session);
+    // Writes one fair-share batch from a session and reports whether the connection should remain open.
+    bool flush_client_output(int client_fd, ClientSession& session);
+    // Appends a response unless doing so would exceed the per-client output limit.
     bool queue_response(ClientSession& session, std::string response);
+    // Executes one command and persists successful mutations before their response is sent.
     CommandProcessResult process_and_persist(const std::string& command);
+    // Closes and erases one session; only the run thread may call this method.
     void close_client(int client_fd);
+    // Closes every remaining session; only the run thread or a non-running destructor may call this method.
     void close_all_clients();
+    // Consumes pending wakeup bytes so the pipe remains usable for later stop requests.
     void drain_wakeup_pipe() const;
+    // Removes a bounded number of expired keys without monopolizing the event loop.
     void run_expiration_sweep();
 
 public:
     static constexpr std::uint16_t kDefaultPort = 6380;
 
+    // Creates a listening server but does not start its blocking event loop.
     explicit Server(AOFLogger& logger,
                     CommandProcessor& command_processor,
                     StorageEngine& storage,
                     std::uint16_t port = kDefaultPort,
                     std::chrono::milliseconds expiration_sweep_interval = std::chrono::milliseconds(100));
+    // Releases descriptors after run() has returned; destroying a running server is invalid.
     ~Server();
 
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
 
+    // Runs the single owner of all client sessions; call at most once and from only one thread.
     void run();
+    // Requests shutdown from any thread; the run thread performs all client cleanup.
     void stop();
+    // Returns the bound port, which is immutable after construction.
     std::uint16_t port() const;
 };
 

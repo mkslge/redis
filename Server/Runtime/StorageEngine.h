@@ -18,14 +18,30 @@ public:
     using Duration = Clock::duration;
     using TimePoint = Clock::time_point;
 
+    enum class IntegerError { NONE, INVALID_INTEGER, WOULD_OVERFLOW };
+    struct IntegerResult {
+        IntegerError error{IntegerError::NONE};
+        std::int64_t value{0};
+        std::optional<TimePoint> expires_at;
+    };
+    struct ExpireResult {
+        bool applied{false};
+        std::optional<Value> value;
+    };
+
     void set(const Key& key, const Value& value);
+    void restore_state(const Key& key, const Value& value, std::optional<TimePoint> expires_at);
+    IntegerResult adjust_integer(const Key& key, std::int64_t amount, bool subtract);
+    IntegerResult adjust_integer(const Key& key, const Bytes& amount, bool subtract);
     std::optional<Value> get(const Key& key);
     bool del(const Key& key);
     bool exists(const Key& key);
     bool expire(const Key& key, Duration ttl);
     bool expire_at(const Key& key, TimePoint expires_at);
+    ExpireResult expire_at_state(const Key& key, TimePoint expires_at);
     std::int64_t ttl_milliseconds(const Key& key);
     bool persist(const Key& key);
+    std::optional<Value> persist_state(const Key& key);
     void clear();
     std::size_t size();
     std::unordered_set<Key> possibly_expired();

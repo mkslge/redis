@@ -1,11 +1,17 @@
+#include "CommandProcessor.h"
+#include "Executor.h"
 #include "LogCompactor.h"
+#include "LogRunner.h"
 #include "RespCommandCodec.h"
+#include "StorageEngine.h"
 
 #include <gtest/gtest.h>
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <thread>
 
 namespace {
 
@@ -143,4 +149,110 @@ TEST(LogCompactorTest, LaterSetRemovesPriorExpirationAndDelete) {
         RespCommandCodec::encode({"SET", "key", "new"}));
     LogCompactor(log_file.path_string()).compact();
     EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", "key", "new"}));
+}
+
+TEST(LogCompactorTest, CompactingNumericMutationsPreservesFinalState) {
+    Bytes contents;
+    StorageEngine source_storage;
+    Executor source_executor(source_storage);
+    CommandProcessor source_processor(source_executor);
+    for (const std::string command : {
+             "SET \"counter\" 10", "INCR \"counter\"", "INCRBY \"counter\" 5",
+             "DECR \"counter\"", "SET \"removed\" 1", "DECRBY \"removed\" 2",
+             "DEL \"removed\""}) {
+        const CommandProcessResult result = source_processor.process(command);
+        ASSERT_TRUE(result.is_success()) << command;
+        ASSERT_TRUE(result.processed_command().execution_result.success) << command;
+        if (result.processed_command().should_log) {
+            contents += result.processed_command().aof_record;
+        }
+    }
+    TempLogFile log_file("numeric-final-state", contents);
+
+    LogCompactor(log_file.path_string()).compact();
+
+    StorageEngine replayed_storage;
+    Executor replayed_executor(replayed_storage);
+    CommandProcessor replayed_processor(replayed_executor);
+    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    ASSERT_TRUE(replayed_storage.get("counter").has_value());
+    EXPECT_EQ(replayed_storage.get("counter")->bytes(), "15");
+    EXPECT_FALSE(replayed_storage.exists("removed"));
+}
+
+TEST(LogCompactorTest, CompactingNumericMutationsPreservesExpirationState) {
+    Bytes contents;
+    StorageEngine source_storage;
+    Executor source_executor(source_storage);
+    CommandProcessor source_processor(source_executor);
+
+    const CommandProcessResult set_result = source_processor.process("SET \"counter\" 10");
+    ASSERT_TRUE(set_result.is_success());
+    ASSERT_TRUE(set_result.processed_command().execution_result.success);
+    contents += set_result.processed_command().aof_record;
+
+    const auto deadline_milliseconds =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            (StorageEngine::Clock::now() + std::chrono::minutes(1)).time_since_epoch()).count();
+    const CommandProcessResult expire_result = source_processor.process_arguments(
+        {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)});
+    ASSERT_TRUE(expire_result.is_success());
+    ASSERT_TRUE(expire_result.processed_command().execution_result.success);
+    contents += expire_result.processed_command().aof_record;
+
+    const CommandProcessResult increment_result = source_processor.process("INCR \"counter\"");
+    ASSERT_TRUE(increment_result.is_success());
+    ASSERT_TRUE(increment_result.processed_command().execution_result.success);
+    contents += increment_result.processed_command().aof_record;
+
+    TempLogFile log_file("numeric-expiration-state", contents);
+    LogCompactor(log_file.path_string()).compact();
+
+    StorageEngine replayed_storage;
+    Executor replayed_executor(replayed_storage);
+    CommandProcessor replayed_processor(replayed_executor);
+    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    ASSERT_TRUE(replayed_storage.get("counter").has_value());
+    EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
+    EXPECT_GT(replayed_storage.ttl_milliseconds("counter"), 0);
+}
+
+TEST(LogCompactorTest, NumericStateFollowedByPersistSurvivesCompactionAndOldExpiration) {
+    Bytes contents;
+    StorageEngine source_storage;
+    Executor source_executor(source_storage);
+    CommandProcessor source_processor(source_executor);
+    const auto old_deadline_milliseconds =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            (StorageEngine::Clock::now() + std::chrono::milliseconds(250)).time_since_epoch()).count();
+    const StorageEngine::TimePoint old_deadline{
+        std::chrono::duration_cast<StorageEngine::Duration>(
+            std::chrono::milliseconds(old_deadline_milliseconds))};
+
+    const auto set = source_processor.process("SET \"counter\" 10");
+    ASSERT_TRUE(set.is_success());
+    contents += set.processed_command().aof_record;
+    ASSERT_TRUE(source_storage.expire_at("counter", old_deadline));
+    contents += RespCommandCodec::encode(
+        {"PEXPIREAT", "counter", std::to_string(old_deadline_milliseconds)});
+    const auto increment = source_processor.process("INCR \"counter\"");
+    ASSERT_TRUE(increment.is_success());
+    ASSERT_TRUE(increment.processed_command().execution_result.success);
+    contents += increment.processed_command().aof_record;
+    const auto persist = source_processor.process("PERSIST \"counter\"");
+    ASSERT_TRUE(persist.is_success());
+    ASSERT_TRUE(persist.processed_command().execution_result.success);
+    contents += persist.processed_command().aof_record;
+    TempLogFile log_file("numeric-persist-after-compaction", contents);
+
+    LogCompactor(log_file.path_string()).compact();
+    std::this_thread::sleep_until(old_deadline + std::chrono::milliseconds(25));
+
+    StorageEngine replayed_storage;
+    Executor replayed_executor(replayed_storage);
+    CommandProcessor replayed_processor(replayed_executor);
+    LogRunner(log_file.path_string()).run_log(replayed_processor);
+    ASSERT_TRUE(replayed_storage.get("counter").has_value());
+    EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
+    EXPECT_EQ(replayed_storage.ttl_milliseconds("counter"), -1);
 }

@@ -25,6 +25,10 @@ constexpr std::string_view kExpireKeyword = "expire";
 constexpr std::string_view kTtlKeyword = "ttl";
 constexpr std::string_view kPttlKeyword = "pttl";
 constexpr std::string_view kPersistKeyword = "persist";
+constexpr std::string_view kIncrKeyword = "incr";
+constexpr std::string_view kDecrKeyword = "decr";
+constexpr std::string_view kIncrByKeyword = "incrby";
+constexpr std::string_view kDecrByKeyword = "decrby";
 
 struct KeywordSpec {
     std::string_view keyword;
@@ -40,6 +44,13 @@ constexpr KeywordSpec kThreeCharKeywords[] = {
 
 constexpr KeywordSpec kFourCharKeywords[] = {
     {kPttlKeyword, TokenType::PTTL},
+    {kIncrKeyword, TokenType::INCR},
+    {kDecrKeyword, TokenType::DECR},
+};
+
+constexpr KeywordSpec kSixCharNumericKeywords[] = {
+    {kIncrByKeyword, TokenType::INCRBY},
+    {kDecrByKeyword, TokenType::DECRBY},
 };
 
 constexpr KeywordSpec kSixCharKeywords[] = {
@@ -71,6 +82,22 @@ bool matches_keyword_case_insensitive(
     }
 
     return true;
+}
+
+std::optional<Token> try_decimal_bytes(const std::string& input, int& index) {
+    const int start = index;
+    int digit = start;
+    if (input[digit] == '-' || input[digit] == '+') ++digit;
+    if (digit >= static_cast<int>(input.size()) || input[digit] < '0' || input[digit] > '9') {
+        return std::nullopt;
+    }
+    while (digit < static_cast<int>(input.size()) && input[digit] >= '0' && input[digit] <= '9') {
+        ++digit;
+    }
+    if (!is_token_boundary(input, digit)) return std::nullopt;
+    index = digit;
+    const std::string bytes = input.substr(start, digit - start);
+    return Token(TokenType::STRING, bytes, bytes);
 }
 
 std::optional<Token> try_keyword(
@@ -140,6 +167,10 @@ std::optional<Token> Tokenizer::tokenize_once(const std::string& input, int& idx
         return token;
     }
 
+    if (auto token = try_keyword(input, idx_out, kSixCharNumericKeywords, std::size(kSixCharNumericKeywords))) {
+        return token;
+    }
+
     if (auto token = try_keyword(input, idx_out, kSevenCharKeywords, std::size(kSevenCharKeywords))) {
         return token;
     }
@@ -147,7 +178,7 @@ std::optional<Token> Tokenizer::tokenize_once(const std::string& input, int& idx
     {
         const int start_idx = idx_out;
         int temp_idx = idx_out;
-        std::optional<int> opt_int = is_int(input, temp_idx);
+        std::optional<std::int64_t> opt_int = is_int(input, temp_idx);
         if (opt_int.has_value()) {
             idx_out = temp_idx;
             return Token(TokenType::INT, opt_int.value(), input.substr(start_idx, temp_idx - start_idx));
@@ -163,6 +194,9 @@ std::optional<Token> Tokenizer::tokenize_once(const std::string& input, int& idx
             return Token(TokenType::DOUBLE, opt_dbl.value(), input.substr(start_idx, temp_idx - start_idx));
         }
     }
+
+    // Preserve out-of-range decimal text for command-specific validation.
+    if (auto token = try_decimal_bytes(input, idx_out)) return token;
 
     {
         int temp_idx = idx_out;
@@ -185,8 +219,8 @@ std::optional<Token> Tokenizer::tokenize_once(const std::string& input, int& idx
     return std::nullopt;
 }
 
-std::optional<int> Tokenizer::is_int(const std::string& input, int& idx_out) {
-    int value;
+std::optional<std::int64_t> Tokenizer::is_int(const std::string& input, int& idx_out) {
+    std::int64_t value;
     const char* start = input.data() + idx_out;
     const char* end   = input.data() + input.size();
 

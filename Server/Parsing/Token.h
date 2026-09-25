@@ -6,6 +6,7 @@
 #define TOKEN_H
 
 #include "TokenType.h"
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>
@@ -14,7 +15,7 @@
 class Token {
 private:
     TokenType type_;
-    std::variant<std::monostate, int, double, char, std::string> value_{};
+    std::variant<std::monostate, std::int64_t, double, char, std::string> value_{};
 public:
     explicit Token(TokenType type);
     template <typename T>

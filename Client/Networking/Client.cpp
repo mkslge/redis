@@ -1,6 +1,7 @@
 #include "Client.h"
 #include "SocketIO.h"
 
+#include <cerrno>
 #include <iostream>
 #include <stdexcept>
 
@@ -18,9 +19,12 @@ Client::Client(const std::string& server_ip, const std::uint16_t port)
     }
 
     if (connect(socket_fd, reinterpret_cast<sockaddr*>(&server), sizeof(server)) < 0) {
+        const int error_number = errno;
         close(socket_fd);
         socket_fd = -1;
-        throw std::runtime_error("Could not connect to server");
+        throw std::runtime_error(socket_io::error_message(
+            "connect to " + server_ip + ":" + std::to_string(port) + " failed",
+            error_number));
     }
 
     std::cout << "Connected to server..." << std::endl;
@@ -54,21 +58,31 @@ bool Client::send_command(const std::string& command) {
         framed_command.push_back('\n');
     }
 
-    return socket_io::send_all(socket_fd, framed_command);
+    if (!socket_io::send_all(socket_fd, framed_command)) {
+        const int error_number = errno;
+        throw std::runtime_error(socket_io::error_message("send command failed", error_number));
+    }
+    return true;
 }
 
 std::string Client::get_response() {
     std::size_t newline_position = pending_response_.find('\n');
     while (newline_position == std::string::npos) {
         const ssize_t bytes_read = recv(socket_fd, buffer, kBufferSize, 0);
-        if (bytes_read <= 0) {
+        if (bytes_read > 0) {
+            pending_response_ += response_from_buffer(buffer, static_cast<std::size_t>(bytes_read));
+            newline_position = pending_response_.find('\n');
+            continue;
+        }
+        if (bytes_read == 0) {
             const std::string remaining_response = pending_response_;
             pending_response_.clear();
             return remaining_response;
         }
 
-        pending_response_ += response_from_buffer(buffer, static_cast<std::size_t>(bytes_read));
-        newline_position = pending_response_.find('\n');
+        const int error_number = errno;
+        if (error_number == EINTR) continue;
+        throw std::runtime_error(socket_io::error_message("receive response failed", error_number));
     }
 
     std::string response = pending_response_.substr(0, newline_position);

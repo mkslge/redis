@@ -1,9 +1,11 @@
 #ifndef EXECUTIONRESULT_H
 #define EXECUTIONRESULT_H
 
+#include "Command.h"
 #include "Value.h"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <variant>
 
@@ -15,6 +17,7 @@ public:
     bool did_mutate{false};
     std::string message;
     ExecutionPayload payload;
+    std::optional<SetStateCommand> aof_state;
 };
 
 #endif //EXECUTIONRESULT_H

@@ -16,7 +16,7 @@ public:
 
 private:
     static std::optional<Token> tokenize_once(const std::string& input, int& idx_out);
-    static std::optional<int> is_int(const std::string& input, int& idx_out);
+    static std::optional<std::int64_t> is_int(const std::string& input, int& idx_out);
     static std::optional<double> is_double(const std::string& input, int& idx_out);
     static std::optional<char> is_char(const std::string& input, int& idx_out);
     static std::optional<std::string> is_str(const std::string& input, int &idx_out);
