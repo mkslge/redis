@@ -1,10 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "Command.h"
-#include "Parser.h"
-#include "Token.h"
-#include "TokenType.h"
-#include "Tokenizer.h"
+#include "Commands/Command.h"
+#include "Commands/Parser.h"
 
 #include <chrono>
 #include <cstdint>
@@ -12,53 +9,93 @@
 #include <unordered_set>
 #include <vector>
 
-TEST(ParserTest, ParsesGetWithPrimitiveKey) {
-    std::vector<Token> tokens{Token(TokenType::GET), Token(TokenType::STRING, "session-key")};
-    auto parsed = Parser::parse(tokens);
-    ASSERT_TRUE(parsed.has_value());
-    const auto* command = std::get_if<GetCommand>(&*parsed);
-    ASSERT_NE(command, nullptr);
-    EXPECT_EQ(command->key, "session-key");
+namespace {
+Command expect_command(const CommandArguments& arguments) {
+    ParseResult parsed = Parser::parse_request(arguments);
+    if (const auto* error = std::get_if<ParseError>(&parsed)) {
+        ADD_FAILURE() << "unexpected parse error: " << error->message;
+        return GetCommand{};
+    }
+    return std::get<Command>(std::move(parsed));
 }
 
-TEST(ParserTest, RejectsGetWithNonPrimitiveKey) {
-    std::vector<Token> tokens{Token(TokenType::GET), Token(TokenType::SET)};
-    EXPECT_FALSE(Parser::parse(tokens).has_value());
+std::string expect_error(const CommandArguments& arguments) {
+    const ParseResult parsed = Parser::parse_request(arguments);
+    const auto* error = std::get_if<ParseError>(&parsed);
+    if (!error) {
+        ADD_FAILURE() << "expected a parse error";
+        return {};
+    }
+    return error->message;
+}
+} // namespace
+
+TEST(ParserTest, ParsesGetWithByteKey) {
+    const Command command = expect_command({"GET", "session-key"});
+    EXPECT_EQ(std::get<GetCommand>(command).key, "session-key");
 }
 
-TEST(ParserTest, ParsesSetWithByteValue) {
-    std::vector<Token> tokens{
-        Token(TokenType::SET), Token(TokenType::STRING, "name"), Token(TokenType::INT, 42)};
-    auto parsed = Parser::parse(tokens);
-    ASSERT_TRUE(parsed.has_value());
-    const auto* command = std::get_if<SetCommand>(&*parsed);
-    ASSERT_NE(command, nullptr);
-    EXPECT_EQ(command->key, "name");
-    EXPECT_EQ(command->value, "42");
+TEST(ParserTest, CommandNameIsCaseInsensitive) {
+    EXPECT_TRUE(std::holds_alternative<GetCommand>(expect_command({"get", "k"})));
+    EXPECT_TRUE(std::holds_alternative<GetCommand>(expect_command({"GeT", "k"})));
+}
+
+TEST(ParserTest, KeysAndValuesAreNotNumericallyNormalized) {
+    for (const Bytes key : {"007", "1.50", "1e3", "-0", "+5"}) {
+        SCOPED_TRACE(key);
+        const auto set = std::get<SetCommand>(expect_command({"SET", key, key}));
+        EXPECT_EQ(set.key, key);
+        EXPECT_EQ(set.value, key);
+    }
+}
+
+TEST(ParserTest, CommandNamesAreBytesWhenUsedAsArguments) {
+    const auto set = std::get<SetCommand>(expect_command({"SET", "get", "set"}));
+    EXPECT_EQ(set.key, "get");
+    EXPECT_EQ(set.value, "set");
+}
+
+TEST(ParserTest, ArgumentsPreserveBinaryBytes) {
+    const Bytes key{"k\0\xff", 3};
+    const Bytes value{"\r\n\"", 3};
+    const auto set = std::get<SetCommand>(expect_command({"SET", key, value}));
+    EXPECT_EQ(set.key, key);
+    EXPECT_EQ(set.value, value);
 }
 
 TEST(ParserTest, ParsesDeleteAndExistsCommands) {
-    std::vector<Token> delete_tokens{Token(TokenType::DEL), Token(TokenType::INT, 7)};
-    std::vector<Token> exists_tokens{Token(TokenType::EXISTS), Token(TokenType::CHAR, 'k')};
-    auto deletion = Parser::parse(delete_tokens);
-    auto exists = Parser::parse(exists_tokens);
-    ASSERT_TRUE(deletion.has_value());
-    ASSERT_TRUE(exists.has_value());
-    EXPECT_EQ(std::get<DeleteCommand>(*deletion).key, "7");
-    EXPECT_EQ(std::get<ExistsCommand>(*exists).key, "k");
+    EXPECT_EQ(std::get<DeleteCommand>(expect_command({"DEL", "7"})).key, "7");
+    EXPECT_EQ(std::get<ExistsCommand>(expect_command({"EXISTS", "k"})).key, "k");
 }
 
 TEST(ParserTest, ParsesExpireAsAbsoluteDeadline) {
     const auto before = ExpireCommand::Clock::now();
-    std::vector<Token> tokens{
-        Token(TokenType::EXPIRE), Token(TokenType::STRING, "session-key"), Token(TokenType::INT, 30)};
-    auto parsed = Parser::parse(tokens);
+    const auto command = std::get<ExpireCommand>(expect_command({"EXPIRE", "session-key", "30"}));
     const auto after = ExpireCommand::Clock::now();
-    ASSERT_TRUE(parsed.has_value());
-    const auto& command = std::get<ExpireCommand>(*parsed);
     EXPECT_EQ(command.key, "session-key");
     EXPECT_GE(command.expires_at, before + std::chrono::seconds(30));
     EXPECT_LE(command.expires_at, after + std::chrono::seconds(30));
+}
+
+TEST(ParserTest, ExpireAcceptsNegativeSeconds) {
+    const auto before = ExpireCommand::Clock::now();
+    const auto command = std::get<ExpireCommand>(expect_command({"EXPIRE", "k", "-1"}));
+    EXPECT_LE(command.expires_at, before + std::chrono::seconds(1));
+}
+
+TEST(ParserTest, ExpireRejectsNonCanonicalIntegers) {
+    for (const Bytes seconds : {"+30", "030", "-0", "30.5", "3e1", "", " 30", "thirty",
+                                "9223372036854775808"}) {
+        SCOPED_TRACE(seconds);
+        EXPECT_EQ(expect_error({"EXPIRE", "k", seconds}), "value is not an integer or out of range");
+    }
+}
+
+TEST(ParserTest, RejectsExpireOutsideClockRange) {
+    for (const Bytes seconds : {"9223372036854775807", "-9223372036854775808"}) {
+        SCOPED_TRACE(seconds);
+        EXPECT_EQ(expect_error({"EXPIRE", "k", seconds}), "invalid expire time in 'expire' command");
+    }
 }
 
 TEST(ParserTest, ParseArgumentsReadsAbsoluteExpirationFromAof) {
@@ -76,30 +113,15 @@ TEST(ParserTest, ParseArgumentsRejectsRelativeExpireInAof) {
     EXPECT_FALSE(Parser::parse_arguments({"EXPIRE", "session-key", "30"}).has_value());
 }
 
-TEST(ParserTest, RejectsNonIntegerExpire) {
-    std::vector<Token> tokens{
-        Token(TokenType::EXPIRE), Token(TokenType::STRING, "session-key"), Token(TokenType::DOUBLE, 30.5)};
-    EXPECT_FALSE(Parser::parse(tokens).has_value());
-}
-
-TEST(ParserTest, RejectsExpireOutsideClockRange) {
-    for (const std::string command_line : {
-             "EXPIRE \"key\" 9223372036854775807",
-             "EXPIRE \"key\" -9223372036854775808"}) {
-        const auto tokens = Tokenizer::tokenize(command_line);
-        ASSERT_TRUE(tokens.has_value());
-        EXPECT_FALSE(Parser::parse(*tokens).has_value());
-    }
+TEST(ParserTest, ClientRequestsCannotUseInternalAofCommands) {
+    EXPECT_EQ(expect_error({"PEXPIREAT", "k", "4102444800000"}), "unknown command");
+    EXPECT_EQ(expect_error({"SETSTATE", "k", "v", "PERSIST"}), "unknown command");
 }
 
 TEST(ParserTest, TtlPttlAndPersistHaveDistinctAlternatives) {
-    auto ttl_tokens = Tokenizer::tokenize("TTL \"key\"");
-    auto pttl_tokens = Tokenizer::tokenize("PTTL \"key\"");
-    auto persist_tokens = Tokenizer::tokenize("PERSIST \"key\"");
-    ASSERT_TRUE(ttl_tokens && pttl_tokens && persist_tokens);
-    EXPECT_TRUE(std::holds_alternative<TtlCommand>(*Parser::parse(*ttl_tokens)));
-    EXPECT_TRUE(std::holds_alternative<PttlCommand>(*Parser::parse(*pttl_tokens)));
-    EXPECT_TRUE(std::holds_alternative<PersistCommand>(*Parser::parse(*persist_tokens)));
+    EXPECT_TRUE(std::holds_alternative<TtlCommand>(expect_command({"TTL", "key"})));
+    EXPECT_TRUE(std::holds_alternative<PttlCommand>(expect_command({"PTTL", "key"})));
+    EXPECT_TRUE(std::holds_alternative<PersistCommand>(expect_command({"PERSIST", "key"})));
 }
 
 TEST(ParserTest, ParseArgumentsSupportsPersistForAofReplay) {
@@ -109,52 +131,44 @@ TEST(ParserTest, ParseArgumentsSupportsPersistForAofReplay) {
     EXPECT_TRUE(is_mutating(*parsed));
 }
 
-TEST(ParserTest, RejectsMalformedCommand) {
-    std::vector<Token> tokens{Token(TokenType::EXPIRE), Token(TokenType::STRING, "session-key")};
-    EXPECT_FALSE(Parser::parse(tokens).has_value());
+TEST(ParserTest, ReportsEmptyAndUnknownCommands) {
+    EXPECT_EQ(expect_error({}), "empty command");
+    EXPECT_EQ(expect_error({"UNKNOWN", "k"}), "unknown command");
+    EXPECT_EQ(expect_error({Bytes{"GET\0", 4}, "k"}), "unknown command");
+}
+
+TEST(ParserTest, ReportsWrongArgumentCountWithCommandName) {
+    for (const auto& [arguments, name] : std::vector<std::pair<CommandArguments, std::string>>{
+             {{"get"}, "get"},
+             {{"SET", "k"}, "set"},
+             {{"DEL", "k", "extra"}, "del"},
+             {{"EXPIRE", "k"}, "expire"},
+             {{"Incr"}, "incr"},
+             {{"INCR", "counter", "extra"}, "incr"},
+             {{"DECR"}, "decr"},
+             {{"INCRBY", "counter"}, "incrby"},
+             {{"DECRBY", "counter", "1", "extra"}, "decrby"}}) {
+        SCOPED_TRACE(name);
+        EXPECT_EQ(expect_error(arguments), "wrong number of arguments for '" + name + "' command");
+    }
 }
 
 TEST(ParserTest, NumericCommandsHaveDistinctCommandAlternatives) {
     std::unordered_set<std::size_t> alternatives;
-    for (const std::string command_line : {
-             "INCR \"counter\"", "DECR \"counter\"",
-             "INCRBY \"counter\" 5", "DECRBY \"counter\" 5"}) {
-        const auto tokens = Tokenizer::tokenize(command_line);
-        ASSERT_TRUE(tokens.has_value()) << command_line;
-        const auto command = Parser::parse(*tokens);
-        ASSERT_TRUE(command.has_value()) << command_line;
-        alternatives.insert(command->index());
+    for (const CommandArguments& arguments : std::vector<CommandArguments>{
+             {"INCR", "counter"}, {"DECR", "counter"},
+             {"INCRBY", "counter", "5"}, {"DECRBY", "counter", "5"}}) {
+        alternatives.insert(expect_command(arguments).index());
     }
 
     EXPECT_EQ(alternatives.size(), 4U);
 }
 
-TEST(ParserTest, NumericCommandsRequireExactArity) {
-    for (const std::string command_line : {
-             "INCR", "INCR \"counter\" \"extra\"",
-             "DECR", "DECR \"counter\" \"extra\"",
-             "INCRBY \"counter\"", "INCRBY \"counter\" 1 \"extra\"",
-             "DECRBY \"counter\"", "DECRBY \"counter\" 1 \"extra\""}) {
-        const auto tokens = Tokenizer::tokenize(command_line);
-        ASSERT_TRUE(tokens.has_value()) << command_line;
-        EXPECT_FALSE(Parser::parse(*tokens).has_value()) << command_line;
-    }
-}
-
 TEST(ParserTest, ByCommandsPreserveOperandBytesUntilExecution) {
-    for (const auto& [command_line, expected_amount] :
-         std::vector<std::pair<std::string, Bytes>>{
-             {"INCRBY \"counter\" 001", "001"},
-             {"DECRBY \"counter\" \"-0\"", "-0"},
-             {"INCRBY \"counter\" \"5\"", "5"}}) {
-        const auto tokens = Tokenizer::tokenize(command_line);
-        ASSERT_TRUE(tokens.has_value()) << command_line;
-        const auto command = Parser::parse(*tokens);
-        ASSERT_TRUE(command.has_value()) << command_line;
-        const CommandArguments arguments = command_arguments(*command);
-        ASSERT_EQ(arguments.size(), 3U);
-        EXPECT_EQ(arguments[1], "counter");
-        EXPECT_EQ(arguments[2], expected_amount);
+    for (const Bytes amount : {"001", "-0", "5", "+5", "1.5"}) {
+        SCOPED_TRACE(amount);
+        const CommandArguments arguments{"INCRBY", "counter", amount};
+        EXPECT_EQ(command_arguments(expect_command(arguments)), arguments);
     }
 }
 

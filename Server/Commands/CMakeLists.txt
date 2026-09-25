@@ -1,12 +1,6 @@
 add_library(SERVER_COMMANDS STATIC
         Command.cpp
+        Executor.cpp
+        Parser.cpp
 )
-
-target_include_directories(SERVER_COMMANDS
-    PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-target_link_libraries(SERVER_COMMANDS
-    PUBLIC
-    SERVER_RUNTIME
-)
+target_link_libraries(SERVER_COMMANDS PUBLIC SERVER_STORAGE)

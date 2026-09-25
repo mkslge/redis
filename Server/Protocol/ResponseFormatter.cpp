@@ -1,16 +1,29 @@
-#include "ResponseFormatter.h"
+#include "Protocol/ResponseFormatter.h"
 
-#include "Value.h"
+#include "Core/Overloaded.h"
+#include "Core/Value.h"
 
 #include <string>
-#include <type_traits>
+#include <string_view>
 
 namespace {
-template<class>
-inline constexpr bool always_false = false;
+// Every response is one line: the command name, then an optional "field=value".
+std::string response_line(const std::string_view name, const std::string& field = {}) {
+    std::string line(name);
+    if (!field.empty()) line += " " + field;
+    return line + "\n";
+}
 
-std::string format_value(const Value& value) {
-    return '"' + value.bytes() + '"';
+std::string value_field(const ExecutionPayload& payload) {
+    return "value=\"" + std::get<Value>(payload).bytes() + "\"";
+}
+
+std::string bool_field(const std::string_view label, const ExecutionPayload& payload) {
+    return std::string(label) + "=" + (std::get<bool>(payload) ? "true" : "false");
+}
+
+std::string int_field(const std::string_view label, const ExecutionPayload& payload) {
+    return std::string(label) + "=" + std::to_string(std::get<std::int64_t>(payload));
 }
 }
 
@@ -20,40 +33,23 @@ std::string ResponseFormatter::format_error(const std::string& error_message) {
 
 std::string ResponseFormatter::format_result(const Command& command, const ExecutionResult& result) {
     if (!result.success) return format_error(result.message);
+    const ExecutionPayload& payload = result.payload;
 
-    return std::visit([&result](const auto& concrete) -> std::string {
-        using Type = std::decay_t<decltype(concrete)>;
-        if constexpr (std::is_same_v<Type, GetCommand>) {
-            std::string response = "GET";
-            if (std::holds_alternative<Value>(result.payload)) {
-                response += " value=" + format_value(std::get<Value>(result.payload));
-            }
-            return response + "\n";
-        }
-        else if constexpr (std::is_same_v<Type, SetCommand>)
-            return "SET value=" + format_value(std::get<Value>(result.payload)) + "\n";
-        else if constexpr (std::is_same_v<Type, DeleteCommand>)
-            return "DELETE deleted=" + std::string(std::get<bool>(result.payload) ? "true" : "false") + "\n";
-        else if constexpr (std::is_same_v<Type, ExistsCommand>)
-            return "EXISTS exists=" + std::string(std::get<bool>(result.payload) ? "true" : "false") + "\n";
-        else if constexpr (std::is_same_v<Type, ExpireCommand>)
-            return "EXPIRE applied=" + std::string(std::get<bool>(result.payload) ? "true" : "false") + "\n";
-        else if constexpr (std::is_same_v<Type, TtlCommand>)
-            return "TTL ttl=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
-        else if constexpr (std::is_same_v<Type, PttlCommand>)
-            return "PTTL ttl_ms=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
-        else if constexpr (std::is_same_v<Type, PersistCommand>)
-            return "PERSIST removed=" + std::string(std::get<bool>(result.payload) ? "true" : "false") + "\n";
-        else if constexpr (std::is_same_v<Type, IncrCommand>)
-            return "INCR value=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
-        else if constexpr (std::is_same_v<Type, DecrCommand>)
-            return "DECR value=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
-        else if constexpr (std::is_same_v<Type, IncrByCommand>)
-            return "INCRBY value=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
-        else if constexpr (std::is_same_v<Type, DecrByCommand>)
-            return "DECRBY value=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
-        else if constexpr (std::is_same_v<Type, SetStateCommand>)
-            return "SETSTATE\n";
-        else static_assert(always_false<Type>, "Response formatter missing command alternative");
+    return std::visit(Overloaded{
+        [&](const GetCommand& c) {
+            // A missing key has no value field.
+            return response_line(c.name, std::holds_alternative<Value>(payload) ? value_field(payload) : "");
+        },
+        [&](const SetCommand& c) { return response_line(c.name, value_field(payload)); },
+        [&](const DeleteCommand& c) { return response_line(c.name, bool_field("deleted", payload)); },
+        [&](const ExistsCommand& c) { return response_line(c.name, bool_field("exists", payload)); },
+        [&](const ExpireCommand& c) { return response_line(c.name, bool_field("applied", payload)); },
+        [&](const PersistCommand& c) { return response_line(c.name, bool_field("removed", payload)); },
+        [&](const TtlCommand& c) { return response_line(c.name, int_field("ttl", payload)); },
+        [&](const PttlCommand& c) { return response_line(c.name, int_field("ttl_ms", payload)); },
+        [&](const OneOf<IncrCommand, DecrCommand, IncrByCommand, DecrByCommand> auto& c) {
+            return response_line(c.name, int_field("value", payload));
+        },
+        [&](const SetStateCommand& c) { return response_line(c.name); }
     }, command);
 }

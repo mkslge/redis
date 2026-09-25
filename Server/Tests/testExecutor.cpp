@@ -14,21 +14,24 @@
 #include <thread>
 #include <vector>
 
-#include "Parser.h"
-#include "Tokenizer.h"
-#include "ExecutionResult.h"
-#include "Executor.h"
+#include "Protocol/ArgumentSplitter.h"
+#include "Commands/Parser.h"
+#include "Commands/ExecutionResult.h"
+#include "Commands/Executor.h"
 
 namespace {
 
 std::optional<Command> parse_command(const std::string& command) {
-    auto tokens = Tokenizer::tokenize(command);
-    if (!tokens.has_value()) {
+    const auto arguments = ArgumentSplitter::split(command);
+    if (!arguments.has_value()) {
         return std::nullopt;
     }
 
-    std::vector<Token> parsed_tokens = tokens.value();
-    return Parser::parse(parsed_tokens);
+    ParseResult parsed = Parser::parse_request(*arguments);
+    if (std::holds_alternative<ParseError>(parsed)) {
+        return std::nullopt;
+    }
+    return std::get<Command>(std::move(parsed));
 }
 
 std::optional<ExecutionResult> execute_text(Executor& executor, const std::string& command) {
@@ -430,7 +433,7 @@ TEST(ExecutorTest, FailedNumericCommandLeavesExpirationIntact) {
 TEST(ExecutorTest, NumericCommandsTreatExpiredKeysAsMissingAndRecreateThemPersistently) {
     StorageEngine storage;
     storage.set("counter", Value("10"));
-    ASSERT_TRUE(storage.expire_at("counter", StorageEngine::Clock::now() - std::chrono::seconds(1)));
+    ASSERT_TRUE(storage.expire_at("counter", StorageEngine::Clock::now() - std::chrono::seconds(1)).applied);
     Executor executor(storage);
 
     const auto result = execute_text(executor, "INCR \"counter\"");

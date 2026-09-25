@@ -24,4 +24,4 @@ add_subdirectory(Networking)
 add_subdirectory(Tests)
 
 add_executable(redisclient main.cpp)
-target_link_libraries(redisclient PRIVATE CORE_CLIENT)
+target_link_libraries(redisclient PRIVATE CLIENT_NETWORKING)
