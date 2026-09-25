@@ -30,7 +30,7 @@ ExecutionResult Executor::execute_command(const ExistsCommand& command) {
 }
 
 ExecutionResult Executor::execute_command(const ExpireCommand& command) {
-    const auto result = storage_.expire_at_state(command.key, command.expires_at);
+    const auto result = storage_.expire_at(command.key, command.expires_at);
     return {.success = true, .did_mutate = result.applied, .payload = result.applied,
             .aof_state = result.value
                 ? std::optional<SetStateCommand>{SetStateCommand{
@@ -49,7 +49,7 @@ ExecutionResult Executor::execute_command(const PttlCommand& command) {
 }
 
 ExecutionResult Executor::execute_command(const PersistCommand& command) {
-    const auto value = storage_.persist_state(command.key);
+    const auto value = storage_.persist(command.key);
     const bool removed = value.has_value();
     return {.success = true, .did_mutate = removed, .payload = removed,
             .aof_state = removed

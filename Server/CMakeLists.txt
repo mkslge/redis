@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Common ${CMAKE_CURRENT_BINARY_DIR}/Common)
 
-add_subdirectory(Utility)
 add_subdirectory(Runtime)
 add_subdirectory(Commands)
 add_subdirectory(Parsing)

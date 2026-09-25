@@ -90,15 +90,10 @@ bool StorageEngine::exists(const Key& key) {
 }
 
 bool StorageEngine::expire(const Key& key, const Duration ttl) {
-    return expire_at(key, Clock::now() + ttl);
+    return expire_at(key, Clock::now() + ttl).applied;
 }
 
-bool StorageEngine::expire_at(const Key& key, const TimePoint expires_at) {
-    return expire_at_state(key, expires_at).applied;
-}
-
-StorageEngine::ExpireResult StorageEngine::expire_at_state(
-    const Key& key, const TimePoint expires_at) {
+StorageEngine::ExpireResult StorageEngine::expire_at(const Key& key, const TimePoint expires_at) {
     std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
     prune_if_expired_unlocked(key, now);
@@ -135,11 +130,7 @@ std::int64_t StorageEngine::ttl_milliseconds(const Key& key) {
     return remaining < 0 ? 0 : remaining;
 }
 
-bool StorageEngine::persist(const Key& key) {
-    return persist_state(key).has_value();
-}
-
-std::optional<Value> StorageEngine::persist_state(const Key& key) {
+std::optional<Value> StorageEngine::persist(const Key& key) {
     std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
     prune_if_expired_unlocked(key, now);
@@ -177,11 +168,6 @@ std::size_t StorageEngine::size() {
 
 bool StorageEngine::is_expired(const Entry& entry, const TimePoint now) const {
     return entry.expires_at.has_value() && entry.expires_at.value() <= now;
-}
-
-void StorageEngine::prune_if_expired(const Key& key, const TimePoint now) {
-    std::lock_guard<std::mutex> lock{mutex_};
-    prune_if_expired_unlocked(key, now);
 }
 
 void StorageEngine::prune_if_expired_unlocked(const Key& key, const TimePoint now) {

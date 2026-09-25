@@ -232,7 +232,7 @@ TEST(LogCompactorTest, NumericStateFollowedByPersistSurvivesCompactionAndOldExpi
     const auto set = source_processor.process("SET \"counter\" 10");
     ASSERT_TRUE(set.is_success());
     contents += set.processed_command().aof_record;
-    ASSERT_TRUE(source_storage.expire_at("counter", old_deadline));
+    ASSERT_TRUE(source_storage.expire_at("counter", old_deadline).applied);
     contents += RespCommandCodec::encode(
         {"PEXPIREAT", "counter", std::to_string(old_deadline_milliseconds)});
     const auto increment = source_processor.process("INCR \"counter\"");

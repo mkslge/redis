@@ -111,7 +111,7 @@ TEST(StorageEngineTest, AbsoluteExpirationInThePastRemovesKeyImmediately) {
     StorageEngine storage;
     storage.set("ephemeral", Value("value"));
 
-    EXPECT_TRUE(storage.expire_at("ephemeral", StorageEngine::Clock::now() - std::chrono::seconds(1)));
+    EXPECT_TRUE(storage.expire_at("ephemeral", StorageEngine::Clock::now() - std::chrono::seconds(1)).applied);
     EXPECT_FALSE(storage.exists("ephemeral"));
 }
 
@@ -180,7 +180,7 @@ TEST(StorageEngineTest, ExpirationBatchLimitsWorkPerSweep) {
     const auto deadline = StorageEngine::Clock::now() + std::chrono::seconds(10);
     for (const std::string key : {"one", "two", "three"}) {
         storage.set(key, Value("value"));
-        ASSERT_TRUE(storage.expire_at(key, deadline));
+        ASSERT_TRUE(storage.expire_at(key, deadline).applied);
     }
 
     storage.prune_expired_batch(2, deadline);
@@ -192,9 +192,9 @@ TEST(StorageEngineTest, ExpirationBatchIgnoresStaleQueueEntries) {
     StorageEngine storage;
     const auto now = StorageEngine::Clock::now();
     storage.set("session", Value("old"));
-    ASSERT_TRUE(storage.expire_at("session", now + std::chrono::seconds(1)));
+    ASSERT_TRUE(storage.expire_at("session", now + std::chrono::seconds(1)).applied);
     storage.set("session", Value("new"));
-    ASSERT_TRUE(storage.expire_at("session", now + std::chrono::seconds(10)));
+    ASSERT_TRUE(storage.expire_at("session", now + std::chrono::seconds(10)).applied);
 
     storage.prune_expired_batch(2, now + std::chrono::seconds(2));
 

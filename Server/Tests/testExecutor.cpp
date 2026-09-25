@@ -433,7 +433,7 @@ TEST(ExecutorTest, FailedNumericCommandLeavesExpirationIntact) {
 TEST(ExecutorTest, NumericCommandsTreatExpiredKeysAsMissingAndRecreateThemPersistently) {
     StorageEngine storage;
     storage.set("counter", Value("10"));
-    ASSERT_TRUE(storage.expire_at("counter", StorageEngine::Clock::now() - std::chrono::seconds(1)));
+    ASSERT_TRUE(storage.expire_at("counter", StorageEngine::Clock::now() - std::chrono::seconds(1)).applied);
     Executor executor(storage);
 
     const auto result = execute_text(executor, "INCR \"counter\"");

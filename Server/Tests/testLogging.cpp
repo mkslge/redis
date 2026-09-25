@@ -348,7 +348,7 @@ TEST(LoggingTest, NumericReplayPreservesAFutureExpiration) {
         AOFLogger logger(log_file.path_string());
 
         ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
-        ASSERT_TRUE(storage.expire_at("counter", deadline));
+        ASSERT_TRUE(storage.expire_at("counter", deadline).applied);
         logger.append_record(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)}));
         ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
@@ -379,7 +379,7 @@ TEST(LoggingTest, NumericReplayDoesNotRecreateAKeyThatExpiredDuringDowntime) {
         AOFLogger logger(log_file.path_string());
 
         ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
-        ASSERT_TRUE(storage.expire_at("counter", deadline));
+        ASSERT_TRUE(storage.expire_at("counter", deadline).applied);
         logger.append_record(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)}));
         ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
@@ -409,7 +409,7 @@ TEST(LoggingTest, NumericReplayPreservesAKeyRecreatedAfterExpiration) {
         AOFLogger logger(log_file.path_string());
 
         ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
-        ASSERT_TRUE(storage.expire_at("counter", deadline));
+        ASSERT_TRUE(storage.expire_at("counter", deadline).applied);
         logger.append_record(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)}));
         std::this_thread::sleep_until(deadline + std::chrono::milliseconds(25));
@@ -441,7 +441,7 @@ TEST(LoggingTest, PersistAfterNumericMutationSurvivesTheOldDeadline) {
         AOFLogger logger(log_file.path_string());
 
         ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
-        ASSERT_TRUE(storage.expire_at("counter", deadline));
+        ASSERT_TRUE(storage.expire_at("counter", deadline).applied);
         logger.append_record(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)}));
         ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
@@ -474,7 +474,7 @@ TEST(LoggingTest, ExtendingExpirationAfterNumericMutationSurvivesTheOldDeadline)
         AOFLogger logger(log_file.path_string());
 
         ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
-        ASSERT_TRUE(storage.expire_at("counter", old_deadline));
+        ASSERT_TRUE(storage.expire_at("counter", old_deadline).applied);
         logger.append_record(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(old_deadline_milliseconds)}));
         ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));

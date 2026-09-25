@@ -30,8 +30,6 @@
 - [ ] Add crash/fault-injection tests for truncated writes, failed flushes,
   interrupted compaction, and restart recovery.
 - [ ] Add end-to-end binary tests containing null bytes, CRLF, quotes, and `0xFF`.
-- [ ] Remove dead code such as unused lowercase/token-name helpers when confirmed
-  unnecessary.
 
 ## Distributed roadmap
 
