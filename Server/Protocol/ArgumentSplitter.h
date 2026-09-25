@@ -1,7 +1,7 @@
 #ifndef ARGUMENTSPLITTER_H
 #define ARGUMENTSPLITTER_H
 
-#include "Core/Bytes.h"
+#include "Core/CommandArguments.h"
 
 #include <optional>
 #include <string_view>

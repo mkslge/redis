@@ -7,7 +7,7 @@ The project currently includes:
 - byte-string keys and values that preserve the supplied representation
 - key expiration with lazy pruning and periodic event-loop sweeps
 - binary-safe RESP-framed append-only logging for durable mutation replay
-- unit and integration tests for the parser, runtime, persistence, networking, and client
+- unit and integration tests for every server module and the client
 
 ## Current Status
 
@@ -128,11 +128,10 @@ ERROR wrong number of arguments for 'get' command
 
 ## Persistence
 
-Mutating commands are appended to:
-
-`data/appendonly.aof`
-
-On startup, the server replays that file before accepting client traffic.
+Mutating commands are appended to `data/appendonly.aof`, relative to the
+server's working directory. On startup, the server compacts and replays that file
+before accepting clients. See [Durability](#durability) for which records each
+command writes.
 
 The AOF is a sequence of RESP arrays whose bulk strings are length-prefixed, so
 keys and values containing null bytes, CRLF, quotes, or arbitrary binary data
@@ -152,67 +151,184 @@ Clean logger shutdown performs a final synchronization.
 
 ## Concurrency Model
 
-The server handles multiple simultaneous clients with one server event-loop
-thread:
-
-- `poll()` watches the listening socket, a shutdown wakeup pipe, and all clients
-- accepted client sockets are nonblocking
-- every client has its own input and output buffers
-- readable clients can submit complete newline-delimited commands
-- writable clients flush queued responses across as many partial writes as needed
-- per-event read and write budgets prevent one busy client from monopolizing the loop
-- periodic expiration sweeps run inside the event loop
-
-Command execution is serialized by this thread. The AOF's once-per-second
-`fsync()` helper is the only persistence background thread.
-
-`Server::run()` owns every client session and descriptor and may run on only one
-thread. `Server::stop()` is the sole cross-thread server operation: it wakes the
-event loop, which closes the clients and returns. A caller running the server on
-another thread must join that thread before destroying the `Server` object.
+- One event-loop thread accepts clients, runs every command, and runs expiration
+  sweeps (see [Event loop](#event-loop)), so commands never run concurrently.
+- The only other thread is `AofWriter`'s once-per-second `fsync()` helper.
+- `Server::run()` owns every client session and descriptor and may run on only
+  one thread. `Server::stop()` is the only operation safe to call from another
+  thread: it wakes the event loop, which closes the clients and returns. A caller
+  running the server on another thread must join that thread before destroying
+  the `Server`.
 
 ## Architecture
 
-One client command flows through these files, in order:
+The diagrams below go from the whole system down to a single request. Module
+internals, such as how keys expire or how to add a command, live in each
+module's README (see [Module documentation](#module-documentation)).
 
-```text
-Network/Server              poll loop: accept, recv, send
-  -> Network/ClientSession    per-client buffers, newline framing
-  -> App/CommandProcessor     orchestrates the steps below
-     -> Protocol/ArgumentSplitter   line -> byte-string arguments
-     -> Commands/Parser             arguments -> Command
-     -> Commands/Executor           runs the Command
-        -> Storage/StorageEngine    keyspace and expiration
-     -> Persistence/AofRecords      which AOF records the result needs
-  -> Persistence/AofWriter    appends those records before responding
-  -> Protocol/ResponseFormatter    result -> response line
+### System
+
+```mermaid
+flowchart LR
+    client["redisclient (CLI)"] -- "newline-delimited text over TCP" --> server["redisserver"]
+    server -- "one response line per command" --> client
+    server -- "append mutations (RESP)" --> aof[("data/appendonly.aof")]
+    aof -- "compact + replay on startup" --> server
+    common["Common/Networking (SocketIO)"] -.-> client
+    common -.-> server
 ```
 
-On startup, `main.cpp` runs `AofCompactor`, then `AofReplayer`, which decodes each
-RESP record and executes it through the same `Parser` and `Executor`.
+The client and server are separate CMake projects. Both use `Common/` for socket
+writes. The server is the only process that reads or writes the AOF.
 
-`Command` is the authoritative, value-based command representation. Each command
-struct declares its wire `name` and whether it is `mutating`.
+### Server modules
 
-### Modules
-
-Modules form a single dependency chain. A module may include only itself and
-modules before it, and headers are always included by module path, such as
-`#include "Commands/Parser.h"`.
-
-```text
-Core -> Storage -> Commands -> Protocol -> Persistence -> App -> Network
+```mermaid
+flowchart LR
+    core["Core<br/>shared types"] --> storage["Storage<br/>keyspace + expiration"]
+    storage --> commands["Commands<br/>parse + execute"]
+    commands --> protocol["Protocol<br/>byte formats"]
+    protocol --> persistence["Persistence<br/>AOF"]
+    persistence --> app["App<br/>per-command pipeline"]
+    app --> network["Network<br/>event loop + sessions"]
+    network --> main["main.cpp"]
+    common["Common/Networking"] --> network
 ```
 
-- `Server/Core/*`: vocabulary types (`Bytes`, `Key`, `Value`), integer parsing, visitor helpers
-- `Server/Storage/*`: the thread-safe keyspace and expiration bookkeeping
-- `Server/Commands/*`: command types, parsing arguments into commands, and executing them
-- `Server/Protocol/*`: every byte format: request lines, response lines, RESP
-- `Server/Persistence/*`: AOF record selection, writing, replay, and compaction
-- `Server/App/*`: one client command line from parsing to AOF record
-- `Server/Network/*`: nonblocking event loop and per-client sessions
-- `Common/Networking/*`: socket I/O shared by the server, client, and tests
-- `Client/Networking/*`: TCP client implementation
+Each arrow points from a module to the modules that may use it. A module includes
+only itself and modules to its left, and headers are always included by module
+path, such as `#include "Commands/Parser.h"`.
+
+### Server lifecycle
+
+```mermaid
+flowchart TD
+    start(["main.cpp"]) --> pipeline["Build StorageEngine, Executor, CommandProcessor"]
+    pipeline --> compact["AofCompactor.compact()<br/>drop records later ones make redundant"]
+    compact --> replay["AofReplayer.replay(executor)<br/>decode each record, Parser.parse_arguments, Executor.execute"]
+    replay --> writer["Open AofWriter<br/>starts the once-per-second fsync thread"]
+    writer --> bind["Construct Server<br/>bind, listen, create wakeup pipe"]
+    bind --> run["Server.run()<br/>event loop"]
+    run -- "Server.stop() writes to the wakeup pipe" --> shutdown["Close every client, return"]
+    shutdown --> exit(["AofWriter destructor: final fsync"])
+```
+
+A malformed or truncated AOF stops startup with an error instead of being
+skipped. Clients are accepted only after replay has finished.
+
+### Event loop
+
+```mermaid
+flowchart TD
+    poll["poll(): listening socket, wakeup pipe, every client<br/>timeout = time until the next expiration sweep"]
+    poll --> stopping{"stop requested?"}
+    stopping -- "yes" --> done(["close all clients, return"])
+    stopping -- "no" --> accept["accept every queued connection<br/>new ClientSession for each"]
+    accept --> clients["for each ready client"]
+    clients --> flush["writable: send pending output<br/>up to kMaxWritePerEvent (64 KB)"]
+    flush --> read["readable: recv up to kMaxReadPerEvent (64 KB)<br/>ClientSession.append_input"]
+    read --> lines["ClientSession.next_line() for each complete line"]
+    lines --> handle["QUIT/EXIT: queue BYE, close after write<br/>otherwise: process one command (next diagram)"]
+    handle --> close{"input over 1 MB, output over 32 MB,<br/>or socket error?"}
+    close -- "yes" --> drop["close the client"]
+    close -- "no" --> sweep
+    drop --> sweep["every 100 ms: StorageEngine.prune_expired_batch<br/>up to 200 candidates"]
+    sweep --> poll
+```
+
+One thread runs this loop and executes every command, so commands never run
+concurrently. Per-event read and write budgets keep one busy client from
+starving the others.
+
+### One request
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Network/Server
+    participant CS as Network/ClientSession
+    participant P as App/CommandProcessor
+    participant AS as Protocol/ArgumentSplitter
+    participant PA as Commands/Parser
+    participant E as Commands/Executor
+    participant SE as Storage/StorageEngine
+    participant R as Persistence/AofRecords
+    participant W as Persistence/AofWriter
+    participant F as Protocol/ResponseFormatter
+
+    C->>S: "INCRBY counter 5\n"
+    S->>CS: append_input, next_line
+    CS-->>S: "INCRBY counter 5"
+    S->>P: process(line)
+    P->>AS: split(line)
+    AS-->>P: ["INCRBY", "counter", "5"]
+    P->>PA: parse_request(arguments)
+    alt split or parse failed (unbalanced quotes, unknown command, bad arguments)
+        P-->>S: failure(message from Commands/Errors.h)
+        S->>F: format_error
+    else parsed
+        PA-->>P: IncrByCommand
+        P->>E: execute(command)
+        E->>SE: adjust_integer
+        SE-->>E: value, deadline
+        E-->>P: ExecutionResult
+        P->>R: aof_records_for(command, result)
+        R-->>P: RESP bytes (empty if failed or no-op)
+        P-->>S: ProcessedCommand
+        opt records not empty
+            S->>W: append(records)
+        end
+        S->>F: format_result
+    end
+    F-->>S: "INCRBY value=5\n"
+    S->>CS: queue_response
+    CS-->>C: sent when the socket is writable
+```
+
+A mutation is appended to the AOF **before** its response is queued, so a client
+never sees success for a write that was not logged. A failure to write the AOF
+terminates the server.
+
+### Durability
+
+```mermaid
+flowchart LR
+    subgraph write["While running (Persistence/AofRecords)"]
+        plain["SET, DEL"] --> self["log the command itself"]
+        arith["INCR, DECR, INCRBY, DECRBY, PERSIST"] --> state["log SETSTATE<br/>(final value + deadline)"]
+        expire["EXPIRE"] --> both["log PEXPIREAT, then SETSTATE<br/>(PEXPIREAT only if the key was deleted)"]
+        skipped["reads, failures, no-ops"] --> nothing["log nothing"]
+    end
+    self --> file[("data/appendonly.aof")]
+    state --> file
+    both --> file
+    file --> compactor["AofCompactor<br/>on startup"]
+    compactor --> replayer["AofReplayer<br/>Parser.parse_arguments + Executor"]
+    replayer --> storage["StorageEngine restored"]
+```
+
+Records store absolute deadlines and complete final values, so replay never
+depends on when it runs or on the values that came before.
+`PEXPIREAT` and `SETSTATE` are internal commands: the AOF parser accepts them,
+and the client parser rejects them.
+
+## Module documentation
+
+Each server module has a README with its files, rules, and extension recipes.
+Read a module's README before changing it.
+
+| Module | Role |
+|---|---|
+| [Core](Server/Core/README.md) | Shared types (`Bytes`, `Key`, `Value`), `parse_integer`, visitor helpers. |
+| [Storage](Server/Storage/README.md) | The keyspace, its mutex, and key expiration. |
+| [Commands](Server/Commands/README.md) | Command types, the parsers, the executor, and error messages. |
+| [Protocol](Server/Protocol/README.md) | Every byte format: request lines, response lines, RESP. |
+| [Persistence](Server/Persistence/README.md) | Choosing, writing, compacting, and replaying AOF records. |
+| [App](Server/App/README.md) | One client command line, from parsing to AOF record. |
+| [Network](Server/Network/README.md) | The event loop and per-client sessions. |
+
+`Common/Networking` holds socket I/O shared by the server, client, and tests, and
+`Client/Networking` holds the TCP client.
 
 ## Repository Layout
 

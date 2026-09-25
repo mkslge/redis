@@ -2,6 +2,7 @@
 #define COMMAND_H
 
 #include "Core/Bytes.h"
+#include "Core/CommandArguments.h"
 #include "Core/Key.h"
 
 #include <chrono>

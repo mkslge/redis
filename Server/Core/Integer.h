@@ -7,7 +7,7 @@
 #include <optional>
 #include <string_view>
 
-// Parses a canonical signed 64-bit decimal: no '+', leading zeros, or "-0".
+// Parses a csigned 64-bit decimal
 inline std::optional<std::int64_t> parse_integer(const std::string_view bytes) {
     if (bytes.empty()) return std::nullopt;
     std::size_t digit = bytes.front() == '-' ? 1 : 0;

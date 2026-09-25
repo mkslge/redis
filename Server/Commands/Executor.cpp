@@ -1,5 +1,7 @@
 #include "Commands/Executor.h"
 
+#include "Commands/Errors.h"
+
 Executor::Executor(StorageEngine& storage) : storage_(storage) {}
 
 ExecutionResult Executor::execute(const Command& command) {
@@ -70,9 +72,9 @@ ExecutionResult Executor::adjust_integer(const Key& key, const Bytes& amount,
 ExecutionResult Executor::integer_result(const Key& key,
                                          const StorageEngine::IntegerResult& result) {
     if (result.error == StorageEngine::IntegerError::INVALID_INTEGER)
-        return {.success = false, .message = "value is not an integer or out of range"};
+        return {.success = false, .message = Errors::kNotAnInteger};
     if (result.error == StorageEngine::IntegerError::WOULD_OVERFLOW)
-        return {.success = false, .message = "increment or decrement would overflow"};
+        return {.success = false, .message = Errors::kIntegerOverflow};
     return {.success = true, .did_mutate = true, .payload = result.value,
             .resulting_state = SetStateCommand{key, std::to_string(result.value), result.expires_at}};
 }

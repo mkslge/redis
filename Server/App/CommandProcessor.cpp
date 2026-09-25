@@ -1,6 +1,7 @@
 #include "App/CommandProcessor.h"
 
 #include "Protocol/ArgumentSplitter.h"
+#include "Commands/Errors.h"
 #include "Commands/Parser.h"
 #include "Persistence/AofRecords.h"
 
@@ -38,7 +39,7 @@ CommandProcessor::CommandProcessor(Executor& executor) : executor_(executor) {}
 CommandProcessResult CommandProcessor::process(const std::string& command_line) const {
     const std::optional<CommandArguments> arguments = ArgumentSplitter::split(command_line);
     if (!arguments.has_value()) {
-        return CommandProcessResult::failure("unbalanced quotes in request");
+        return CommandProcessResult::failure(Errors::kUnbalancedQuotes);
     }
 
     ParseResult parsed = Parser::parse_request(*arguments);

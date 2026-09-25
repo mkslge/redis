@@ -1,5 +1,6 @@
 #include "Commands/Parser.h"
 
+#include "Commands/Errors.h"
 #include "Core/Integer.h"
 
 #include <charconv>
@@ -72,13 +73,13 @@ const KeyCommandSpec* find_key_command(const std::string_view name) {
 }
 
 ParseError wrong_argument_count(const std::string_view name) {
-    return {"wrong number of arguments for '" + lowercase_ascii(name) + "' command"};
+    return {Errors::wrong_argument_count(lowercase_ascii(name))};
 }
 
 ParseResult parse_expire(const CommandArguments& arguments) {
     if (arguments.size() != kExpireArgumentCount) return wrong_argument_count(ExpireCommand::name);
     const auto seconds = parse_integer(arguments[kSecondArgumentIndex]);
-    if (!seconds) return ParseError{"value is not an integer or out of range"};
+    if (!seconds) return ParseError{Errors::kNotAnInteger};
 
     const auto now = ExpireCommand::Clock::now();
     const auto requested = std::chrono::duration<long double>(*seconds);
@@ -89,7 +90,7 @@ ParseResult parse_expire(const CommandArguments& arguments) {
         std::chrono::duration<long double>(ExpireCommand::TimePoint::min().time_since_epoch());
     if (requested > maximum_offset - current_offset ||
         requested < minimum_offset - current_offset) {
-        return ParseError{"invalid expire time in 'expire' command"};
+        return ParseError{Errors::kInvalidExpireTime};
     }
     return ExpireCommand{arguments[kKeyIndex], now + std::chrono::seconds(*seconds)};
 }
@@ -115,12 +116,12 @@ std::optional<ExpireCommand::TimePoint> parse_millisecond_deadline(const Bytes& 
 }
 
 ParseResult Parser::parse_request(const CommandArguments& arguments) {
-    if (arguments.empty()) return ParseError{"empty command"};
+    if (arguments.empty()) return ParseError{Errors::kEmptyCommand};
     const std::string command = uppercase_ascii(arguments[kCommandIndex]);
     if (command == ExpireCommand::name) return parse_expire(arguments);
 
     const KeyCommandSpec* spec = find_key_command(command);
-    if (!spec) return ParseError{"unknown command"};
+    if (!spec) return ParseError{Errors::kUnknownCommand};
     if (arguments.size() != spec->argument_count) return wrong_argument_count(spec->name);
     return spec->build(arguments);
 }

@@ -33,8 +33,8 @@ CommandArguments command_arguments(const Command& command) {
             return {Bytes(SetStateCommand::name), value.key, value.value,
                     value.expires_at ? unix_milliseconds(*value.expires_at) : "PERSIST"};
         },
-        // Every remaining command takes only a key.
-        [](const auto& value) -> CommandArguments {
+        [](const OneOf<GetCommand, DeleteCommand, ExistsCommand, TtlCommand, PttlCommand,
+                       PersistCommand, IncrCommand, DecrCommand> auto& value) -> CommandArguments {
             return {Bytes(value.name), value.key};
         }
     }, command);

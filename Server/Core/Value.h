@@ -8,7 +8,7 @@
 class Value {
 public:
     explicit Value(Bytes bytes) : bytes_(std::move(bytes)) {}
-    Value(const char* value) : bytes_(value) {}
+    explicit Value(const char* value) : bytes_(value) {}
 
     const Bytes& bytes() const {
         return bytes_;
