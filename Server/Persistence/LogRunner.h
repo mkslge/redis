@@ -1,8 +1,8 @@
 #ifndef LOGRUNNER_H
 #define LOGRUNNER_H
 
-#include "CommandProcessor.h"
-#include "LogConfig.h"
+#include "App/CommandProcessor.h"
+#include "Persistence/LogConfig.h"
 
 #include <string>
 

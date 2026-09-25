@@ -1,9 +1,9 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "AOFLogger.h"
-#include "CommandProcessor.h"
-#include "StorageEngine.h"
+#include "Persistence/AOFLogger.h"
+#include "App/CommandProcessor.h"
+#include "Storage/StorageEngine.h"
 
 #include <arpa/inet.h>
 #include <atomic>

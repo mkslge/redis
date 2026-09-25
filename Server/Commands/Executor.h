@@ -1,9 +1,9 @@
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
 
-#include "Command.h"
-#include "ExecutionResult.h"
-#include "StorageEngine.h"
+#include "Commands/Command.h"
+#include "Commands/ExecutionResult.h"
+#include "Storage/StorageEngine.h"
 
 class Executor {
 public:

@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "Command.h"
+#include "Commands/Command.h"
 
 #include <optional>
 #include <string>

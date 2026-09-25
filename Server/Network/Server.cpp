@@ -1,7 +1,7 @@
-#include "Server.h"
+#include "Network/Server.h"
 
-#include "ResponseFormatter.h"
-#include "SocketIO.h"
+#include "Protocol/ResponseFormatter.h"
+#include "Networking/SocketIO.h"
 
 #include <algorithm>
 #include <cerrno>

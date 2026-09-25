@@ -1,7 +1,7 @@
 #ifndef LOGCOMPACTOR_H
 #define LOGCOMPACTOR_H
 
-#include "LogConfig.h"
+#include "Persistence/LogConfig.h"
 #include <string>
 #include <string_view>
 

@@ -1,6 +1,6 @@
-#include "Parser.h"
+#include "Commands/Parser.h"
 
-#include "Integer.h"
+#include "Core/Integer.h"
 
 #include <charconv>
 #include <chrono>

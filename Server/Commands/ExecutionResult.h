@@ -1,8 +1,8 @@
 #ifndef EXECUTIONRESULT_H
 #define EXECUTIONRESULT_H
 
-#include "Command.h"
-#include "Value.h"
+#include "Commands/Command.h"
+#include "Core/Value.h"
 
 #include <cstdint>
 #include <optional>

@@ -1,4 +1,4 @@
-#include "ArgumentSplitter.h"
+#include "Protocol/ArgumentSplitter.h"
 
 #include <cctype>
 #include <cstddef>
@@ -27,7 +27,7 @@ char unescape(const char byte) {
     }
 }
 
-// A closing quote must end the argument, as in redis-cli.
+// A closing quote must end the argument
 bool closes_argument(const std::string_view line, const std::size_t quote_index) {
     return quote_index + 1 == line.size() || is_separator(line[quote_index + 1]);
 }

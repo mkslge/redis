@@ -1,8 +1,8 @@
 #ifndef AOFLOGGER_H
 #define AOFLOGGER_H
 
-#include "LogConfig.h"
-#include "Bytes.h"
+#include "Persistence/LogConfig.h"
+#include "Core/Bytes.h"
 
 #include <condition_variable>
 #include <cstdint>

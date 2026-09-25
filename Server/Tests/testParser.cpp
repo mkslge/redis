@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "Command.h"
-#include "Parser.h"
+#include "Commands/Command.h"
+#include "Commands/Parser.h"
 
 #include <chrono>
 #include <cstdint>

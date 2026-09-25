@@ -1,8 +1,8 @@
-#include "CommandProcessor.h"
+#include "App/CommandProcessor.h"
 
-#include "ArgumentSplitter.h"
-#include "Parser.h"
-#include "RespCommandCodec.h"
+#include "Protocol/ArgumentSplitter.h"
+#include "Commands/Parser.h"
+#include "Protocol/RespCommandCodec.h"
 
 #include <optional>
 #include <string>

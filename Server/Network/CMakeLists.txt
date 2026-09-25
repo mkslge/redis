@@ -1,0 +1,4 @@
+add_library(SERVER_NETWORK STATIC
+        Server.cpp
+)
+target_link_libraries(SERVER_NETWORK PUBLIC SERVER_PERSISTENCE COMMON_SOCKET_IO)

@@ -1,8 +1,8 @@
 
-#include "LogCompactor.h"
+#include "Persistence/LogCompactor.h"
 
-#include "Parser.h"
-#include "RespCommandCodec.h"
+#include "Commands/Parser.h"
+#include "Protocol/RespCommandCodec.h"
 
 #include <cerrno>
 #include <cstring>

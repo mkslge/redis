@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "ArgumentSplitter.h"
+#include "Protocol/ArgumentSplitter.h"
 
 #include <optional>
 #include <string>

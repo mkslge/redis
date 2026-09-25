@@ -1,9 +1,9 @@
-#include "CommandProcessor.h"
-#include "Executor.h"
-#include "LogCompactor.h"
-#include "LogRunner.h"
-#include "RespCommandCodec.h"
-#include "StorageEngine.h"
+#include "App/CommandProcessor.h"
+#include "Commands/Executor.h"
+#include "Persistence/LogCompactor.h"
+#include "Persistence/LogRunner.h"
+#include "Protocol/RespCommandCodec.h"
+#include "Storage/StorageEngine.h"
 
 #include <gtest/gtest.h>
 

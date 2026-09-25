@@ -1,6 +1,6 @@
-#include "ResponseFormatter.h"
+#include "Protocol/ResponseFormatter.h"
 
-#include "Value.h"
+#include "Core/Value.h"
 
 #include <string>
 #include <type_traits>

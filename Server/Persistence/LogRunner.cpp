@@ -1,5 +1,5 @@
-#include "LogRunner.h"
-#include "RespCommandCodec.h"
+#include "Persistence/LogRunner.h"
+#include "Protocol/RespCommandCodec.h"
 
 #include <filesystem>
 #include <fstream>

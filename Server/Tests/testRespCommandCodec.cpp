@@ -1,4 +1,4 @@
-#include "RespCommandCodec.h"
+#include "Protocol/RespCommandCodec.h"
 
 #include <gtest/gtest.h>
 

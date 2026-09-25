@@ -1,9 +1,9 @@
-#include "CommandProcessor.h"
-#include "AOFLogger.h"
-#include "LogRunner.h"
-#include "Executor.h"
-#include "StorageEngine.h"
-#include "RespCommandCodec.h"
+#include "App/CommandProcessor.h"
+#include "Persistence/AOFLogger.h"
+#include "Persistence/LogRunner.h"
+#include "Commands/Executor.h"
+#include "Storage/StorageEngine.h"
+#include "Protocol/RespCommandCodec.h"
 
 #include <gtest/gtest.h>
 

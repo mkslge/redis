@@ -1,12 +1,12 @@
 #include <iostream>
-#include "CommandProcessor.h"
-#include "AOFLogger.h"
-#include "LogConfig.h"
-#include "LogRunner.h"
-#include "LogCompactor.h"
-#include "Executor.h"
-#include "StorageEngine.h"
-#include "Server.h"
+#include "App/CommandProcessor.h"
+#include "Persistence/AOFLogger.h"
+#include "Persistence/LogConfig.h"
+#include "Persistence/LogRunner.h"
+#include "Persistence/LogCompactor.h"
+#include "Commands/Executor.h"
+#include "Storage/StorageEngine.h"
+#include "Network/Server.h"
 int main() {
     try {
         constexpr std::uint16_t kServerPort = Server::kDefaultPort;

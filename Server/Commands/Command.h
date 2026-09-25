@@ -1,8 +1,8 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include "Bytes.h"
-#include "Key.h"
+#include "Core/Bytes.h"
+#include "Core/Key.h"
 
 #include <chrono>
 #include <optional>

@@ -1,6 +1,6 @@
-#include "CommandProcessor.h"
-#include "Executor.h"
-#include "StorageEngine.h"
+#include "App/CommandProcessor.h"
+#include "Commands/Executor.h"
+#include "Storage/StorageEngine.h"
 
 #include <gtest/gtest.h>
 

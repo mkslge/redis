@@ -14,10 +14,10 @@
 #include <thread>
 #include <vector>
 
-#include "ArgumentSplitter.h"
-#include "Parser.h"
-#include "ExecutionResult.h"
-#include "Executor.h"
+#include "Protocol/ArgumentSplitter.h"
+#include "Commands/Parser.h"
+#include "Commands/ExecutionResult.h"
+#include "Commands/Executor.h"
 
 namespace {
 

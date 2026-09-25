@@ -1,9 +1,9 @@
 #ifndef COMMANDPROCESSOR_H
 #define COMMANDPROCESSOR_H
 
-#include "Command.h"
-#include "Executor.h"
-#include "Bytes.h"
+#include "Commands/Command.h"
+#include "Commands/Executor.h"
+#include "Core/Bytes.h"
 
 #include <string>
 #include <variant>
