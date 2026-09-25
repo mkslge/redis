@@ -1,8 +1,9 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Persistence/AofWriter.h"
 #include "App/CommandProcessor.h"
+#include "Network/ClientSession.h"
+#include "Persistence/AofWriter.h"
 #include "Storage/StorageEngine.h"
 
 #include <arpa/inet.h>
@@ -17,16 +18,7 @@ private:
     static constexpr std::size_t kBufferSize = 1024;
     static constexpr std::size_t kMaxReadPerEvent = 64 * 1024;
     static constexpr std::size_t kMaxWritePerEvent = 64 * 1024;
-    static constexpr std::size_t kMaxInputBuffer = 1024 * 1024;
-    static constexpr std::size_t kMaxOutputBuffer = 32 * 1024 * 1024;
     static constexpr std::size_t kExpirationCandidatesPerSweep = 200;
-
-    struct ClientSession {
-        std::string input_buffer;
-        std::string output_buffer;
-        std::size_t output_offset{0};
-        bool close_after_write{false};
-    };
 
     std::uint16_t port_;
     int socket_fd_{-1};
@@ -51,8 +43,6 @@ private:
     bool process_client_input(ClientSession& session);
     // Writes one fair-share batch from a session and reports whether the connection should remain open.
     bool flush_client_output(int client_fd, ClientSession& session);
-    // Appends a response unless doing so would exceed the per-client output limit.
-    bool queue_response(ClientSession& session, std::string response);
     // Executes one command and persists successful mutations before their response is sent.
     CommandProcessResult process_and_persist(const std::string& command);
     // Closes and erases one session; only the run thread may call this method.

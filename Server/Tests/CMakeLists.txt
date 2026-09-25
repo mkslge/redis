@@ -26,6 +26,9 @@ target_link_libraries(testAofPersistence PRIVATE SERVER_APP GTest::gtest_main)
 add_executable(testAofCompactor testAofCompactor.cpp)
 target_link_libraries(testAofCompactor PRIVATE SERVER_APP GTest::gtest_main)
 
+add_executable(testClientSession testClientSession.cpp)
+target_link_libraries(testClientSession PRIVATE SERVER_NETWORK GTest::gtest_main)
+
 add_executable(testServerIntegration testServerIntegration.cpp)
 target_link_libraries(testServerIntegration PRIVATE SERVER_NETWORK GTest::gtest_main)
 
@@ -46,6 +49,7 @@ gtest_discover_tests(testStorageEngine)
 gtest_discover_tests(testCommandProcessor)
 gtest_discover_tests(testAofPersistence)
 gtest_discover_tests(testAofCompactor)
+gtest_discover_tests(testClientSession)
 gtest_discover_tests(testServerIntegration PROPERTIES TIMEOUT 10)
 gtest_discover_tests(testRespCommandCodec)
 gtest_discover_tests(testResponseFormatter)

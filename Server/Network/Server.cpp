@@ -8,6 +8,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
+#include <optional>
 #include <poll.h>
 #include <stdexcept>
 #include <string_view>
@@ -23,6 +24,11 @@ bool set_nonblocking(const int fd) {
 bool set_close_on_exec(const int fd) {
     const int flags = fcntl(fd, F_GETFD, 0);
     return flags >= 0 && fcntl(fd, F_SETFD, flags | FD_CLOEXEC) == 0;
+}
+
+// The text protocol's session-ending commands.
+bool is_quit_request(const std::string& line) {
+    return line == "EXIT" || line == "exit" || line == "QUIT" || line == "quit";
 }
 
 int pending_socket_error(const int fd) {
@@ -119,7 +125,7 @@ void Server::run() {
         descriptors.push_back({wakeup_fds_[0], POLLIN, 0});
         for (const auto& [client_fd, session] : clients_) {
             short events = POLLIN;
-            if (session.output_offset < session.output_buffer.size()) events |= POLLOUT;
+            if (session.has_pending_output()) events |= POLLOUT;
             descriptors.push_back({client_fd, events, 0});
         }
 
@@ -146,7 +152,7 @@ void Server::run() {
             ClientSession& session = found->second;
 
             bool keep_open = true;
-            const bool has_pending_output = session.output_offset < session.output_buffer.size();
+            const bool has_pending_output = session.has_pending_output();
             if ((events & POLLOUT) || (has_pending_output && events & (POLLERR | POLLHUP))) {
                 keep_open = flush_client_output(client_fd, session);
             }
@@ -161,8 +167,8 @@ void Server::run() {
                         "receive from client " + std::to_string(client_fd) + " failed", error_number) << std::endl;
                     keep_open = false;
                 } else {
-                    session.close_after_write = true;
-                    keep_open = session.output_offset < session.output_buffer.size();
+                    session.close_after_write();
+                    keep_open = session.has_pending_output();
                 }
             }
             if (!keep_open) close_client(client_fd);
@@ -207,14 +213,14 @@ bool Server::read_from_client(const int client_fd, ClientSession& session) {
         const ssize_t count = recv(client_fd, buffer, sizeof(buffer), 0);
         if (count > 0) {
             bytes_this_event += static_cast<std::size_t>(count);
-            session.input_buffer.append(buffer, static_cast<std::size_t>(count));
-            if (session.input_buffer.size() > kMaxInputBuffer || !process_client_input(session)) return false;
-            if (session.close_after_write) return true;
+            if (!session.append_input(std::string_view(buffer, static_cast<std::size_t>(count))) ||
+                !process_client_input(session)) return false;
+            if (session.closing()) return true;
             continue;
         }
         if (count == 0) {
-            session.close_after_write = true;
-            return session.output_offset < session.output_buffer.size();
+            session.close_after_write();
+            return session.has_pending_output();
         }
         const int error_number = errno;
         if (error_number == EINTR) continue;
@@ -227,60 +233,39 @@ bool Server::read_from_client(const int client_fd, ClientSession& session) {
 }
 
 bool Server::process_client_input(ClientSession& session) {
-    std::size_t newline_position = session.input_buffer.find('\n');
-    while (newline_position != std::string::npos) {
-        std::string command = session.input_buffer.substr(0, newline_position);
-        session.input_buffer.erase(0, newline_position + 1);
-        if (!command.empty() && command.back() == '\r') command.pop_back();
-
-        if (command == "EXIT" || command == "exit" || command == "QUIT" || command == "quit") {
-            session.input_buffer.clear();
-            session.close_after_write = true;
-            return queue_response(session, "BYE\n");
+    while (const std::optional<std::string> line = session.next_line()) {
+        if (is_quit_request(*line)) {
+            session.discard_input();
+            session.close_after_write();
+            return session.queue_response("BYE\n");
         }
+        if (line->empty()) continue;
 
-        if (!command.empty()) {
-            const CommandProcessResult result = [&] {
-                try {
-                    return process_and_persist(command);
-                } catch (const std::exception& error) {
-                    std::cerr << "Fatal persistence error: " << error.what() << std::endl;
-                    std::terminate();
-                }
-            }();
-            std::string response = result.is_success()
-                ? ResponseFormatter::format_result(result.processed_command().command,
-                                                   result.processed_command().execution_result)
-                : ResponseFormatter::format_error(result.error_message());
-            if (!queue_response(session, std::move(response))) return false;
-        }
-
-        newline_position = session.input_buffer.find('\n');
+        const CommandProcessResult result = [&] {
+            try {
+                return process_and_persist(*line);
+            } catch (const std::exception& error) {
+                std::cerr << "Fatal persistence error: " << error.what() << std::endl;
+                std::terminate();
+            }
+        }();
+        const std::string response = result.is_success()
+            ? ResponseFormatter::format_result(result.processed_command().command,
+                                               result.processed_command().execution_result)
+            : ResponseFormatter::format_error(result.error_message());
+        if (!session.queue_response(response)) return false;
     }
-    return true;
-}
-
-bool Server::queue_response(ClientSession& session, std::string response) {
-    const std::size_t pending = session.output_buffer.size() - session.output_offset;
-    if (response.size() > kMaxOutputBuffer - pending) return false;
-    if (session.output_offset > 0) {
-        session.output_buffer.erase(0, session.output_offset);
-        session.output_offset = 0;
-    }
-    session.output_buffer += response;
     return true;
 }
 
 bool Server::flush_client_output(const int client_fd, ClientSession& session) {
     std::size_t bytes_this_event = 0;
 
-    while (session.output_offset < session.output_buffer.size() && bytes_this_event < kMaxWritePerEvent) {
+    while (session.has_pending_output() && bytes_this_event < kMaxWritePerEvent) {
         const std::size_t remaining_budget = kMaxWritePerEvent - bytes_this_event;
-        const std::string_view pending(session.output_buffer.data() + session.output_offset,
-                                       session.output_buffer.size() - session.output_offset);
-        const ssize_t count = socket_io::send_some(client_fd, pending.substr(0, remaining_budget));
+        const ssize_t count = socket_io::send_some(client_fd, session.pending_output().substr(0, remaining_budget));
         if (count > 0) {
-            session.output_offset += static_cast<std::size_t>(count);
+            session.consume_output(static_cast<std::size_t>(count));
             bytes_this_event += static_cast<std::size_t>(count);
             continue;
         }
@@ -292,11 +277,7 @@ bool Server::flush_client_output(const int client_fd, ClientSession& session) {
         return false;
     }
 
-    if (session.output_offset == session.output_buffer.size()) {
-        session.output_buffer.clear();
-        session.output_offset = 0;
-        return !session.close_after_write;
-    }
+    if (!session.has_pending_output()) return !session.closing();
     return true;
 }
 
