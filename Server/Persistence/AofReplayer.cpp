@@ -1,4 +1,4 @@
-#include "Persistence/LogRunner.h"
+#include "Persistence/AofReplayer.h"
 
 #include "Commands/Parser.h"
 #include "Protocol/RespCommandCodec.h"
@@ -8,9 +8,9 @@
 #include <sstream>
 #include <stdexcept>
 
-LogRunner::LogRunner(const std::string& file_path) : file_path_(file_path) {}
+AofReplayer::AofReplayer(const std::string& file_path) : file_path_(file_path) {}
 
-void LogRunner::run_log(Executor& executor) const {
+void AofReplayer::replay(Executor& executor) const {
     if (!std::filesystem::exists(file_path_)) return;
 
     std::ifstream stream(file_path_, std::ios::binary);

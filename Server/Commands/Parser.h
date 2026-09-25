@@ -11,6 +11,7 @@ struct ParseError {
     std::string message;
 };
 
+// Either the parsed command or the reason the arguments did not form one.
 using ParseResult = std::variant<Command, ParseError>;
 
 class Parser {

@@ -2,8 +2,8 @@
 #include "Commands/Executor.h"
 #include "Commands/Parser.h"
 #include "Persistence/AofRecords.h"
-#include "Persistence/LogCompactor.h"
-#include "Persistence/LogRunner.h"
+#include "Persistence/AofCompactor.h"
+#include "Persistence/AofReplayer.h"
 #include "Protocol/RespCommandCodec.h"
 #include "Storage/StorageEngine.h"
 
@@ -20,7 +20,7 @@ namespace {
 
 std::filesystem::path make_temp_log_path(const std::string& test_name) {
     const auto temp_dir = std::filesystem::temp_directory_path();
-    return temp_dir / ("redisimpl-logcompactor-" + test_name + ".txt");
+    return temp_dir / ("redisimpl-aofcompactor-" + test_name + ".txt");
 }
 
 class TempLogFile {
@@ -50,13 +50,13 @@ private:
 };
 
 void compact_log(const std::string& path) {
-    LogCompactor compactor(path);
+    AofCompactor compactor(path);
     compactor.compact();
 }
 
 } // namespace
 
-TEST(LogCompactorTest, RemovesOlderSetForSameKey) {
+TEST(AofCompactorTest, RemovesOlderSetForSameKey) {
     TempLogFile log_file(
         "older-set",
         RespCommandCodec::encode({"SET", "user", "alice"}) +
@@ -71,7 +71,7 @@ TEST(LogCompactorTest, RemovesOlderSetForSameKey) {
         RespCommandCodec::encode({"SET", "user", "bob"}));
 }
 
-TEST(LogCompactorTest, KeepsLatestExpireForSameKey) {
+TEST(AofCompactorTest, KeepsLatestExpireForSameKey) {
     TempLogFile log_file(
         "latest-expire",
         RespCommandCodec::encode({"SET", "session", "token"}) +
@@ -86,7 +86,7 @@ TEST(LogCompactorTest, KeepsLatestExpireForSameKey) {
         RespCommandCodec::encode({"PEXPIREAT", "session", "4102444860000"}));
 }
 
-TEST(LogCompactorTest, PersistReplacesPriorExpiration) {
+TEST(AofCompactorTest, PersistReplacesPriorExpiration) {
     TempLogFile log_file(
         "persist-replaces-expire",
         RespCommandCodec::encode({"SET", "session", "token"}) +
@@ -100,7 +100,7 @@ TEST(LogCompactorTest, PersistReplacesPriorExpiration) {
               RespCommandCodec::encode({"PERSIST", "session"}));
 }
 
-TEST(LogCompactorTest, DeleteRemovesPriorMutationsForKey) {
+TEST(AofCompactorTest, DeleteRemovesPriorMutationsForKey) {
     TempLogFile log_file(
         "delete-key",
         RespCommandCodec::encode({"SET", "session", "token"}) +
@@ -116,7 +116,7 @@ TEST(LogCompactorTest, DeleteRemovesPriorMutationsForKey) {
         RespCommandCodec::encode({"SET", "other", "value"}));
 }
 
-TEST(LogCompactorTest, LeavesIndependentKeysInOriginalOrder) {
+TEST(AofCompactorTest, LeavesIndependentKeysInOriginalOrder) {
     TempLogFile log_file(
         "independent-keys",
         RespCommandCodec::encode({"SET", "a", "1"}) +
@@ -134,27 +134,27 @@ TEST(LogCompactorTest, LeavesIndependentKeysInOriginalOrder) {
         RespCommandCodec::encode({"SET", "c", "3"}));
 }
 
-TEST(LogCompactorTest, PreservesBinaryKeyAndValue) {
+TEST(AofCompactorTest, PreservesBinaryKeyAndValue) {
     const Bytes key{"k\0\n", 3};
     const Bytes old_value{"old\0", 4};
     const Bytes new_value{"new\xff", 4};
     TempLogFile log_file("binary", RespCommandCodec::encode({"SET", key, old_value}) +
                                    RespCommandCodec::encode({"SET", key, new_value}));
-    LogCompactor(log_file.path_string()).compact();
+    AofCompactor(log_file.path_string()).compact();
     EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", key, new_value}));
 }
 
-TEST(LogCompactorTest, LaterSetRemovesPriorExpirationAndDelete) {
+TEST(AofCompactorTest, LaterSetRemovesPriorExpirationAndDelete) {
     TempLogFile log_file("set-resets-state",
         RespCommandCodec::encode({"SET", "key", "old"}) +
         RespCommandCodec::encode({"PEXPIREAT", "key", "4102444800000"}) +
         RespCommandCodec::encode({"DEL", "key"}) +
         RespCommandCodec::encode({"SET", "key", "new"}));
-    LogCompactor(log_file.path_string()).compact();
+    AofCompactor(log_file.path_string()).compact();
     EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", "key", "new"}));
 }
 
-TEST(LogCompactorTest, CompactingNumericMutationsPreservesFinalState) {
+TEST(AofCompactorTest, CompactingNumericMutationsPreservesFinalState) {
     Bytes contents;
     StorageEngine source_storage;
     Executor source_executor(source_storage);
@@ -172,17 +172,17 @@ TEST(LogCompactorTest, CompactingNumericMutationsPreservesFinalState) {
     }
     TempLogFile log_file("numeric-final-state", contents);
 
-    LogCompactor(log_file.path_string()).compact();
+    AofCompactor(log_file.path_string()).compact();
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "15");
     EXPECT_FALSE(replayed_storage.exists("removed"));
 }
 
-TEST(LogCompactorTest, CompactingNumericMutationsPreservesExpirationState) {
+TEST(AofCompactorTest, CompactingNumericMutationsPreservesExpirationState) {
     Bytes contents;
     StorageEngine source_storage;
     Executor source_executor(source_storage);
@@ -209,17 +209,17 @@ TEST(LogCompactorTest, CompactingNumericMutationsPreservesExpirationState) {
     contents += increment_result.processed_command().aof_record;
 
     TempLogFile log_file("numeric-expiration-state", contents);
-    LogCompactor(log_file.path_string()).compact();
+    AofCompactor(log_file.path_string()).compact();
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
     EXPECT_GT(replayed_storage.ttl_milliseconds("counter"), 0);
 }
 
-TEST(LogCompactorTest, NumericStateFollowedByPersistSurvivesCompactionAndOldExpiration) {
+TEST(AofCompactorTest, NumericStateFollowedByPersistSurvivesCompactionAndOldExpiration) {
     Bytes contents;
     StorageEngine source_storage;
     Executor source_executor(source_storage);
@@ -247,12 +247,12 @@ TEST(LogCompactorTest, NumericStateFollowedByPersistSurvivesCompactionAndOldExpi
     contents += persist.processed_command().aof_record;
     TempLogFile log_file("numeric-persist-after-compaction", contents);
 
-    LogCompactor(log_file.path_string()).compact();
+    AofCompactor(log_file.path_string()).compact();
     std::this_thread::sleep_until(old_deadline + std::chrono::milliseconds(25));
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
     EXPECT_EQ(replayed_storage.ttl_milliseconds("counter"), -1);

@@ -33,13 +33,13 @@ int pending_socket_error(const int fd) {
 }
 }
 
-Server::Server(AOFLogger& logger,
+Server::Server(AofWriter& aof_writer,
                CommandProcessor& command_processor,
                StorageEngine& storage,
                const std::uint16_t port,
                const std::chrono::milliseconds expiration_sweep_interval)
     : port_(port),
-      logger_(logger),
+      aof_writer_(aof_writer),
       command_processor_(command_processor),
       storage_(storage),
       expiration_sweep_interval_(expiration_sweep_interval) {
@@ -303,7 +303,7 @@ bool Server::flush_client_output(const int client_fd, ClientSession& session) {
 CommandProcessResult Server::process_and_persist(const std::string& command) {
     CommandProcessResult result = command_processor_.process(command);
     if (result.is_success() && result.processed_command().should_log) {
-        logger_.append_record(result.processed_command().aof_record);
+        aof_writer_.append(result.processed_command().aof_record);
     }
     return result;
 }

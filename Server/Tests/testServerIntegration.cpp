@@ -1,6 +1,6 @@
 #include "App/CommandProcessor.h"
-#include "Persistence/AOFLogger.h"
-#include "Persistence/LogRunner.h"
+#include "Persistence/AofWriter.h"
+#include "Persistence/AofReplayer.h"
 #include "Commands/Executor.h"
 #include "Storage/StorageEngine.h"
 #include "Network/Server.h"
@@ -169,8 +169,8 @@ public:
         : storage_(),
           executor_(storage_),
           command_processor_(executor_),
-          logger_(log_path, AOFFsyncPolicy::EVERY_SECOND),
-          server_(logger_, command_processor_, storage_, 0, expiration_sweep_interval),
+          aof_writer_(log_path, AofFsyncPolicy::EVERY_SECOND),
+          server_(aof_writer_, command_processor_, storage_, 0, expiration_sweep_interval),
           thread_([this] { server_.run(); }) {}
 
     ~ServerHarness() {
@@ -208,7 +208,7 @@ private:
     StorageEngine storage_;
     Executor executor_;
     CommandProcessor command_processor_;
-    AOFLogger logger_;
+    AofWriter aof_writer_;
     Server server_;
     std::thread thread_;
     bool stopped_{false};
@@ -251,9 +251,9 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
 
     StorageEngine restarted_storage;
     Executor restarted_executor(restarted_storage);
-    LogRunner log_runner(log_file.path_string());
+    AofReplayer aof_replayer(log_file.path_string());
 
-    log_runner.run_log(restarted_executor);
+    aof_replayer.replay(restarted_executor);
 
     ASSERT_TRUE(restarted_storage.get("user").has_value());
     EXPECT_EQ(restarted_storage.get("user")->bytes(), "alice");
@@ -440,12 +440,12 @@ TEST(ServerIntegrationTest, BindFailureIncludesErrnoDetails) {
     StorageEngine storage;
     Executor executor(storage);
     CommandProcessor command_processor(executor);
-    AOFLogger logger(log_file.path_string(), AOFFsyncPolicy::EVERY_SECOND);
-    Server first_server(logger, command_processor, storage, 0);
+    AofWriter aof_writer(log_file.path_string(), AofFsyncPolicy::EVERY_SECOND);
+    Server first_server(aof_writer, command_processor, storage, 0);
 
     std::string message;
     try {
-        Server conflicting_server(logger, command_processor, storage, first_server.port());
+        Server conflicting_server(aof_writer, command_processor, storage, first_server.port());
     } catch (const std::exception& error) {
         message = error.what();
     }

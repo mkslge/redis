@@ -1,6 +1,6 @@
 #include "App/CommandProcessor.h"
-#include "Persistence/AOFLogger.h"
-#include "Persistence/LogRunner.h"
+#include "Persistence/AofWriter.h"
+#include "Persistence/AofReplayer.h"
 #include "Commands/Executor.h"
 #include "Storage/StorageEngine.h"
 #include "Protocol/RespCommandCodec.h"
@@ -47,7 +47,7 @@ private:
 
 bool process_and_append(
     CommandProcessor& processor,
-    AOFLogger& logger,
+    AofWriter& aof_writer,
     const std::string& command
 ) {
     const CommandProcessResult result = processor.process(command);
@@ -61,35 +61,35 @@ bool process_and_append(
         return false;
     }
     if (result.processed_command().should_log) {
-        logger.append_record(result.processed_command().aof_record);
+        aof_writer.append(result.processed_command().aof_record);
     }
     return true;
 }
 
 } // namespace
 
-TEST(LoggingTest, AofLoggerWritesRecordExactly) {
+TEST(AofPersistenceTest, AofWriterWritesRecordExactly) {
     TempLogFile log_file("exact-record");
     const Bytes record = RespCommandCodec::encode({"SET", "name", "mark"});
 
     {
-        AOFLogger logger(log_file.path_string());
-        logger.append_record(record);
+        AofWriter aof_writer(log_file.path_string());
+        aof_writer.append(record);
     }
 
     EXPECT_EQ(log_file.read_all(), record);
 }
 
-TEST(LoggingTest, AofLoggerAppendsAfterReopening) {
+TEST(AofPersistenceTest, AofWriterAppendsAfterReopening) {
     TempLogFile log_file("reopen-append");
 
     {
-        AOFLogger logger(log_file.path_string());
-        logger.append_record(RespCommandCodec::encode({"SET", "first", "1"}));
+        AofWriter aof_writer(log_file.path_string());
+        aof_writer.append(RespCommandCodec::encode({"SET", "first", "1"}));
     }
     {
-        AOFLogger logger(log_file.path_string());
-        logger.append_record(RespCommandCodec::encode({"SET", "second", "2"}));
+        AofWriter aof_writer(log_file.path_string());
+        aof_writer.append(RespCommandCodec::encode({"SET", "second", "2"}));
     }
 
     EXPECT_EQ(log_file.read_all(),
@@ -97,60 +97,60 @@ TEST(LoggingTest, AofLoggerAppendsAfterReopening) {
               RespCommandCodec::encode({"SET", "second", "2"}));
 }
 
-TEST(LoggingTest, AofLoggerSupportsEverySecondPolicy) {
+TEST(AofPersistenceTest, AofWriterSupportsEverySecondPolicy) {
     TempLogFile log_file("every-second");
 
     {
-        AOFLogger logger(log_file.path_string(), AOFFsyncPolicy::EVERY_SECOND);
-        logger.append_record(RespCommandCodec::encode({"SET", "key", "value"}));
+        AofWriter aof_writer(log_file.path_string(), AofFsyncPolicy::EVERY_SECOND);
+        aof_writer.append(RespCommandCodec::encode({"SET", "key", "value"}));
     }
 
     EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", "key", "value"}));
 }
 
-TEST(LoggingTest, AofLoggerSupportsNeverPolicy) {
+TEST(AofPersistenceTest, AofWriterSupportsNeverPolicy) {
     TempLogFile log_file("never-sync");
 
     {
-        AOFLogger logger(log_file.path_string(), AOFFsyncPolicy::NEVER);
-        logger.append_record(RespCommandCodec::encode({"SET", "key", "value"}));
+        AofWriter aof_writer(log_file.path_string(), AofFsyncPolicy::NEVER);
+        aof_writer.append(RespCommandCodec::encode({"SET", "key", "value"}));
     }
 
     EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", "key", "value"}));
 }
 
-TEST(LoggingTest, AofLoggerWritesLargeEntriesCompletely) {
+TEST(AofPersistenceTest, AofWriterWritesLargeEntriesCompletely) {
     TempLogFile log_file("large-entry");
     const Bytes entry = RespCommandCodec::encode({"SET", "large", Bytes(1024 * 1024, 'x')});
 
     {
-        AOFLogger logger(log_file.path_string());
-        logger.append_record(entry);
+        AofWriter aof_writer(log_file.path_string());
+        aof_writer.append(entry);
     }
 
     EXPECT_EQ(log_file.read_all(), entry);
 }
 
-TEST(LoggingTest, AofLoggerThrowsWhenParentDirectoryDoesNotExist) {
+TEST(AofPersistenceTest, AofWriterThrowsWhenParentDirectoryDoesNotExist) {
     const std::filesystem::path missing_path =
         std::filesystem::temp_directory_path() / "redisimpl-missing-directory" / "aof.log";
     std::filesystem::remove_all(missing_path.parent_path());
 
-    EXPECT_THROW(AOFLogger logger(missing_path.string()), std::runtime_error);
+    EXPECT_THROW(AofWriter aof_writer(missing_path.string()), std::runtime_error);
 }
 
-TEST(LoggingTest, AofLoggerSerializesConcurrentWrites) {
+TEST(AofPersistenceTest, AofWriterSerializesConcurrentWrites) {
     TempLogFile log_file("concurrent-writes");
     constexpr int kThreadCount = 4;
     constexpr int kEntriesPerThread = 50;
 
     {
-        AOFLogger logger(log_file.path_string());
+        AofWriter aof_writer(log_file.path_string());
         std::vector<std::thread> threads;
         for (int thread_id = 0; thread_id < kThreadCount; ++thread_id) {
-            threads.emplace_back([&logger, thread_id] {
+            threads.emplace_back([&aof_writer, thread_id] {
                 for (int entry = 0; entry < kEntriesPerThread; ++entry) {
-                    logger.append_record(RespCommandCodec::encode(
+                    aof_writer.append(RespCommandCodec::encode(
                         {"SET", std::to_string(thread_id) + ":" + std::to_string(entry), "value"}));
                 }
             });
@@ -173,61 +173,61 @@ TEST(LoggingTest, AofLoggerSerializesConcurrentWrites) {
     EXPECT_EQ(entries.size(), static_cast<std::size_t>(kThreadCount * kEntriesPerThread));
 }
 
-TEST(LoggingTest, LogRunnerReplaysMutatingCommandsIntoStorage) {
+TEST(AofPersistenceTest, AofReplayerReplaysMutatingCommandsIntoStorage) {
     TempLogFile log_file("replay");
 
     {
-        AOFLogger logger(log_file.path_string());
-        logger.append_record(RespCommandCodec::encode({"SET", "user", "alice"}));
-        logger.append_record(RespCommandCodec::encode({"PEXPIREAT", "user", "4102444800000"}));
+        AofWriter aof_writer(log_file.path_string());
+        aof_writer.append(RespCommandCodec::encode({"SET", "user", "alice"}));
+        aof_writer.append(RespCommandCodec::encode({"PEXPIREAT", "user", "4102444800000"}));
     }
 
     StorageEngine storage;
     Executor executor(storage);
-    LogRunner runner(log_file.path_string());
+    AofReplayer runner(log_file.path_string());
 
-    runner.run_log(executor);
+    runner.replay(executor);
 
     ASSERT_TRUE(storage.get("user").has_value());
     EXPECT_EQ(storage.get("user")->bytes(), "alice");
     EXPECT_TRUE(storage.exists("user"));
 }
 
-TEST(LoggingTest, LogRunnerDoesNotRenewAnExpirationThatPassedWhileStopped) {
+TEST(AofPersistenceTest, AofReplayerDoesNotRenewAnExpirationThatPassedWhileStopped) {
     TempLogFile log_file("expired-during-downtime");
 
     {
-        AOFLogger logger(log_file.path_string());
-        logger.append_record(RespCommandCodec::encode({"SET", "session", "token"}));
-        logger.append_record(RespCommandCodec::encode({"PEXPIREAT", "session", "0"}));
+        AofWriter aof_writer(log_file.path_string());
+        aof_writer.append(RespCommandCodec::encode({"SET", "session", "token"}));
+        aof_writer.append(RespCommandCodec::encode({"PEXPIREAT", "session", "0"}));
     }
 
     StorageEngine storage;
     Executor executor(storage);
 
-    LogRunner(log_file.path_string()).run_log(executor);
+    AofReplayer(log_file.path_string()).replay(executor);
 
     EXPECT_FALSE(storage.exists("session"));
 }
 
-TEST(LoggingTest, LogRunnerReplaysPersistAfterExpiration) {
+TEST(AofPersistenceTest, AofReplayerReplaysPersistAfterExpiration) {
     TempLogFile log_file("persist-replay");
     {
-        AOFLogger logger(log_file.path_string());
-        logger.append_record(RespCommandCodec::encode({"SET", "session", "token"}));
-        logger.append_record(RespCommandCodec::encode({"PEXPIREAT", "session", "4102444800000"}));
-        logger.append_record(RespCommandCodec::encode({"PERSIST", "session"}));
+        AofWriter aof_writer(log_file.path_string());
+        aof_writer.append(RespCommandCodec::encode({"SET", "session", "token"}));
+        aof_writer.append(RespCommandCodec::encode({"PEXPIREAT", "session", "4102444800000"}));
+        aof_writer.append(RespCommandCodec::encode({"PERSIST", "session"}));
     }
 
     StorageEngine storage;
     Executor executor(storage);
-    LogRunner(log_file.path_string()).run_log(executor);
+    AofReplayer(log_file.path_string()).replay(executor);
 
     EXPECT_TRUE(storage.exists("session"));
     EXPECT_EQ(storage.ttl_milliseconds("session"), -1);
 }
 
-TEST(LoggingTest, ExpireIsSerializedAsAnAbsoluteUnixMillisecondDeadline) {
+TEST(AofPersistenceTest, ExpireIsSerializedAsAnAbsoluteUnixMillisecondDeadline) {
     StorageEngine storage;
     storage.set("session", Value("token"));
     Executor executor(storage);
@@ -252,7 +252,7 @@ TEST(LoggingTest, ExpireIsSerializedAsAnAbsoluteUnixMillisecondDeadline) {
     EXPECT_LE(deadline, latest);
 }
 
-TEST(LoggingTest, NoOpPersistDoesNotProduceAnAofRecord) {
+TEST(AofPersistenceTest, NoOpPersistDoesNotProduceAnAofRecord) {
     StorageEngine storage;
     Executor executor(storage);
     CommandProcessor processor(executor);
@@ -267,7 +267,7 @@ TEST(LoggingTest, NoOpPersistDoesNotProduceAnAofRecord) {
     EXPECT_FALSE(permanent.processed_command().should_log);
 }
 
-TEST(LoggingTest, LogRunnerThrowsForMalformedLogEntry) {
+TEST(AofPersistenceTest, AofReplayerThrowsForMalformedLogEntry) {
     TempLogFile log_file("invalid-entry");
 
     {
@@ -277,56 +277,56 @@ TEST(LoggingTest, LogRunnerThrowsForMalformedLogEntry) {
 
     StorageEngine storage;
     Executor executor(storage);
-    LogRunner runner(log_file.path_string());
+    AofReplayer runner(log_file.path_string());
 
-    EXPECT_THROW(runner.run_log(executor), std::runtime_error);
+    EXPECT_THROW(runner.replay(executor), std::runtime_error);
 }
 
-TEST(LoggingTest, BinaryKeyAndValueSurviveReplay) {
+TEST(AofPersistenceTest, BinaryKeyAndValueSurviveReplay) {
     TempLogFile log_file("binary-replay");
     const Bytes key{"\0k\n\xff", 4};
     const Bytes value{"v\"\r\n\0\xff", 6};
-    { AOFLogger logger(log_file.path_string()); logger.append_record(RespCommandCodec::encode({"SET", key, value})); }
+    { AofWriter aof_writer(log_file.path_string()); aof_writer.append(RespCommandCodec::encode({"SET", key, value})); }
     StorageEngine storage;
     Executor executor(storage);
-    LogRunner(log_file.path_string()).run_log(executor);
+    AofReplayer(log_file.path_string()).replay(executor);
     ASSERT_TRUE(storage.get(key).has_value());
     EXPECT_EQ(storage.get(key)->bytes(), value);
 }
 
-TEST(LoggingTest, LogRunnerRejectsNonMutatingCommands) {
+TEST(AofPersistenceTest, AofReplayerRejectsNonMutatingCommands) {
     TempLogFile log_file("read-command");
-    { AOFLogger logger(log_file.path_string()); logger.append_record(RespCommandCodec::encode({"GET", "key"})); }
+    { AofWriter aof_writer(log_file.path_string()); aof_writer.append(RespCommandCodec::encode({"GET", "key"})); }
     StorageEngine storage;
     Executor executor(storage);
-    EXPECT_THROW(LogRunner(log_file.path_string()).run_log(executor), std::runtime_error);
+    EXPECT_THROW(AofReplayer(log_file.path_string()).replay(executor), std::runtime_error);
 }
 
-TEST(LoggingTest, GeneratedNumericAofRecordsRestoreTheResult) {
+TEST(AofPersistenceTest, GeneratedNumericAofRecordsRestoreTheResult) {
     TempLogFile log_file("numeric-replay");
     {
         StorageEngine storage;
         Executor executor(storage);
         CommandProcessor processor(executor);
-        AOFLogger logger(log_file.path_string());
+        AofWriter aof_writer(log_file.path_string());
 
-        ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
-        ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
-        ASSERT_TRUE(process_and_append(processor, logger, "DECR \"counter\""));
-        ASSERT_TRUE(process_and_append(processor, logger, "INCRBY \"counter\" 5"));
-        ASSERT_TRUE(process_and_append(processor, logger, "DECRBY \"counter\" 3"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "SET \"counter\" 10"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "INCR \"counter\""));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "DECR \"counter\""));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "INCRBY \"counter\" 5"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "DECRBY \"counter\" 3"));
     }
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "12");
     EXPECT_EQ(replayed_storage.ttl_milliseconds("counter"), -1);
 }
 
-TEST(LoggingTest, NumericReplayPreservesAFutureExpiration) {
+TEST(AofPersistenceTest, NumericReplayPreservesAFutureExpiration) {
     TempLogFile log_file("numeric-future-expiration");
     const auto deadline_milliseconds =
         std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -338,25 +338,25 @@ TEST(LoggingTest, NumericReplayPreservesAFutureExpiration) {
         StorageEngine storage;
         Executor executor(storage);
         CommandProcessor processor(executor);
-        AOFLogger logger(log_file.path_string());
+        AofWriter aof_writer(log_file.path_string());
 
-        ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "SET \"counter\" 10"));
         ASSERT_TRUE(storage.expire_at("counter", deadline).applied);
-        logger.append_record(RespCommandCodec::encode(
+        aof_writer.append(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)}));
-        ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "INCR \"counter\""));
     }
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
     EXPECT_GT(replayed_storage.ttl_milliseconds("counter"), 0);
 }
 
-TEST(LoggingTest, NumericReplayDoesNotRecreateAKeyThatExpiredDuringDowntime) {
+TEST(AofPersistenceTest, NumericReplayDoesNotRecreateAKeyThatExpiredDuringDowntime) {
     TempLogFile log_file("numeric-expired-during-downtime");
     const auto deadline_milliseconds =
         std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -368,24 +368,24 @@ TEST(LoggingTest, NumericReplayDoesNotRecreateAKeyThatExpiredDuringDowntime) {
         StorageEngine storage;
         Executor executor(storage);
         CommandProcessor processor(executor);
-        AOFLogger logger(log_file.path_string());
+        AofWriter aof_writer(log_file.path_string());
 
-        ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "SET \"counter\" 10"));
         ASSERT_TRUE(storage.expire_at("counter", deadline).applied);
-        logger.append_record(RespCommandCodec::encode(
+        aof_writer.append(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)}));
-        ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "INCR \"counter\""));
     }
     std::this_thread::sleep_until(deadline + std::chrono::milliseconds(25));
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
 
     EXPECT_FALSE(replayed_storage.exists("counter"));
 }
 
-TEST(LoggingTest, NumericReplayPreservesAKeyRecreatedAfterExpiration) {
+TEST(AofPersistenceTest, NumericReplayPreservesAKeyRecreatedAfterExpiration) {
     TempLogFile log_file("numeric-recreated-after-expiration");
     const auto deadline_milliseconds =
         std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -397,26 +397,26 @@ TEST(LoggingTest, NumericReplayPreservesAKeyRecreatedAfterExpiration) {
         StorageEngine storage;
         Executor executor(storage);
         CommandProcessor processor(executor);
-        AOFLogger logger(log_file.path_string());
+        AofWriter aof_writer(log_file.path_string());
 
-        ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "SET \"counter\" 10"));
         ASSERT_TRUE(storage.expire_at("counter", deadline).applied);
-        logger.append_record(RespCommandCodec::encode(
+        aof_writer.append(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)}));
         std::this_thread::sleep_until(deadline + std::chrono::milliseconds(25));
-        ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "INCR \"counter\""));
     }
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "1");
     EXPECT_EQ(replayed_storage.ttl_milliseconds("counter"), -1);
 }
 
-TEST(LoggingTest, PersistAfterNumericMutationSurvivesTheOldDeadline) {
+TEST(AofPersistenceTest, PersistAfterNumericMutationSurvivesTheOldDeadline) {
     TempLogFile log_file("numeric-then-persist");
     const auto deadline_milliseconds =
         std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -428,27 +428,27 @@ TEST(LoggingTest, PersistAfterNumericMutationSurvivesTheOldDeadline) {
         StorageEngine storage;
         Executor executor(storage);
         CommandProcessor processor(executor);
-        AOFLogger logger(log_file.path_string());
+        AofWriter aof_writer(log_file.path_string());
 
-        ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "SET \"counter\" 10"));
         ASSERT_TRUE(storage.expire_at("counter", deadline).applied);
-        logger.append_record(RespCommandCodec::encode(
+        aof_writer.append(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(deadline_milliseconds)}));
-        ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
-        ASSERT_TRUE(process_and_append(processor, logger, "PERSIST \"counter\""));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "INCR \"counter\""));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "PERSIST \"counter\""));
     }
     std::this_thread::sleep_until(deadline + std::chrono::milliseconds(25));
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
     EXPECT_EQ(replayed_storage.ttl_milliseconds("counter"), -1);
 }
 
-TEST(LoggingTest, ExtendingExpirationAfterNumericMutationSurvivesTheOldDeadline) {
+TEST(AofPersistenceTest, ExtendingExpirationAfterNumericMutationSurvivesTheOldDeadline) {
     TempLogFile log_file("numeric-then-extend-expiration");
     const auto old_deadline_milliseconds =
         std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -460,20 +460,20 @@ TEST(LoggingTest, ExtendingExpirationAfterNumericMutationSurvivesTheOldDeadline)
         StorageEngine storage;
         Executor executor(storage);
         CommandProcessor processor(executor);
-        AOFLogger logger(log_file.path_string());
+        AofWriter aof_writer(log_file.path_string());
 
-        ASSERT_TRUE(process_and_append(processor, logger, "SET \"counter\" 10"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "SET \"counter\" 10"));
         ASSERT_TRUE(storage.expire_at("counter", old_deadline).applied);
-        logger.append_record(RespCommandCodec::encode(
+        aof_writer.append(RespCommandCodec::encode(
             {"PEXPIREAT", "counter", std::to_string(old_deadline_milliseconds)}));
-        ASSERT_TRUE(process_and_append(processor, logger, "INCR \"counter\""));
-        ASSERT_TRUE(process_and_append(processor, logger, "EXPIRE \"counter\" 60"));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "INCR \"counter\""));
+        ASSERT_TRUE(process_and_append(processor, aof_writer, "EXPIRE \"counter\" 60"));
     }
     std::this_thread::sleep_until(old_deadline + std::chrono::milliseconds(25));
 
     StorageEngine replayed_storage;
     Executor replayed_executor(replayed_storage);
-    LogRunner(log_file.path_string()).run_log(replayed_executor);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
 
     ASSERT_TRUE(replayed_storage.get("counter").has_value());
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");

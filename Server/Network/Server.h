@@ -1,7 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Persistence/AOFLogger.h"
+#include "Persistence/AofWriter.h"
 #include "App/CommandProcessor.h"
 #include "Storage/StorageEngine.h"
 
@@ -32,7 +32,7 @@ private:
     int socket_fd_{-1};
     int wakeup_fds_[2]{-1, -1};
     sockaddr_in serveraddr_{};
-    AOFLogger& logger_;
+    AofWriter& aof_writer_;
     CommandProcessor& command_processor_;
     StorageEngine& storage_;
     std::chrono::milliseconds expiration_sweep_interval_;
@@ -68,7 +68,7 @@ public:
     static constexpr std::uint16_t kDefaultPort = 6380;
 
     // Creates a listening server but does not start its blocking event loop.
-    explicit Server(AOFLogger& logger,
+    explicit Server(AofWriter& aof_writer,
                     CommandProcessor& command_processor,
                     StorageEngine& storage,
                     std::uint16_t port = kDefaultPort,

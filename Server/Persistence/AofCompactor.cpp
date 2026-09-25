@@ -1,5 +1,5 @@
 
-#include "Persistence/LogCompactor.h"
+#include "Persistence/AofCompactor.h"
 
 #include "Commands/Parser.h"
 #include "Core/Overloaded.h"
@@ -76,9 +76,9 @@ void replace_atomically(const std::filesystem::path& path, const Bytes& contents
 }
 }
 
-LogCompactor::LogCompactor(std::string_view file_path) : file_path_(file_path) {}
+AofCompactor::AofCompactor(std::string_view file_path) : file_path_(file_path) {}
 
-void LogCompactor::compact() const {
+void AofCompactor::compact() const {
     if (!std::filesystem::exists(file_path_)) return;
 
     std::vector<Record> records = read_records(file_path_);

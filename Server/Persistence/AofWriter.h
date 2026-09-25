@@ -1,7 +1,7 @@
-#ifndef AOFLOGGER_H
-#define AOFLOGGER_H
+#ifndef AOFWRITER_H
+#define AOFWRITER_H
 
-#include "Persistence/LogConfig.h"
+#include "Persistence/AofConfig.h"
 #include "Core/Bytes.h"
 
 #include <condition_variable>
@@ -11,24 +11,24 @@
 #include <string>
 #include <thread>
 
-enum class AOFFsyncPolicy {
+enum class AofFsyncPolicy {
     ALWAYS,
     EVERY_SECOND,
     NEVER
 };
 
-class AOFLogger {
+class AofWriter {
 public:
-    explicit AOFLogger(
-        const std::string& file_path = std::string(LogConfig::kDefaultAofPath),
-        AOFFsyncPolicy fsync_policy = AOFFsyncPolicy::ALWAYS
+    explicit AofWriter(
+        const std::string& file_path = std::string(AofConfig::kDefaultPath),
+        AofFsyncPolicy fsync_policy = AofFsyncPolicy::ALWAYS
     );
-    ~AOFLogger();
+    ~AofWriter();
 
-    AOFLogger(const AOFLogger&) = delete;
-    AOFLogger& operator=(const AOFLogger&) = delete;
+    AofWriter(const AofWriter&) = delete;
+    AofWriter& operator=(const AofWriter&) = delete;
 
-    void append_record(const Bytes& record);
+    void append(const Bytes& record);
 
 private:
     void write_all(const char* data, std::size_t size);
@@ -37,7 +37,7 @@ private:
     [[noreturn]] void throw_io_error(const char* operation) const;
 
     std::string file_path_;
-    AOFFsyncPolicy fsync_policy_;
+    AofFsyncPolicy fsync_policy_;
     int fd_{-1};
     std::mutex mutex_;
     std::condition_variable sync_condition_;
@@ -48,4 +48,4 @@ private:
     std::exception_ptr background_error_;
 };
 
-#endif //AOFLOGGER_H
+#endif //AOFWRITER_H

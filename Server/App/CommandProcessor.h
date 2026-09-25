@@ -17,10 +17,13 @@ public:
     Bytes aof_record;
 };
 
-struct CommandProcessError {
+struct ProcessError {
     std::string message;
 };
 
+// Outcome of one client command line: a processed command, or an error for a line
+// that could not be parsed. A command that ran but failed is still a success here;
+// see ExecutionResult::success.
 class CommandProcessResult {
 public:
     static CommandProcessResult success(ProcessedCommand processed_command);
@@ -31,7 +34,7 @@ public:
     const std::string& error_message() const;
 
 private:
-    using Outcome = std::variant<ProcessedCommand, CommandProcessError>;
+    using Outcome = std::variant<ProcessedCommand, ProcessError>;
 
     explicit CommandProcessResult(Outcome outcome);
 

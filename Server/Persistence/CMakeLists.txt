@@ -1,7 +1,7 @@
 add_library(SERVER_PERSISTENCE STATIC
-        AOFLogger.cpp
+        AofWriter.cpp
         AofRecords.cpp
-        LogCompactor.cpp
-        LogRunner.cpp
+        AofCompactor.cpp
+        AofReplayer.cpp
 )
 target_link_libraries(SERVER_PERSISTENCE PUBLIC SERVER_PROTOCOL)

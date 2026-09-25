@@ -9,6 +9,7 @@
 
 enum class RespDecodeStatus { COMPLETE, INCOMPLETE, INVALID };
 
+// Three-state because a stream may simply not have the whole record yet (INCOMPLETE).
 struct RespDecodeResult {
     RespDecodeStatus status;
     CommandArguments arguments;

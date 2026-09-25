@@ -1,4 +1,4 @@
-#include "Persistence/AOFLogger.h"
+#include "Persistence/AofWriter.h"
 
 #include <cerrno>
 #include <chrono>
@@ -7,16 +7,16 @@
 #include <stdexcept>
 #include <unistd.h>
 
-AOFLogger::AOFLogger(const std::string& file_path, const AOFFsyncPolicy fsync_policy)
+AofWriter::AofWriter(const std::string& file_path, const AofFsyncPolicy fsync_policy)
     : file_path_(file_path), fsync_policy_(fsync_policy) {
     fd_ = ::open(file_path_.c_str(), O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
     if (fd_ < 0) {
         throw_io_error("open");
     }
 
-    if (fsync_policy_ == AOFFsyncPolicy::EVERY_SECOND) {
+    if (fsync_policy_ == AofFsyncPolicy::EVERY_SECOND) {
         try {
-            sync_thread_ = std::thread(&AOFLogger::periodic_sync_loop, this);
+            sync_thread_ = std::thread(&AofWriter::periodic_sync_loop, this);
         } catch (...) {
             ::close(fd_);
             fd_ = -1;
@@ -25,7 +25,7 @@ AOFLogger::AOFLogger(const std::string& file_path, const AOFFsyncPolicy fsync_po
     }
 }
 
-AOFLogger::~AOFLogger() {
+AofWriter::~AofWriter() {
     if (sync_thread_.joinable()) {
         {
             std::lock_guard<std::mutex> lock{mutex_};
@@ -40,7 +40,7 @@ AOFLogger::~AOFLogger() {
     }
 }
 
-void AOFLogger::append_record(const Bytes& record) {
+void AofWriter::append(const Bytes& record) {
     if (record.empty()) {
         return;
     }
@@ -53,18 +53,18 @@ void AOFLogger::append_record(const Bytes& record) {
     write_all(record.data(), record.size());
 
     switch (fsync_policy_) {
-        case AOFFsyncPolicy::ALWAYS:
+        case AofFsyncPolicy::ALWAYS:
             sync();
             break;
-        case AOFFsyncPolicy::EVERY_SECOND:
+        case AofFsyncPolicy::EVERY_SECOND:
             ++write_generation_;
             break;
-        case AOFFsyncPolicy::NEVER:
+        case AofFsyncPolicy::NEVER:
             break;
     }
 }
 
-void AOFLogger::write_all(const char* data, std::size_t size) {
+void AofWriter::write_all(const char* data, std::size_t size) {
     while (size > 0) {
         const ssize_t bytes_written = ::write(fd_, data, size);
         if (bytes_written < 0 && errno == EINTR) {
@@ -82,13 +82,13 @@ void AOFLogger::write_all(const char* data, std::size_t size) {
     }
 }
 
-void AOFLogger::sync() {
+void AofWriter::sync() {
     if (::fsync(fd_) != 0) {
         throw_io_error("fsync");
     }
 }
 
-void AOFLogger::periodic_sync_loop() {
+void AofWriter::periodic_sync_loop() {
     std::unique_lock<std::mutex> lock{mutex_};
 
     while (true) {
@@ -117,7 +117,7 @@ void AOFLogger::periodic_sync_loop() {
     }
 }
 
-void AOFLogger::throw_io_error(const char* operation) const {
+void AofWriter::throw_io_error(const char* operation) const {
     const int error_number = errno;
     throw std::runtime_error(
         "Failed to " + std::string(operation) + " append-only log '" + file_path_ +

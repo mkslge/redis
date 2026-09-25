@@ -11,6 +11,8 @@
 
 using ExecutionPayload = std::variant<std::monostate, Value, bool, std::int64_t>;
 
+// A command that ran. success == false is a user-visible runtime error (e.g. a
+// non-integer value for INCR), not a parse or protocol failure.
 class ExecutionResult {
 public:
     bool success{true};

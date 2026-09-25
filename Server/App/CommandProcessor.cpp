@@ -15,7 +15,7 @@ CommandProcessResult CommandProcessResult::success(ProcessedCommand processed_co
 
 CommandProcessResult CommandProcessResult::failure(std::string error_message) {
     return CommandProcessResult(Outcome{
-        std::in_place_type<CommandProcessError>, CommandProcessError{std::move(error_message)}});
+        std::in_place_type<ProcessError>, ProcessError{std::move(error_message)}});
 }
 
 bool CommandProcessResult::is_success() const {
@@ -27,7 +27,7 @@ const ProcessedCommand& CommandProcessResult::processed_command() const {
 }
 
 const std::string& CommandProcessResult::error_message() const {
-    return std::get<CommandProcessError>(outcome_).message;
+    return std::get<ProcessError>(outcome_).message;
 }
 
 CommandProcessResult::CommandProcessResult(Outcome outcome)
