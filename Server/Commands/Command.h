@@ -5,6 +5,7 @@
 #include "Key.h"
 
 #include <chrono>
+#include <optional>
 #include <variant>
 
 struct GetCommand { Key key; };
@@ -20,9 +21,21 @@ struct ExpireCommand {
 struct TtlCommand { Key key; };
 struct PttlCommand { Key key; };
 struct PersistCommand { Key key; };
+struct IncrCommand { Key key; };
+struct DecrCommand { Key key; };
+struct IncrByCommand { Key key; Bytes amount; };
+struct DecrByCommand { Key key; Bytes amount; };
+// Internal AOF command: one complete value and its absolute expiration.
+struct SetStateCommand {
+    Key key;
+    Bytes value;
+    std::optional<ExpireCommand::TimePoint> expires_at;
+};
 
 using Command = std::variant<GetCommand, SetCommand, DeleteCommand, ExistsCommand,
-                             ExpireCommand, TtlCommand, PttlCommand, PersistCommand>;
+                             ExpireCommand, TtlCommand, PttlCommand, PersistCommand,
+                             IncrCommand, DecrCommand, IncrByCommand, DecrByCommand,
+                             SetStateCommand>;
 
 bool is_mutating(const Command& command);
 CommandArguments command_arguments(const Command& command);

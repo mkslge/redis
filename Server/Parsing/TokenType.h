@@ -9,6 +9,7 @@
 
 enum class TokenType {
    SET, GET, DEL, EXISTS, EXPIRE, TTL, PTTL, PERSIST,
+   INCR, DECR, INCRBY, DECRBY,
    INT, DOUBLE, CHAR, STRING
 };
 
@@ -30,6 +31,14 @@ inline std::string token_type_str(const TokenType& type) {
          return "PTTL";
       case TokenType::PERSIST:
          return "PERSIST";
+      case TokenType::INCR:
+         return "INCR";
+      case TokenType::DECR:
+         return "DECR";
+      case TokenType::INCRBY:
+         return "INCRBY";
+      case TokenType::DECRBY:
+         return "DECRBY";
       case TokenType::INT:
          return "INT";
       case TokenType::DOUBLE:

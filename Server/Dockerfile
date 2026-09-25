@@ -12,11 +12,6 @@ COPY . .
 
 RUN cmake -S . -B build && \
     cmake --build build 
-    
-
-
-
-
 
 FROM ubuntu:24.04
 
@@ -28,4 +23,3 @@ RUN mkdir -p /app/data
 EXPOSE 6380
 
 CMD ["./redisserver"]
-dihowch

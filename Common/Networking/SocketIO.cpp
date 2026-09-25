@@ -2,6 +2,7 @@
 
 #include <cerrno>
 #include <sys/socket.h>
+#include <system_error>
 
 namespace {
 int send_flags() {
@@ -11,6 +12,12 @@ int send_flags() {
     return 0;
 #endif
 }
+}
+
+std::string socket_io::error_message(const std::string_view operation, const int error_number) {
+    const std::error_code error(error_number, std::generic_category());
+    return std::string(operation) + ": " + error.message() +
+           " (errno " + std::to_string(error_number) + ")";
 }
 
 bool socket_io::configure_for_writes(const int socket_fd) {
@@ -37,10 +44,12 @@ bool socket_io::send_all(const int socket_fd, const std::string_view data) {
             continue;
         }
 
-        if (result < 0 && errno == EINTR) {
+        const int error_number = result < 0 ? errno : EIO;
+        if (error_number == EINTR) {
             continue;
         }
 
+        errno = error_number;
         return false;
     }
 

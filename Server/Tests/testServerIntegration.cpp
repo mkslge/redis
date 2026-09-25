@@ -9,9 +9,12 @@
 
 #include <gtest/gtest.h>
 
+#include <cerrno>
 #include <chrono>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <initializer_list>
 #include <string>
 #include <thread>
 
@@ -114,6 +117,17 @@ public:
         return response;
     }
 
+    bool read_until_closed() const {
+        char buffer[4096];
+        while (true) {
+            const ssize_t bytes_read = recv(socket_fd_, buffer, sizeof(buffer), 0);
+            if (bytes_read > 0) continue;
+            if (bytes_read == 0) return true;
+            if (errno == EINTR) continue;
+            return errno == ECONNRESET;
+        }
+    }
+
     void send_command_and_reset(const std::string& command) {
         std::string framed_command = command;
         if (framed_command.empty() || framed_command.back() != '\n') {
@@ -133,6 +147,15 @@ public:
         socket_fd_ = -1;
     }
 
+    void reset_connection() {
+        const linger reset_on_close{.l_onoff = 1, .l_linger = 0};
+        if (setsockopt(socket_fd_, SOL_SOCKET, SO_LINGER, &reset_on_close, sizeof(reset_on_close)) != 0) {
+            throw std::runtime_error("Failed to configure reset-on-close");
+        }
+        close(socket_fd_);
+        socket_fd_ = -1;
+    }
+
 private:
     int socket_fd_{-1};
     std::string pending_response_;
@@ -148,9 +171,7 @@ public:
           command_processor_(executor_),
           logger_(log_path, AOFFsyncPolicy::EVERY_SECOND),
           server_(logger_, command_processor_, storage_, 0, expiration_sweep_interval),
-          thread_([this] { server_.run(); }) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
+          thread_([this] { server_.run(); }) {}
 
     ~ServerHarness() {
         shutdown();
@@ -167,13 +188,19 @@ public:
         return storage_;
     }
 
+    void request_stop() {
+        server_.stop();
+    }
+
+    void join() {
+        if (thread_.joinable()) thread_.join();
+        stopped_ = true;
+    }
+
     void shutdown() {
         if (!stopped_) {
-            server_.stop();
-            if (thread_.joinable()) {
-                thread_.join();
-            }
-            stopped_ = true;
+            request_stop();
+            join();
         }
     }
 
@@ -186,6 +213,23 @@ private:
     std::thread thread_;
     bool stopped_{false};
 };
+
+void expect_errno_details(const std::string& message,
+                          const std::string& operation,
+                          const std::initializer_list<int> possible_errors) {
+    EXPECT_NE(message.find(operation), std::string::npos) << message;
+
+    for (const int error_number : possible_errors) {
+        const std::string description = std::strerror(error_number);
+        const std::string number = "errno " + std::to_string(error_number);
+        if (message.find(description) != std::string::npos &&
+            message.find(number) != std::string::npos) {
+            return;
+        }
+    }
+
+    ADD_FAILURE() << "Missing matching errno description and number in: " << message;
+}
 
 } // namespace
 
@@ -222,6 +266,7 @@ TEST(ServerIntegrationTest, FailedResponseSendCleansUpClientSession) {
     TempLogFile log_file("failed-response-cleanup");
     ServerHarness server(log_file.path_string());
     server.storage().set("large", Value(std::string(16 * 1024 * 1024, 'x')));
+    testing::internal::CaptureStderr();
 
     {
         TestConnection disconnected_client(server.port());
@@ -240,6 +285,26 @@ TEST(ServerIntegrationTest, FailedResponseSendCleansUpClientSession) {
 
     EXPECT_TRUE(reconnected);
     server.shutdown();
+    const std::string error_output = testing::internal::GetCapturedStderr();
+    expect_errno_details(error_output, "send", {EPIPE, ECONNRESET});
+}
+
+TEST(ServerIntegrationTest, FailedReceiveIncludesErrnoDetails) {
+    TempLogFile log_file("failed-receive-details");
+    ServerHarness server(log_file.path_string());
+    testing::internal::CaptureStderr();
+
+    {
+        TestConnection connection(server.port());
+        connection.send_bytes("partial command");
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        connection.reset_connection();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    server.shutdown();
+
+    const std::string error_output = testing::internal::GetCapturedStderr();
+    expect_errno_details(error_output, "receive", {ECONNRESET});
 }
 
 TEST(ServerIntegrationTest, ShutdownWakesEventLoopWithIdleClient) {
@@ -248,6 +313,53 @@ TEST(ServerIntegrationTest, ShutdownWakesEventLoopWithIdleClient) {
     TestConnection idle_connection(server.port());
 
     server.shutdown();
+}
+
+TEST(ServerIntegrationTest, RapidReconnectDoesNotReuseStaleSessionState) {
+    TempLogFile log_file("descriptor-reuse");
+    ServerHarness server(log_file.path_string());
+
+    for (int attempt = 0; attempt < 50; ++attempt) {
+        {
+            TestConnection incomplete(server.port());
+            incomplete.send_bytes("SET \"abandoned\"");
+        }
+
+        TestConnection next(server.port());
+        EXPECT_EQ(next.send_command("EXISTS \"abandoned\""), "EXISTS exists=false");
+    }
+}
+
+TEST(ServerIntegrationTest, ShutdownClosesClientsInDifferentSessionStates) {
+    TempLogFile log_file("mixed-session-shutdown");
+    ServerHarness server(log_file.path_string());
+    TestConnection idle(server.port());
+    TestConnection partial(server.port());
+    TestConnection unread_response(server.port());
+
+    partial.send_bytes("SET \"partial\"");
+    unread_response.send_bytes("EXISTS \"missing\"\n");
+
+    server.shutdown();
+
+    EXPECT_TRUE(idle.read_until_closed());
+    EXPECT_TRUE(partial.read_until_closed());
+    EXPECT_TRUE(unread_response.read_until_closed());
+}
+
+TEST(ServerIntegrationTest, ConcurrentStopRequestsAreIdempotent) {
+    TempLogFile log_file("concurrent-stop");
+    ServerHarness server(log_file.path_string());
+    TestConnection idle(server.port());
+    std::vector<std::thread> stoppers;
+
+    for (int index = 0; index < 8; ++index) {
+        stoppers.emplace_back([&server] { server.request_stop(); });
+    }
+    for (auto& stopper : stoppers) stopper.join();
+    server.join();
+
+    EXPECT_TRUE(idle.read_until_closed());
 }
 
 TEST(ServerIntegrationTest, PartialCommandFromOneClientDoesNotBlockAnother) {
@@ -297,4 +409,48 @@ TEST(ServerIntegrationTest, EventLoopPrunesExpiredKeysOnTimer) {
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
     EXPECT_FALSE(server.storage().possibly_expired().contains("short-lived"));
+}
+
+TEST(ServerIntegrationTest, NumericCommandsReturnResultsAndPersistBytes) {
+    TempLogFile log_file("numeric-command-responses");
+    ServerHarness server(log_file.path_string());
+    TestConnection connection(server.port());
+
+    EXPECT_EQ(connection.send_command("INCR \"counter\""), "INCR value=1");
+    EXPECT_EQ(connection.send_command("INCRBY \"counter\" 9"), "INCRBY value=10");
+    EXPECT_EQ(connection.send_command("DECR \"counter\""), "DECR value=9");
+    EXPECT_EQ(connection.send_command("DECRBY \"counter\" 4"), "DECRBY value=5");
+    EXPECT_EQ(connection.send_command("GET \"counter\""), "GET value=\"5\"");
+}
+
+TEST(ServerIntegrationTest, NumericRuntimeErrorDoesNotModifyValueOrCloseConnection) {
+    TempLogFile log_file("numeric-command-error");
+    ServerHarness server(log_file.path_string());
+    TestConnection connection(server.port());
+
+    EXPECT_EQ(connection.send_command("SET \"counter\" \"not-an-integer\""),
+              "SET value=\"not-an-integer\"");
+    EXPECT_EQ(connection.send_command("INCR \"counter\""),
+              "ERROR value is not an integer or out of range");
+    EXPECT_EQ(connection.send_command("GET \"counter\""),
+              "GET value=\"not-an-integer\"");
+}
+
+TEST(ServerIntegrationTest, BindFailureIncludesErrnoDetails) {
+    TempLogFile log_file("bind-error-details");
+    StorageEngine storage;
+    Executor executor(storage);
+    CommandProcessor command_processor(executor);
+    AOFLogger logger(log_file.path_string(), AOFFsyncPolicy::EVERY_SECOND);
+    Server first_server(logger, command_processor, storage, 0);
+
+    std::string message;
+    try {
+        Server conflicting_server(logger, command_processor, storage, first_server.port());
+    } catch (const std::exception& error) {
+        message = error.what();
+    }
+
+    ASSERT_FALSE(message.empty()) << "Expected the second server to fail to bind";
+    expect_errno_details(message, "bind", {EADDRINUSE});
 }

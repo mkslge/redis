@@ -9,6 +9,7 @@
 #include <chrono>
 #include <cstdint>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 TEST(ParserTest, ParsesGetWithPrimitiveKey) {
@@ -81,6 +82,16 @@ TEST(ParserTest, RejectsNonIntegerExpire) {
     EXPECT_FALSE(Parser::parse(tokens).has_value());
 }
 
+TEST(ParserTest, RejectsExpireOutsideClockRange) {
+    for (const std::string command_line : {
+             "EXPIRE \"key\" 9223372036854775807",
+             "EXPIRE \"key\" -9223372036854775808"}) {
+        const auto tokens = Tokenizer::tokenize(command_line);
+        ASSERT_TRUE(tokens.has_value());
+        EXPECT_FALSE(Parser::parse(*tokens).has_value());
+    }
+}
+
 TEST(ParserTest, TtlPttlAndPersistHaveDistinctAlternatives) {
     auto ttl_tokens = Tokenizer::tokenize("TTL \"key\"");
     auto pttl_tokens = Tokenizer::tokenize("PTTL \"key\"");
@@ -101,4 +112,62 @@ TEST(ParserTest, ParseArgumentsSupportsPersistForAofReplay) {
 TEST(ParserTest, RejectsMalformedCommand) {
     std::vector<Token> tokens{Token(TokenType::EXPIRE), Token(TokenType::STRING, "session-key")};
     EXPECT_FALSE(Parser::parse(tokens).has_value());
+}
+
+TEST(ParserTest, NumericCommandsHaveDistinctCommandAlternatives) {
+    std::unordered_set<std::size_t> alternatives;
+    for (const std::string command_line : {
+             "INCR \"counter\"", "DECR \"counter\"",
+             "INCRBY \"counter\" 5", "DECRBY \"counter\" 5"}) {
+        const auto tokens = Tokenizer::tokenize(command_line);
+        ASSERT_TRUE(tokens.has_value()) << command_line;
+        const auto command = Parser::parse(*tokens);
+        ASSERT_TRUE(command.has_value()) << command_line;
+        alternatives.insert(command->index());
+    }
+
+    EXPECT_EQ(alternatives.size(), 4U);
+}
+
+TEST(ParserTest, NumericCommandsRequireExactArity) {
+    for (const std::string command_line : {
+             "INCR", "INCR \"counter\" \"extra\"",
+             "DECR", "DECR \"counter\" \"extra\"",
+             "INCRBY \"counter\"", "INCRBY \"counter\" 1 \"extra\"",
+             "DECRBY \"counter\"", "DECRBY \"counter\" 1 \"extra\""}) {
+        const auto tokens = Tokenizer::tokenize(command_line);
+        ASSERT_TRUE(tokens.has_value()) << command_line;
+        EXPECT_FALSE(Parser::parse(*tokens).has_value()) << command_line;
+    }
+}
+
+TEST(ParserTest, ByCommandsPreserveOperandBytesUntilExecution) {
+    for (const auto& [command_line, expected_amount] :
+         std::vector<std::pair<std::string, Bytes>>{
+             {"INCRBY \"counter\" 001", "001"},
+             {"DECRBY \"counter\" \"-0\"", "-0"},
+             {"INCRBY \"counter\" \"5\"", "5"}}) {
+        const auto tokens = Tokenizer::tokenize(command_line);
+        ASSERT_TRUE(tokens.has_value()) << command_line;
+        const auto command = Parser::parse(*tokens);
+        ASSERT_TRUE(command.has_value()) << command_line;
+        const CommandArguments arguments = command_arguments(*command);
+        ASSERT_EQ(arguments.size(), 3U);
+        EXPECT_EQ(arguments[1], "counter");
+        EXPECT_EQ(arguments[2], expected_amount);
+    }
+}
+
+TEST(ParserTest, ParseArgumentsSupportsNumericCommandsAndBinaryOperands) {
+    const Bytes binary_amount{"1\0", 2};
+    for (const CommandArguments arguments : {
+             CommandArguments{"INCR", "counter"},
+             CommandArguments{"DECR", "counter"},
+             CommandArguments{"INCRBY", "counter", binary_amount},
+             CommandArguments{"DECRBY", "counter", "-5"}}) {
+        const auto command = Parser::parse_arguments(arguments);
+        ASSERT_TRUE(command.has_value());
+        EXPECT_TRUE(is_mutating(*command));
+        EXPECT_EQ(command_arguments(*command), arguments);
+    }
 }

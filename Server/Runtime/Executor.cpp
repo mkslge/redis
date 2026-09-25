@@ -30,8 +30,12 @@ ExecutionResult Executor::execute_command(const ExistsCommand& command) {
 }
 
 ExecutionResult Executor::execute_command(const ExpireCommand& command) {
-    const bool applied = storage_.expire_at(command.key, command.expires_at);
-    return {.success = true, .did_mutate = applied, .payload = applied};
+    const auto result = storage_.expire_at_state(command.key, command.expires_at);
+    return {.success = true, .did_mutate = result.applied, .payload = result.applied,
+            .aof_state = result.value
+                ? std::optional<SetStateCommand>{SetStateCommand{
+                    command.key, result.value->bytes(), command.expires_at}}
+                : std::nullopt};
 }
 
 ExecutionResult Executor::execute_command(const TtlCommand& command) {
@@ -45,6 +49,51 @@ ExecutionResult Executor::execute_command(const PttlCommand& command) {
 }
 
 ExecutionResult Executor::execute_command(const PersistCommand& command) {
-    const bool removed = storage_.persist(command.key);
-    return {.success = true, .did_mutate = removed, .payload = removed};
+    const auto value = storage_.persist_state(command.key);
+    const bool removed = value.has_value();
+    return {.success = true, .did_mutate = removed, .payload = removed,
+            .aof_state = removed
+                ? std::optional<SetStateCommand>{SetStateCommand{command.key, value->bytes(), std::nullopt}}
+                : std::nullopt};
+}
+
+ExecutionResult Executor::adjust_integer(const Key& key, const std::int64_t amount,
+                                         const bool subtract) {
+    return integer_result(key, storage_.adjust_integer(key, amount, subtract));
+}
+
+ExecutionResult Executor::adjust_integer(const Key& key, const Bytes& amount,
+                                         const bool subtract) {
+    return integer_result(key, storage_.adjust_integer(key, amount, subtract));
+}
+
+ExecutionResult Executor::integer_result(const Key& key,
+                                         const StorageEngine::IntegerResult& result) {
+    if (result.error == StorageEngine::IntegerError::INVALID_INTEGER)
+        return {.success = false, .message = "value is not an integer or out of range"};
+    if (result.error == StorageEngine::IntegerError::WOULD_OVERFLOW)
+        return {.success = false, .message = "increment or decrement would overflow"};
+    return {.success = true, .did_mutate = true, .payload = result.value,
+            .aof_state = SetStateCommand{key, std::to_string(result.value), result.expires_at}};
+}
+
+ExecutionResult Executor::execute_command(const IncrCommand& command) {
+    return adjust_integer(command.key, 1, false);
+}
+
+ExecutionResult Executor::execute_command(const DecrCommand& command) {
+    return adjust_integer(command.key, 1, true);
+}
+
+ExecutionResult Executor::execute_command(const IncrByCommand& command) {
+    return adjust_integer(command.key, command.amount, false);
+}
+
+ExecutionResult Executor::execute_command(const DecrByCommand& command) {
+    return adjust_integer(command.key, command.amount, true);
+}
+
+ExecutionResult Executor::execute_command(const SetStateCommand& command) {
+    storage_.restore_state(command.key, Value(command.value), command.expires_at);
+    return {.success = true, .did_mutate = true};
 }

@@ -90,15 +90,26 @@ void LogCompactor::compact() const {
         std::visit([&](const auto& command) {
             using Type = std::decay_t<decltype(command)>;
             const Bytes& key = command.key;
-            if constexpr (std::is_same_v<Type, SetCommand> || std::is_same_v<Type, DeleteCommand>) {
+            if constexpr (std::is_same_v<Type, SetCommand> ||
+                          std::is_same_v<Type, SetStateCommand> ||
+                          std::is_same_v<Type, DeleteCommand>) {
                 for (auto* map : {&latest_set, &latest_expire, &latest_delete}) {
                     if (const auto found = map->find(key); found != map->end()) {
                         records[found->second].keep = false;
                         map->erase(found);
                     }
                 }
-                if constexpr (std::is_same_v<Type, SetCommand>) latest_set[key] = index;
+                if constexpr (std::is_same_v<Type, SetCommand> ||
+                              std::is_same_v<Type, SetStateCommand>) latest_set[key] = index;
                 else latest_delete[key] = index;
+            } else if constexpr (std::is_same_v<Type, IncrCommand> ||
+                                 std::is_same_v<Type, DecrCommand> ||
+                                 std::is_same_v<Type, IncrByCommand> ||
+                                 std::is_same_v<Type, DecrByCommand>) {
+                // Raw arithmetic records may depend on the preceding value.
+                latest_set.erase(key);
+                latest_expire.erase(key);
+                latest_delete.erase(key);
             } else if constexpr (std::is_same_v<Type, ExpireCommand> ||
                                  std::is_same_v<Type, PersistCommand>) {
                 if (const auto found = latest_expire.find(key); found != latest_expire.end()) {

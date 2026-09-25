@@ -96,6 +96,43 @@ TEST(TokenizerTest, TokenizesExpirationInspectionCommands) {
         Token(TokenType::TTL), Token(TokenType::PTTL), Token(TokenType::PERSIST)}));
 }
 
+TEST(TokenizerTest, TokenizesNumericCommandKeywordsCaseInsensitively) {
+    auto result = Tokenizer::tokenize("INCR decr InCrBy DECRBY");
+
+    ASSERT_TRUE(result.has_value());
+    ASSERT_EQ(result->size(), 4U);
+    EXPECT_EQ(token_type_str(result->at(0).get_type()), "INCR");
+    EXPECT_EQ(token_type_str(result->at(1).get_type()), "DECR");
+    EXPECT_EQ(token_type_str(result->at(2).get_type()), "INCRBY");
+    EXPECT_EQ(token_type_str(result->at(3).get_type()), "DECRBY");
+}
+
+TEST(TokenizerTest, DistinguishesNumericCommandPrefixes) {
+    auto incr = Tokenizer::tokenize("INCR");
+    auto incrby = Tokenizer::tokenize("INCRBY");
+    auto decr = Tokenizer::tokenize("DECR");
+    auto decrby = Tokenizer::tokenize("DECRBY");
+
+    ASSERT_TRUE(incr && incrby && decr && decrby);
+    EXPECT_EQ(token_type_str(incr->front().get_type()), "INCR");
+    EXPECT_EQ(token_type_str(incrby->front().get_type()), "INCRBY");
+    EXPECT_EQ(token_type_str(decr->front().get_type()), "DECR");
+    EXPECT_EQ(token_type_str(decrby->front().get_type()), "DECRBY");
+}
+
+TEST(TokenizerTest, TokenizesSigned64BitIntegerBounds) {
+    auto result = Tokenizer::tokenize("9223372036854775807 -9223372036854775808");
+
+    ASSERT_TRUE(result.has_value());
+    ASSERT_EQ(result->size(), 2U);
+    EXPECT_EQ(result->at(0).get_type(), TokenType::INT);
+    EXPECT_EQ(result->at(1).get_type(), TokenType::INT);
+    ASSERT_TRUE(result->at(0).source_text().has_value());
+    ASSERT_TRUE(result->at(1).source_text().has_value());
+    EXPECT_EQ(*result->at(0).source_text(), "9223372036854775807");
+    EXPECT_EQ(*result->at(1).source_text(), "-9223372036854775808");
+}
+
 TEST(TokenizerTest, BasicInt) {
     std::string input = "123";
     auto result = Tokenizer::tokenize(input);

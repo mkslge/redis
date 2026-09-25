@@ -44,6 +44,16 @@ std::string ResponseFormatter::format_result(const Command& command, const Execu
             return "PTTL ttl_ms=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
         else if constexpr (std::is_same_v<Type, PersistCommand>)
             return "PERSIST removed=" + std::string(std::get<bool>(result.payload) ? "true" : "false") + "\n";
+        else if constexpr (std::is_same_v<Type, IncrCommand>)
+            return "INCR value=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
+        else if constexpr (std::is_same_v<Type, DecrCommand>)
+            return "DECR value=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
+        else if constexpr (std::is_same_v<Type, IncrByCommand>)
+            return "INCRBY value=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
+        else if constexpr (std::is_same_v<Type, DecrByCommand>)
+            return "DECRBY value=" + std::to_string(std::get<std::int64_t>(result.payload)) + "\n";
+        else if constexpr (std::is_same_v<Type, SetStateCommand>)
+            return "SETSTATE\n";
         else static_assert(always_false<Type>, "Response formatter missing command alternative");
     }, command);
 }
