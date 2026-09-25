@@ -32,6 +32,9 @@ target_link_libraries(testServerIntegration PRIVATE SERVER_NETWORK GTest::gtest_
 add_executable(testRespCommandCodec testRespCommandCodec.cpp)
 target_link_libraries(testRespCommandCodec PRIVATE SERVER_PROTOCOL GTest::gtest_main)
 
+add_executable(testResponseFormatter testResponseFormatter.cpp)
+target_link_libraries(testResponseFormatter PRIVATE SERVER_PROTOCOL GTest::gtest_main)
+
 add_executable(testSocketIO testSocketIO.cpp)
 target_link_libraries(testSocketIO PRIVATE COMMON_SOCKET_IO GTest::gtest_main)
 
@@ -45,4 +48,5 @@ gtest_discover_tests(testLogging)
 gtest_discover_tests(testLogCompactor)
 gtest_discover_tests(testServerIntegration PROPERTIES TIMEOUT 10)
 gtest_discover_tests(testRespCommandCodec)
+gtest_discover_tests(testResponseFormatter)
 gtest_discover_tests(testSocketIO)

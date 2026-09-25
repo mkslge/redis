@@ -11,6 +11,8 @@ public:
     ExecutionResult execute(const Command& command);
 
 private:
+    // One overload per command; execute() dispatches here with std::visit. These are member
+    // overloads rather than an Overloaded visitor because every case needs storage_.
     ExecutionResult execute_command(const GetCommand& command);
     ExecutionResult execute_command(const SetCommand& command);
     ExecutionResult execute_command(const DeleteCommand& command);

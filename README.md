@@ -120,7 +120,7 @@ PTTL ttl_ms=...
 PERSIST removed=true
 INCR value=1
 INCRBY value=6
-DELETE deleted=true
+DEL deleted=true
 BYE
 ERROR unknown command
 ERROR wrong number of arguments for 'get' command
@@ -313,7 +313,7 @@ PTTL ttl_ms=...
 PERSIST removed=true
 
 > DEL "language"
-DELETE deleted=true
+DEL deleted=true
 
 > QUIT
 BYE

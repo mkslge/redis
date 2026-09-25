@@ -2,6 +2,7 @@
 #include "Persistence/LogCompactor.h"
 
 #include "Commands/Parser.h"
+#include "Core/Overloaded.h"
 #include "Protocol/RespCommandCodec.h"
 
 #include <cerrno>
@@ -10,15 +11,11 @@
 #include <fstream>
 #include <fcntl.h>
 #include <stdexcept>
-#include <type_traits>
 #include <unordered_map>
 #include <unistd.h>
 #include <vector>
 
 namespace {
-template<class>
-inline constexpr bool always_false = false;
-
 struct Record { CommandArguments arguments; Command command; bool keep{true}; };
 
 std::vector<Record> read_records(const std::string& path) {
@@ -85,43 +82,44 @@ void LogCompactor::compact() const {
     if (!std::filesystem::exists(file_path_)) return;
 
     std::vector<Record> records = read_records(file_path_);
+    // Index of the newest surviving record of each kind, per key.
     std::unordered_map<Bytes, std::size_t> latest_set, latest_expire, latest_delete;
+    const auto drop_earlier_records = [&](const Bytes& key) {
+        for (auto* latest : {&latest_set, &latest_expire, &latest_delete}) {
+            if (const auto found = latest->find(key); found != latest->end()) {
+                records[found->second].keep = false;
+                latest->erase(found);
+            }
+        }
+    };
+
     for (std::size_t index = 0; index < records.size(); ++index) {
-        std::visit([&](const auto& command) {
-            using Type = std::decay_t<decltype(command)>;
-            const Bytes& key = command.key;
-            if constexpr (std::is_same_v<Type, SetCommand> ||
-                          std::is_same_v<Type, SetStateCommand> ||
-                          std::is_same_v<Type, DeleteCommand>) {
-                for (auto* map : {&latest_set, &latest_expire, &latest_delete}) {
-                    if (const auto found = map->find(key); found != map->end()) {
-                        records[found->second].keep = false;
-                        map->erase(found);
-                    }
-                }
-                if constexpr (std::is_same_v<Type, SetCommand> ||
-                              std::is_same_v<Type, SetStateCommand>) latest_set[key] = index;
-                else latest_delete[key] = index;
-            } else if constexpr (std::is_same_v<Type, IncrCommand> ||
-                                 std::is_same_v<Type, DecrCommand> ||
-                                 std::is_same_v<Type, IncrByCommand> ||
-                                 std::is_same_v<Type, DecrByCommand>) {
-                // Raw arithmetic records may depend on the preceding value.
-                latest_set.erase(key);
-                latest_expire.erase(key);
-                latest_delete.erase(key);
-            } else if constexpr (std::is_same_v<Type, ExpireCommand> ||
-                                 std::is_same_v<Type, PersistCommand>) {
-                if (const auto found = latest_expire.find(key); found != latest_expire.end()) {
+        std::visit(Overloaded{
+            // A full value or a delete makes every earlier record for the key irrelevant.
+            [&](const OneOf<SetCommand, SetStateCommand> auto& command) {
+                drop_earlier_records(command.key);
+                latest_set[command.key] = index;
+            },
+            [&](const DeleteCommand& command) {
+                drop_earlier_records(command.key);
+                latest_delete[command.key] = index;
+            },
+            // Raw arithmetic records may depend on the preceding value, so keep everything before them.
+            [&](const OneOf<IncrCommand, DecrCommand, IncrByCommand, DecrByCommand> auto& command) {
+                latest_set.erase(command.key);
+                latest_expire.erase(command.key);
+                latest_delete.erase(command.key);
+            },
+            // Only the newest expiration change for a key matters.
+            [&](const OneOf<ExpireCommand, PersistCommand> auto& command) {
+                if (const auto found = latest_expire.find(command.key); found != latest_expire.end()) {
                     records[found->second].keep = false;
                 }
-                latest_expire[key] = index;
-            } else if constexpr (std::is_same_v<Type, GetCommand> ||
-                                 std::is_same_v<Type, ExistsCommand> ||
-                                 std::is_same_v<Type, TtlCommand> ||
-                                 std::is_same_v<Type, PttlCommand>) {
+                latest_expire[command.key] = index;
+            },
+            [](const OneOf<GetCommand, ExistsCommand, TtlCommand, PttlCommand> auto&) {
                 throw std::logic_error("Non-mutating command reached AOF compaction");
-            } else static_assert(always_false<Type>, "Compactor missing command alternative");
+            }
         }, records[index].command);
     }
     Bytes output;

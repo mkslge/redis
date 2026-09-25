@@ -19,23 +19,32 @@ struct KeyCommandSpec {
     Command (*build)(const CommandArguments& arguments);
 };
 
+template<class T>
+KeyCommandSpec key_only() {
+    return {T::name, 2, [](const CommandArguments& a) -> Command { return T{a[1]}; }};
+}
+
+// The amount stays as bytes; StorageEngine validates it at execution time.
+template<class T>
+KeyCommandSpec key_and_amount() {
+    return {T::name, 3, [](const CommandArguments& a) -> Command { return T{a[1], a[2]}; }};
+}
+
 // Commands whose arguments are all byte strings, shared by client requests and AOF replay.
 const KeyCommandSpec kKeyCommands[] = {
-    {"GET", 2, [](const CommandArguments& a) -> Command { return GetCommand{a[1]}; }},
-    {"SET", 3, [](const CommandArguments& a) -> Command { return SetCommand{a[1], a[2]}; }},
-    {"DEL", 2, [](const CommandArguments& a) -> Command { return DeleteCommand{a[1]}; }},
-    {"EXISTS", 2, [](const CommandArguments& a) -> Command { return ExistsCommand{a[1]}; }},
-    {"TTL", 2, [](const CommandArguments& a) -> Command { return TtlCommand{a[1]}; }},
-    {"PTTL", 2, [](const CommandArguments& a) -> Command { return PttlCommand{a[1]}; }},
-    {"PERSIST", 2, [](const CommandArguments& a) -> Command { return PersistCommand{a[1]}; }},
-    {"INCR", 2, [](const CommandArguments& a) -> Command { return IncrCommand{a[1]}; }},
-    {"DECR", 2, [](const CommandArguments& a) -> Command { return DecrCommand{a[1]}; }},
-    // The amount stays as bytes; StorageEngine validates it at execution time.
-    {"INCRBY", 3, [](const CommandArguments& a) -> Command { return IncrByCommand{a[1], a[2]}; }},
-    {"DECRBY", 3, [](const CommandArguments& a) -> Command { return DecrByCommand{a[1], a[2]}; }},
+    key_only<GetCommand>(),
+    {SetCommand::name, 3, [](const CommandArguments& a) -> Command { return SetCommand{a[1], a[2]}; }},
+    key_only<DeleteCommand>(),
+    key_only<ExistsCommand>(),
+    key_only<TtlCommand>(),
+    key_only<PttlCommand>(),
+    key_only<PersistCommand>(),
+    key_only<IncrCommand>(),
+    key_only<DecrCommand>(),
+    key_and_amount<IncrByCommand>(),
+    key_and_amount<DecrByCommand>(),
 };
 
-constexpr std::string_view kExpireName = "EXPIRE";
 constexpr std::size_t kExpireArgumentCount = 3;
 
 std::string uppercase_ascii(const Bytes& bytes) {
@@ -67,7 +76,7 @@ ParseError wrong_argument_count(const std::string_view name) {
 }
 
 ParseResult parse_expire(const CommandArguments& arguments) {
-    if (arguments.size() != kExpireArgumentCount) return wrong_argument_count(kExpireName);
+    if (arguments.size() != kExpireArgumentCount) return wrong_argument_count(ExpireCommand::name);
     const auto seconds = parse_integer(arguments[kSecondArgumentIndex]);
     if (!seconds) return ParseError{"value is not an integer or out of range"};
 
@@ -108,7 +117,7 @@ std::optional<ExpireCommand::TimePoint> parse_millisecond_deadline(const Bytes& 
 ParseResult Parser::parse_request(const CommandArguments& arguments) {
     if (arguments.empty()) return ParseError{"empty command"};
     const std::string command = uppercase_ascii(arguments[kCommandIndex]);
-    if (command == kExpireName) return parse_expire(arguments);
+    if (command == ExpireCommand::name) return parse_expire(arguments);
 
     const KeyCommandSpec* spec = find_key_command(command);
     if (!spec) return ParseError{"unknown command"};
@@ -123,12 +132,12 @@ std::optional<Command> Parser::parse_arguments(const CommandArguments& arguments
         if (arguments.size() != spec->argument_count) return std::nullopt;
         return spec->build(arguments);
     }
-    if (command == "PEXPIREAT" && arguments.size() == 3) {
+    if (command == ExpireCommand::log_name && arguments.size() == 3) {
         auto deadline = parse_millisecond_deadline(arguments[2]);
         if (!deadline) return std::nullopt;
         return ExpireCommand{arguments[1], *deadline};
     }
-    if (command == "SETSTATE" && arguments.size() == 4) {
+    if (command == SetStateCommand::name && arguments.size() == 4) {
         if (arguments[3] == "PERSIST") return SetStateCommand{arguments[1], arguments[2], std::nullopt};
         auto deadline = parse_millisecond_deadline(arguments[3]);
         if (!deadline) return std::nullopt;
