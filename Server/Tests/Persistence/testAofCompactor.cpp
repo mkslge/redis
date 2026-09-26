@@ -86,18 +86,24 @@ TEST(AofCompactorTest, KeepsLatestExpireForSameKey) {
         RespCommandCodec::encode({"PEXPIREAT", "session", "4102444860000"}));
 }
 
-TEST(AofCompactorTest, PersistReplacesPriorExpiration) {
+TEST(AofCompactorTest, PersistStateReplacesPriorExpiration) {
     TempLogFile log_file(
         "persist-replaces-expire",
         RespCommandCodec::encode({"SET", "session", "token"}) +
         RespCommandCodec::encode({"PEXPIREAT", "session", "0"}) +
-        RespCommandCodec::encode({"PERSIST", "session"}));
+        RespCommandCodec::encode({"SETSTATE", "session", "token", "PERSIST"}));
 
     compact_log(log_file.path_string());
 
-    EXPECT_EQ(log_file.read_all(),
-              RespCommandCodec::encode({"SET", "session", "token"}) +
-              RespCommandCodec::encode({"PERSIST", "session"}));
+    EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SETSTATE", "session", "token", "PERSIST"}));
+}
+
+TEST(AofCompactorTest, RejectsRecordsTheServerNeverWrites) {
+    TempLogFile log_file(
+        "unsupported-record",
+        RespCommandCodec::encode({"SET", "counter", "1"}) + RespCommandCodec::encode({"INCR", "counter"}));
+
+    EXPECT_THROW(compact_log(log_file.path_string()), std::runtime_error);
 }
 
 TEST(AofCompactorTest, DeleteRemovesPriorMutationsForKey) {

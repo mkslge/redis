@@ -18,7 +18,7 @@ class Parser {
 public:
     // Client commands: relative EXPIRE is accepted; internal AOF commands are not.
     static ParseResult parse_request(const CommandArguments& arguments);
-    // AOF records: absolute PEXPIREAT and SETSTATE are accepted; relative EXPIRE is not.
+    // AOF records: exactly SET, DEL, PEXPIREAT, and SETSTATE, the records the server writes.
     static std::optional<Command> parse_arguments(const CommandArguments& arguments);
 };
 

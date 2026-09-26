@@ -213,10 +213,11 @@ TEST(AofPersistenceTest, AofReplayerDoesNotRenewAnExpirationThatPassedWhileStopp
 TEST(AofPersistenceTest, AofReplayerReplaysPersistAfterExpiration) {
     TempLogFile log_file("persist-replay");
     {
+        // What the server writes for SET, then EXPIRE, then PERSIST.
         AofWriter aof_writer(log_file.path_string());
         aof_writer.append(RespCommandCodec::encode({"SET", "session", "token"}));
-        aof_writer.append(RespCommandCodec::encode({"PEXPIREAT", "session", "4102444800000"}));
-        aof_writer.append(RespCommandCodec::encode({"PERSIST", "session"}));
+        aof_writer.append(RespCommandCodec::encode({"SETSTATE", "session", "token", "4102444800000"}));
+        aof_writer.append(RespCommandCodec::encode({"SETSTATE", "session", "token", "PERSIST"}));
     }
 
     StorageEngine storage;
@@ -345,12 +346,16 @@ TEST(AofPersistenceTest, BinaryKeyAndValueSurviveReplay) {
     EXPECT_EQ(storage.get(key)->bytes(), value);
 }
 
-TEST(AofPersistenceTest, AofReplayerRejectsNonMutatingCommands) {
-    TempLogFile log_file("read-command");
-    { AofWriter aof_writer(log_file.path_string()); aof_writer.append(RespCommandCodec::encode({"GET", "key"})); }
-    StorageEngine storage;
-    Executor executor(storage);
-    EXPECT_THROW(AofReplayer(log_file.path_string()).replay(executor), std::runtime_error);
+TEST(AofPersistenceTest, AofReplayerRejectsRecordsTheServerNeverWrites) {
+    for (const CommandArguments& record : std::vector<CommandArguments>{
+             {"GET", "key"}, {"PERSIST", "key"}, {"INCR", "key"}, {"INCRBY", "key", "5"}}) {
+        SCOPED_TRACE(record[0]);
+        TempLogFile log_file("unsupported-record");
+        { AofWriter aof_writer(log_file.path_string()); aof_writer.append(RespCommandCodec::encode(record)); }
+        StorageEngine storage;
+        Executor executor(storage);
+        EXPECT_THROW(AofReplayer(log_file.path_string()).replay(executor), std::runtime_error);
+    }
 }
 
 TEST(AofPersistenceTest, GeneratedNumericAofRecordsRestoreTheResult) {

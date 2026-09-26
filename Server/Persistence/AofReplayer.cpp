@@ -36,10 +36,10 @@ void AofReplayer::replay(Executor& executor) const {
             }
 
             const std::optional<Command> command = Parser::parse_arguments(decoded.arguments);
-            if (!command || !is_mutating(*command)) {
-                const std::string detail = command ? "non-mutating command" : "parse failure";
+            if (!command) {
                 throw std::runtime_error("Invalid AOF command at byte offset " +
-                                         std::to_string(consumed_offset) + ": " + detail);
+                                         std::to_string(consumed_offset) +
+                                         ": not a SET, DEL, PEXPIREAT, or SETSTATE record");
             }
             const ExecutionResult result = executor.execute(*command);
             if (!result.success) {

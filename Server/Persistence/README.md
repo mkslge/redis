@@ -21,8 +21,8 @@ keyspace from it on startup.
 
 ## Record format
 
-Each record is a RESP array of bulk strings. Besides `SET` and `DEL`, the log uses
-two internal commands that clients cannot send:
+Each record is a RESP array of bulk strings, and only four commands ever appear:
+`SET`, `DEL`, and two internal commands that clients cannot send:
 
 - `PEXPIREAT key <unix-ms>`: an absolute deadline. Written only for an `EXPIRE`
   whose deadline had already passed, which deletes the key.
@@ -48,7 +48,9 @@ Which command writes which records is shown in the root README's
 - **A background `fsync` failure surfaces only on the next `append`**, which
   rethrows it.
 - **Startup is strict, except for an interrupted write.** Compaction and replay
-  reject malformed, non-mutating, or failing records. An incomplete *final* record,
+  reject malformed or failing records, and any command other than the four above
+  (older servers wrote raw `INCR` and `PERSIST` records; those logs are no longer
+  supported). An incomplete *final* record,
   left by a crash during `append`, is dropped with a warning instead, and the replayer
   truncates the file so the next append starts cleanly. Only a final record can be
   incomplete, so this never hides corruption earlier in the file.
@@ -57,9 +59,7 @@ Which command writes which records is shown in the root README's
 - **Compaction runs only at startup**, so the log grows while the server runs (see
   TODO). Its per-key rules:
   - `SET`, `SETSTATE`, or `DEL` makes every earlier record for the key redundant.
-  - Raw `INCR`/`DECR`/`INCRBY`/`DECRBY` records keep everything before them, since
-    they depend on the previous value. Current servers never write them.
-  - Only the newest `PEXPIREAT` or `PERSIST` for a key survives.
+  - Only the newest `PEXPIREAT` for a key survives.
 
 ## Adding a command
 
@@ -70,5 +70,5 @@ groups. `AofRecords` needs a change only if the command sets `resulting_state`, 
 
 ## Tests
 
-`testAofPersistence` (22: writer, fsync policies, replay, truncated and malformed
-logs) and `testAofCompactor` (12), plus the restart test in `testServerIntegration`.
+`testAofPersistence` (23: writer, fsync policies, replay, truncated and malformed
+logs) and `testAofCompactor` (13), plus the restart test in `testServerIntegration`.

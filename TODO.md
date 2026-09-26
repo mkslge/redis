@@ -22,7 +22,6 @@
 - [ ] Stream AOF compaction instead of loading the whole file: `AofCompactor` reads
   the log into one string and keeps every record, so startup needs roughly three
   times the log's size in memory.
-- [ ] Lock the data directory so two servers cannot append to the same AOF.
 
 ## Command model cleanup
 

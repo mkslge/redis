@@ -128,12 +128,17 @@ ParseResult Parser::parse_request(const CommandArguments& arguments) {
     return spec->build(arguments);
 }
 
+// Accepts exactly the records Persistence/AofRecords writes: SET, DEL, PEXPIREAT, and
+// SETSTATE. Anything else in the log is rejected, including commands older servers
+// wrote (such as raw INCR or PERSIST records).
 std::optional<Command> Parser::parse_arguments(const CommandArguments& arguments) {
     if (arguments.empty()) return std::nullopt;
     const std::string command = uppercase_ascii(arguments[kCommandIndex]);
-    if (const KeyCommandSpec* spec = find_key_command(command)) {
-        if (arguments.size() != spec->argument_count) return std::nullopt;
-        return spec->build(arguments);
+    if (command == SetCommand::name && arguments.size() == 3) {
+        return SetCommand{arguments[1], arguments[2]};
+    }
+    if (command == DeleteCommand::name && arguments.size() == 2) {
+        return DeleteCommand{arguments[1]};
     }
     if (command == ExpireCommand::log_name && arguments.size() == 3) {
         auto deadline = parse_millisecond_deadline(arguments[2]);

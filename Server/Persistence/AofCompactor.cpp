@@ -40,7 +40,7 @@ std::vector<Record> read_records(const std::string& path) {
             throw std::runtime_error("Malformed AOF at byte offset " + std::to_string(offset) + ": " + decoded.error);
         }
         auto command = Parser::parse_arguments(decoded.arguments);
-        if (!command || !is_mutating(*command)) throw std::runtime_error("Invalid AOF command at byte offset " + std::to_string(offset));
+        if (!command) throw std::runtime_error("Invalid AOF command at byte offset " + std::to_string(offset));
         records.push_back({std::move(decoded.arguments), std::move(*command), true});
         offset += decoded.bytes_consumed;
     }
@@ -117,21 +117,18 @@ void AofCompactor::compact() const {
                 drop_earlier_records(command.key);
                 latest_delete[command.key] = index;
             },
-            // Raw arithmetic records may depend on the preceding value, so keep everything before them.
-            [&](const OneOf<IncrCommand, DecrCommand, IncrByCommand, DecrByCommand> auto& command) {
-                latest_set.erase(command.key);
-                latest_expire.erase(command.key);
-                latest_delete.erase(command.key);
-            },
-            // Only the newest expiration change for a key matters.
-            [&](const OneOf<ExpireCommand, PersistCommand> auto& command) {
+            // Only the newest PEXPIREAT for a key matters.
+            [&](const ExpireCommand& command) {
                 if (const auto found = latest_expire.find(command.key); found != latest_expire.end()) {
                     records[found->second].keep = false;
                 }
                 latest_expire[command.key] = index;
             },
-            [](const OneOf<GetCommand, ExistsCommand, TtlCommand, PttlCommand> auto&) {
-                throw std::logic_error("Non-mutating command reached AOF compaction");
+            // Parser::parse_arguments never produces these, because the server never
+            // writes them to the AOF; the case exists only so every command is handled.
+            [](const OneOf<GetCommand, ExistsCommand, TtlCommand, PttlCommand, PersistCommand,
+                           IncrCommand, DecrCommand, IncrByCommand, DecrByCommand> auto&) {
+                throw std::logic_error("Command the server never logs reached AOF compaction");
             }
         }, records[index].command);
     }

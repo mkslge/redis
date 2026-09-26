@@ -24,10 +24,10 @@ CommandArguments -> Parser -> Command -> Executor (+ StorageEngine) -> Execution
 
 ## Rules
 
-- **Two parsers accept different commands.** `parse_request` accepts relative
-  `EXPIRE` but not `PEXPIREAT` or `SETSTATE`; `parse_arguments` accepts the reverse.
-  Both share the table of key-based commands, and AOF replay rejects the read-only
-  ones afterwards.
+- **Two parsers accept different commands.** `parse_request` accepts every client
+  command, including relative `EXPIRE`, but not `PEXPIREAT` or `SETSTATE`.
+  `parse_arguments` accepts exactly the four AOF record types: `SET`, `DEL`,
+  `PEXPIREAT`, and `SETSTATE`.
 - **`EXPIRE` becomes an absolute deadline at parse time**, using `Clock::now()`. The
   parser is therefore not pure for `EXPIRE`, and its tests check time bounds.
 - **Where a number is parsed decides the kind of error.** `EXPIRE` seconds are parsed

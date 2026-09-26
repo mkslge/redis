@@ -124,11 +124,20 @@ TEST(ParserTest, TtlPttlAndPersistHaveDistinctAlternatives) {
     EXPECT_TRUE(std::holds_alternative<PersistCommand>(expect_command({"PERSIST", "key"})));
 }
 
-TEST(ParserTest, ParseArgumentsSupportsPersistForAofReplay) {
-    auto parsed = Parser::parse_arguments({"PERSIST", "session-key"});
-    ASSERT_TRUE(parsed.has_value());
-    EXPECT_TRUE(std::holds_alternative<PersistCommand>(*parsed));
-    EXPECT_TRUE(is_mutating(*parsed));
+TEST(ParserTest, ParseArgumentsAcceptsOnlyRecordsTheServerWrites) {
+    EXPECT_TRUE(std::holds_alternative<SetCommand>(*Parser::parse_arguments({"SET", "k", "v"})));
+    EXPECT_TRUE(std::holds_alternative<DeleteCommand>(*Parser::parse_arguments({"DEL", "k"})));
+    EXPECT_TRUE(std::holds_alternative<ExpireCommand>(
+        *Parser::parse_arguments({"PEXPIREAT", "k", "4102444800000"})));
+    EXPECT_TRUE(std::holds_alternative<SetStateCommand>(
+        *Parser::parse_arguments({"SETSTATE", "k", "v", "PERSIST"})));
+
+    for (const CommandArguments& arguments : std::vector<CommandArguments>{
+             {"GET", "k"}, {"EXISTS", "k"}, {"TTL", "k"}, {"PTTL", "k"}, {"PERSIST", "k"},
+             {"INCR", "k"}, {"DECR", "k"}, {"INCRBY", "k", "5"}, {"DECRBY", "k", "5"},
+             {"SET", "k"}, {"DEL", "k", "extra"}}) {
+        EXPECT_FALSE(Parser::parse_arguments(arguments).has_value()) << arguments[0];
+    }
 }
 
 TEST(ParserTest, ReportsEmptyAndUnknownCommands) {
@@ -172,16 +181,16 @@ TEST(ParserTest, ByCommandsPreserveOperandBytesUntilExecution) {
     }
 }
 
-TEST(ParserTest, ParseArgumentsSupportsNumericCommandsAndBinaryOperands) {
-    const Bytes binary_amount{"1\0", 2};
+TEST(ParserTest, ParseArgumentsRoundTripsBinaryRecords) {
+    const Bytes key{"k\0\n", 3};
+    const Bytes value{"\0\xff\r\n", 4};
     for (const CommandArguments arguments : {
-             CommandArguments{"INCR", "counter"},
-             CommandArguments{"DECR", "counter"},
-             CommandArguments{"INCRBY", "counter", binary_amount},
-             CommandArguments{"DECRBY", "counter", "-5"}}) {
+             CommandArguments{"SET", key, value},
+             CommandArguments{"DEL", key},
+             CommandArguments{"SETSTATE", key, value, "PERSIST"},
+             CommandArguments{"SETSTATE", key, value, "4102444800000"}}) {
         const auto command = Parser::parse_arguments(arguments);
-        ASSERT_TRUE(command.has_value());
-        EXPECT_TRUE(is_mutating(*command));
+        ASSERT_TRUE(command.has_value()) << arguments[0];
         EXPECT_EQ(command_arguments(*command), arguments);
     }
 }
