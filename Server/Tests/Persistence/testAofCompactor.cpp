@@ -257,3 +257,20 @@ TEST(AofCompactorTest, NumericStateFollowedByPersistSurvivesCompactionAndOldExpi
     EXPECT_EQ(replayed_storage.get("counter")->bytes(), "11");
     EXPECT_EQ(replayed_storage.ttl_milliseconds("counter"), -1);
 }
+
+TEST(AofCompactorTest, DropsIncompleteFinalRecord) {
+    const Bytes complete = RespCommandCodec::encode({"SET", "a", "1"});
+    const Bytes interrupted = RespCommandCodec::encode({"SET", "b", "12345"});
+    TempLogFile log_file("truncated-tail", complete + interrupted.substr(0, interrupted.size() - 4));
+
+    compact_log(log_file.path_string());
+
+    EXPECT_EQ(log_file.read_all(), complete);
+}
+
+TEST(AofCompactorTest, StillRejectsMalformedRecord) {
+    TempLogFile log_file("malformed-record",
+                         "!not resp\r\n" + RespCommandCodec::encode({"SET", "a", "1"}));
+
+    EXPECT_THROW(compact_log(log_file.path_string()), std::runtime_error);
+}

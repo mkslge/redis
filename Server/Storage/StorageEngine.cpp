@@ -7,22 +7,20 @@
 void StorageEngine::set(const Key& key, const Value& value) {
     std::lock_guard<std::mutex> lock{mutex_};
     data_.insert_or_assign(key, Entry{value, std::nullopt});
-    expiration_generations_.erase(key);
+    untrack_deadline(key);
 }
 
 void StorageEngine::restore_state(const Key& key, const Value& value,
                                   const std::optional<TimePoint> expires_at) {
     std::lock_guard<std::mutex> lock{mutex_};
-    expiration_generations_.erase(key);
+    untrack_deadline(key);
     if (expires_at && *expires_at <= Clock::now()) {
         data_.erase(key);
         return;
     }
     data_.insert_or_assign(key, Entry{value, expires_at});
     if (expires_at) {
-        const std::uint64_t generation = ++next_expiration_generation_;
-        expiration_generations_.insert_or_assign(key, generation);
-        expiration_queue_.push_back({key, generation});
+        track_deadline(key);
     }
 }
 
@@ -50,6 +48,8 @@ StorageEngine::IntegerResult StorageEngine::adjust_integer(
         return {.error = IntegerError::WOULD_OVERFLOW};
     }
     const std::int64_t delta = subtract ? -amount : amount;
+    // Would current + delta go past the int64 range? Compared against max - delta
+    // (or min - delta) because computing current + delta first would already overflow.
     if ((delta > 0 && current > std::numeric_limits<std::int64_t>::max() - delta) ||
         (delta < 0 && current < std::numeric_limits<std::int64_t>::min() - delta)) {
         return {.error = IntegerError::WOULD_OVERFLOW};
@@ -78,7 +78,7 @@ bool StorageEngine::del(const Key& key) {
     std::lock_guard<std::mutex> lock{mutex_};
     const TimePoint now = Clock::now();
     prune_if_expired_unlocked(key, now);
-    expiration_generations_.erase(key);
+    untrack_deadline(key);
     return data_.erase(key) > 0;
 }
 
@@ -104,14 +104,12 @@ StorageEngine::ExpireResult StorageEngine::expire_at(const Key& key, const TimeP
     }
 
     if (expires_at <= now) {
-        expiration_generations_.erase(it->first);
+        untrack_deadline(it->first);
         data_.erase(it);
         return {.applied = true};
     }
 
-    const std::uint64_t generation = ++next_expiration_generation_;
-    expiration_generations_.insert_or_assign(key, generation);
-    expiration_queue_.push_back({key, generation});
+    track_deadline(key);
     it->second.expires_at = expires_at;
     return {.applied = true, .value = it->second.value};
 }
@@ -139,7 +137,7 @@ std::optional<Value> StorageEngine::persist(const Key& key) {
     if (it == data_.end() || !it->second.expires_at.has_value()) return std::nullopt;
 
     it->second.expires_at.reset();
-    expiration_generations_.erase(key);
+    untrack_deadline(key);
     return it->second.value;
 }
 
@@ -156,7 +154,7 @@ std::size_t StorageEngine::size() {
 
     for (auto it = data_.begin(); it != data_.end();) {
         if (is_expired(it->second, now)) {
-            expiration_generations_.erase(it->first);
+            untrack_deadline(it->first);
             it = data_.erase(it);
             continue;
         }
@@ -170,20 +168,52 @@ bool StorageEngine::is_expired(const Entry& entry, const TimePoint now) const {
     return entry.expires_at.has_value() && entry.expires_at.value() <= now;
 }
 
+void StorageEngine::track_deadline(const Key& key) {
+    // A new generation marks every older queue entry for this key as stale.
+    const std::uint64_t generation = ++next_expiration_generation_;
+    expiration_generations_.insert_or_assign(key, generation);
+    expiration_queue_.push_back({key, generation});
+    rebuild_expiration_queue_if_mostly_stale();
+}
+
+void StorageEngine::rebuild_expiration_queue_if_mostly_stale() {
+    // Each tracked key has exactly one current entry in the queue, so a queue more
+    // than twice the number of tracked keys is mostly stale entries (for example,
+    // from repeated EXPIRE on one key). Rebuild it from the tracked keys to keep
+    // memory proportional to them. A rebuild removes at least half the queue, so its
+    // cost averages out to constant work per call to track_deadline.
+    if (expiration_queue_.size() <= 2 * expiration_generations_.size()) return;
+    std::deque<ExpirationCandidate> current;
+    for (const auto& [tracked_key, generation] : expiration_generations_) {
+        current.push_back({tracked_key, generation});
+    }
+    expiration_queue_ = std::move(current);
+}
+
+void StorageEngine::untrack_deadline(const Key& key) {
+    // The key's queue entries stay behind; the sweep skips them as stale.
+    expiration_generations_.erase(key);
+}
+
 void StorageEngine::prune_if_expired_unlocked(const Key& key, const TimePoint now) {
     const auto it = data_.find(key);
     if (it == data_.end()) {
-        expiration_generations_.erase(key);
+        untrack_deadline(key);
         return;
     }
 
     if (is_expired(it->second, now)) {
-        expiration_generations_.erase(it->first);
+        untrack_deadline(it->first);
         data_.erase(it);
     }
 }
 
-std::unordered_set<Key> StorageEngine::possibly_expired() {
+std::size_t StorageEngine::expiration_queue_size() {
+    std::lock_guard<std::mutex> lock{mutex_};
+    return expiration_queue_.size();
+}
+
+std::unordered_set<Key> StorageEngine::keys_with_deadlines() {
     std::lock_guard<std::mutex> lock{mutex_};
     std::unordered_set<Key> keys;
     keys.reserve(expiration_generations_.size());

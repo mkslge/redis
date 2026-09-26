@@ -32,7 +32,8 @@ struct ExistsCommand {
     static constexpr bool mutating = false;
     Key key;
 };
-// Parsed from a relative EXPIRE; stored and logged (as PEXPIREAT) with an absolute deadline.
+// Parsed from a relative EXPIRE and stored with an absolute deadline. Serialized as
+// PEXPIREAT, which the AOF uses only when the deadline had already passed.
 struct ExpireCommand {
     static constexpr std::string_view name = "EXPIRE";
     static constexpr std::string_view log_name = "PEXPIREAT";

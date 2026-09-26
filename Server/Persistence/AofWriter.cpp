@@ -9,6 +9,9 @@
 
 AofWriter::AofWriter(const std::string& file_path, const AofFsyncPolicy fsync_policy)
     : file_path_(file_path), fsync_policy_(fsync_policy) {
+    // Write-only, create the file if missing, always write at the end, and don't
+    // leak the descriptor into child processes. 0644: owner can read and write,
+    // everyone else can only read.
     fd_ = ::open(file_path_.c_str(), O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
     if (fd_ < 0) {
         throw_io_error("open");

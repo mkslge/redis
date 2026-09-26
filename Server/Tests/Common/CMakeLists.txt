@@ -1,0 +1,1 @@
+add_server_test(testSocketIO COMMON_SOCKET_IO)

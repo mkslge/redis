@@ -142,7 +142,12 @@ public:
             throw std::runtime_error("Failed to send command before reset");
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        // Reset only once the response has started arriving, so the server is
+        // mid-send rather than still reading or formatting.
+        char first_byte;
+        if (recv(socket_fd_, &first_byte, 1, 0) != 1) {
+            throw std::runtime_error("No response arrived before reset");
+        }
         close(socket_fd_);
         socket_fd_ = -1;
     }
@@ -165,12 +170,14 @@ class ServerHarness {
 public:
     explicit ServerHarness(
         const std::string& log_path,
-        const std::chrono::milliseconds expiration_sweep_interval = std::chrono::milliseconds(100))
+        const std::chrono::milliseconds expiration_sweep_interval = std::chrono::milliseconds(100),
+        const ClientSession::Timeouts client_timeouts = Server::kDefaultClientTimeouts)
         : storage_(),
           executor_(storage_),
           command_processor_(executor_),
           aof_writer_(log_path, AofFsyncPolicy::EVERY_SECOND),
-          server_(aof_writer_, command_processor_, storage_, 0, expiration_sweep_interval),
+          server_(aof_writer_, command_processor_, storage_, 0, expiration_sweep_interval,
+                  client_timeouts),
           thread_([this] { server_.run(); }) {}
 
     ~ServerHarness() {
@@ -261,6 +268,32 @@ TEST(ServerIntegrationTest, RestartReplaysAppendOnlyLogAndRestoresState) {
 
 }
 
+TEST(ServerIntegrationTest, BinaryKeysAndValuesRoundTripThroughEscapesAndRestart) {
+    TempLogFile log_file("binary-end-to-end");
+    const Bytes key{"k\0\n", 3};
+    const Bytes value{"\0\r\n\"\\\xff end", 10};
+    const std::string escaped_key = R"("k\x00\n")";
+    const std::string escaped_value = R"("\x00\r\n\"\\\xff end")";
+
+    {
+        ServerHarness first_server(log_file.path_string());
+        TestConnection connection(first_server.port());
+        EXPECT_EQ(connection.send_command("SET " + escaped_key + " " + escaped_value),
+                  "SET value=" + escaped_value);
+        EXPECT_EQ(connection.send_command("GET " + escaped_key), "GET value=" + escaped_value);
+        ASSERT_TRUE(first_server.storage().get(key).has_value());
+        EXPECT_EQ(first_server.storage().get(key)->bytes(), value);
+        first_server.shutdown();
+    }
+    EXPECT_EQ(log_file.read_all(), RespCommandCodec::encode({"SET", key, value}));
+
+    ServerHarness restarted_server(log_file.path_string());
+    Executor replay_executor(restarted_server.storage());
+    AofReplayer(log_file.path_string()).replay(replay_executor);
+    TestConnection connection(restarted_server.port());
+    EXPECT_EQ(connection.send_command("GET " + escaped_key), "GET value=" + escaped_value);
+}
+
 TEST(ServerIntegrationTest, FailedResponseSendCleansUpClientSession) {
     TempLogFile log_file("failed-response-cleanup");
     ServerHarness server(log_file.path_string());
@@ -346,6 +379,50 @@ TEST(ServerIntegrationTest, ShutdownClosesClientsInDifferentSessionStates) {
     EXPECT_TRUE(unread_response.read_until_closed());
 }
 
+TEST(ServerIntegrationTest, UnfinishedRequestLineTimesOutButIdleClientStays) {
+    TempLogFile log_file("partial-line-timeout");
+    const ClientSession::Timeouts short_timeouts{
+        std::chrono::milliseconds(200), std::chrono::seconds(30)};
+    ServerHarness server(log_file.path_string(), std::chrono::milliseconds(50), short_timeouts);
+    TestConnection idle(server.port());
+    TestConnection trickling(server.port());
+
+    trickling.send_bytes("SET \"k\"");
+    EXPECT_TRUE(trickling.read_until_closed());
+
+    // Well past the line timeout, a client that sent nothing is still connected.
+    EXPECT_EQ(idle.send_command("EXISTS k"), "EXISTS exists=false");
+}
+
+TEST(ServerIntegrationTest, ClientThatStopsReadingTimesOut) {
+    TempLogFile log_file("write-stall-timeout");
+    const ClientSession::Timeouts short_timeouts{
+        std::chrono::seconds(30), std::chrono::milliseconds(200)};
+    ServerHarness server(log_file.path_string(), std::chrono::milliseconds(50), short_timeouts);
+    // Far larger than the socket buffers, so the response can't be fully sent.
+    server.storage().set("large", Value(std::string(16 * 1024 * 1024, 'x')));
+    testing::internal::CaptureStderr();
+
+    TestConnection stalled(server.port());
+    stalled.send_bytes("GET large\n");
+    std::this_thread::sleep_for(std::chrono::milliseconds(600));
+
+    server.shutdown();
+    EXPECT_NE(testing::internal::GetCapturedStderr().find("no response bytes accepted in time"),
+              std::string::npos);
+}
+
+TEST(ServerIntegrationTest, StoppedServerRefusesNewConnections) {
+    TempLogFile log_file("refuse-after-stop");
+    ServerHarness server(log_file.path_string());
+    const std::uint16_t port = server.port();
+    server.shutdown();
+
+    // The listening socket is closed when run() returns, so a late client is refused
+    // immediately instead of waiting in the listen queue until the Server is destroyed.
+    EXPECT_THROW(TestConnection late_client(port), std::runtime_error);
+}
+
 TEST(ServerIntegrationTest, ConcurrentStopRequestsAreIdempotent) {
     TempLogFile log_file("concurrent-stop");
     ServerHarness server(log_file.path_string());
@@ -407,7 +484,7 @@ TEST(ServerIntegrationTest, EventLoopPrunesExpiredKeysOnTimer) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
-    EXPECT_FALSE(server.storage().possibly_expired().contains("short-lived"));
+    EXPECT_FALSE(server.storage().keys_with_deadlines().contains("short-lived"));
 }
 
 TEST(ServerIntegrationTest, NumericCommandsReturnResultsAndPersistBytes) {
@@ -433,6 +510,18 @@ TEST(ServerIntegrationTest, NumericRuntimeErrorDoesNotModifyValueOrCloseConnecti
               "ERROR value is not an integer or out of range");
     EXPECT_EQ(connection.send_command("GET \"counter\""),
               "GET value=\"not-an-integer\"");
+}
+
+TEST(ServerIntegrationTest, ValueWithNewlineStaysOnOneResponseLine) {
+    TempLogFile log_file("newline-value-response");
+    ServerHarness server(log_file.path_string());
+    TestConnection connection(server.port());
+
+    // An unescaped newline in a value used to split one response into two lines,
+    // leaving every later response off by one.
+    EXPECT_EQ(connection.send_command(R"(SET k "a\nb")"), R"(SET value="a\nb")");
+    EXPECT_EQ(connection.send_command("EXISTS k"), "EXISTS exists=true");
+    EXPECT_EQ(connection.send_command("GET k"), R"(GET value="a\nb")");
 }
 
 TEST(ServerIntegrationTest, BindFailureIncludesErrnoDetails) {

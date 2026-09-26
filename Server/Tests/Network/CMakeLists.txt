@@ -1,0 +1,2 @@
+add_server_test(testClientSession SERVER_NETWORK)
+add_server_test(testServerIntegration SERVER_NETWORK PROPERTIES TIMEOUT 10)

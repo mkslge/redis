@@ -42,6 +42,9 @@ ExecutionResult Executor::execute_command(const ExpireCommand& command) {
 
 ExecutionResult Executor::execute_command(const TtlCommand& command) {
     std::int64_t ttl = storage_.ttl_milliseconds(command.key);
+    // Convert milliseconds to whole seconds, rounding to the nearest second
+    // (1499 ms -> 1 s, 1500 ms -> 2 s). Negative values are the -1 (no deadline)
+    // and -2 (missing key) sentinels and are returned unchanged.
     if (ttl >= 0) ttl = ttl / 1000 + (ttl % 1000 >= 500 ? 1 : 0);
     return {.success = true, .payload = ttl};
 }

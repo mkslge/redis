@@ -9,6 +9,7 @@ bool is_separator(const char byte) {
     return std::isspace(static_cast<unsigned char>(byte)) != 0;
 }
 
+// The value (0-15) of one hex digit, or -1 if the character isn't one.
 int hex_digit_value(const char byte) {
     if (byte >= '0' && byte <= '9') return byte - '0';
     if (byte >= 'a' && byte <= 'f') return byte - 'a' + 10;
@@ -27,7 +28,8 @@ char unescape(const char byte) {
     }
 }
 
-// A closing quote must end the argument
+// A closing quote must end the argument: it has to be the last character on the
+// line or be followed by whitespace. `"a"b` is rejected, as in redis-cli.
 bool closes_argument(const std::string_view line, const std::size_t quote_index) {
     return quote_index + 1 == line.size() || is_separator(line[quote_index + 1]);
 }
@@ -49,11 +51,15 @@ std::optional<CommandArguments> ArgumentSplitter::split(const std::string_view l
             if (in_double_quotes) {
                 if (index == line.size()) return std::nullopt;
                 const char byte = line[index];
+                // \xHH: a backslash, 'x', and exactly two hex digits form one byte.
+                // The first digit is the top half (x16), the second the bottom half.
+                // If the digits are missing or invalid, it falls through to a plain
+                // escape and "\x" becomes "x".
                 if (byte == '\\' && index + 3 < line.size() && line[index + 1] == 'x' &&
                     hex_digit_value(line[index + 2]) >= 0 && hex_digit_value(line[index + 3]) >= 0) {
                     current.push_back(static_cast<char>(
                         hex_digit_value(line[index + 2]) * 16 + hex_digit_value(line[index + 3])));
-                    index += 3;
+                    index += 3;  // Onto the last hex digit; the loop's ++index moves past it.
                 } else if (byte == '\\' && index + 1 < line.size()) {
                     current.push_back(unescape(line[++index]));
                 } else if (byte == '"') {

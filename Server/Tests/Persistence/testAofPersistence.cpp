@@ -227,7 +227,7 @@ TEST(AofPersistenceTest, AofReplayerReplaysPersistAfterExpiration) {
     EXPECT_EQ(storage.ttl_milliseconds("session"), -1);
 }
 
-TEST(AofPersistenceTest, ExpireIsSerializedAsAnAbsoluteUnixMillisecondDeadline) {
+TEST(AofPersistenceTest, ExpireIsLoggedAsOneStateRecordWithAnAbsoluteDeadline) {
     StorageEngine storage;
     storage.set("session", Value("token"));
     Executor executor(storage);
@@ -238,18 +238,45 @@ TEST(AofPersistenceTest, ExpireIsSerializedAsAnAbsoluteUnixMillisecondDeadline) 
     const auto after = std::chrono::system_clock::now();
 
     ASSERT_TRUE(result.is_success());
-    const auto decoded = RespCommandCodec::decode(result.processed_command().aof_record);
+    const Bytes& aof_record = result.processed_command().aof_record;
+    const auto decoded = RespCommandCodec::decode(aof_record);
     ASSERT_EQ(decoded.status, RespDecodeStatus::COMPLETE);
-    ASSERT_EQ(decoded.arguments.size(), 3U);
-    EXPECT_EQ(decoded.arguments[0], "PEXPIREAT");
+    EXPECT_EQ(decoded.bytes_consumed, aof_record.size()) << "EXPIRE should log exactly one record";
+    ASSERT_EQ(decoded.arguments.size(), 4U);
+    EXPECT_EQ(decoded.arguments[0], "SETSTATE");
     EXPECT_EQ(decoded.arguments[1], "session");
-    const auto deadline = std::stoll(decoded.arguments[2]);
+    EXPECT_EQ(decoded.arguments[2], "token");
+    const auto deadline = std::stoll(decoded.arguments[3]);
     const auto earliest = std::chrono::duration_cast<std::chrono::milliseconds>(
         (before + std::chrono::seconds(30)).time_since_epoch()).count();
     const auto latest = std::chrono::duration_cast<std::chrono::milliseconds>(
         (after + std::chrono::seconds(30)).time_since_epoch()).count();
     EXPECT_GE(deadline, earliest);
     EXPECT_LE(deadline, latest);
+}
+
+TEST(AofPersistenceTest, ExpireInThePastIsLoggedAsPexpireatAndDeletesOnReplay) {
+    TempLogFile log_file("expire-in-past");
+    {
+        StorageEngine storage;
+        storage.set("session", Value("token"));
+        Executor executor(storage);
+        CommandProcessor command_processor(executor);
+        AofWriter aof_writer(log_file.path_string());
+        aof_writer.append(RespCommandCodec::encode({"SET", "session", "token"}));
+
+        const auto result = command_processor.process("EXPIRE session -1");
+        ASSERT_TRUE(result.is_success());
+        const auto decoded = RespCommandCodec::decode(result.processed_command().aof_record);
+        ASSERT_EQ(decoded.status, RespDecodeStatus::COMPLETE);
+        EXPECT_EQ(decoded.arguments[0], "PEXPIREAT");
+        aof_writer.append(result.processed_command().aof_record);
+    }
+
+    StorageEngine replayed_storage;
+    Executor replayed_executor(replayed_storage);
+    AofReplayer(log_file.path_string()).replay(replayed_executor);
+    EXPECT_FALSE(replayed_storage.exists("session"));
 }
 
 TEST(AofPersistenceTest, NoOpPersistDoesNotProduceAnAofRecord) {
@@ -267,19 +294,43 @@ TEST(AofPersistenceTest, NoOpPersistDoesNotProduceAnAofRecord) {
     EXPECT_FALSE(permanent.processed_command().should_log);
 }
 
-TEST(AofPersistenceTest, AofReplayerThrowsForMalformedLogEntry) {
-    TempLogFile log_file("invalid-entry");
-
+TEST(AofPersistenceTest, AofReplayerDropsIncompleteFinalRecord) {
+    TempLogFile log_file("truncated-tail");
+    const Bytes complete = RespCommandCodec::encode({"SET", "a", "1"});
+    const Bytes interrupted = RespCommandCodec::encode({"SET", "b", "12345"});
     {
         std::ofstream stream(log_file.path_string(), std::ios::binary);
-        stream << "*3\r\n$3\r\nSET\r\n$4\r\nuser\r\n$5\r\nabc";
+        stream << complete << interrupted.substr(0, interrupted.size() - 4);
     }
 
     StorageEngine storage;
     Executor executor(storage);
-    AofReplayer runner(log_file.path_string());
+    AofReplayer(log_file.path_string()).replay(executor);
 
-    EXPECT_THROW(runner.replay(executor), std::runtime_error);
+    ASSERT_TRUE(storage.get("a").has_value());
+    EXPECT_EQ(storage.get("a")->bytes(), "1");
+    EXPECT_FALSE(storage.exists("b"));
+    // The partial record is cut off the file, so later appends follow a complete record.
+    EXPECT_EQ(log_file.read_all(), complete);
+
+    { AofWriter aof_writer(log_file.path_string()); aof_writer.append(RespCommandCodec::encode({"SET", "c", "3"})); }
+    StorageEngine restarted_storage;
+    Executor restarted_executor(restarted_storage);
+    AofReplayer(log_file.path_string()).replay(restarted_executor);
+    EXPECT_TRUE(restarted_storage.exists("a"));
+    EXPECT_TRUE(restarted_storage.exists("c"));
+}
+
+TEST(AofPersistenceTest, AofReplayerThrowsForMalformedRecord) {
+    TempLogFile log_file("invalid-entry");
+    {
+        std::ofstream stream(log_file.path_string(), std::ios::binary);
+        stream << "!not resp\r\n" << RespCommandCodec::encode({"SET", "a", "1"});
+    }
+
+    StorageEngine storage;
+    Executor executor(storage);
+    EXPECT_THROW(AofReplayer(log_file.path_string()).replay(executor), std::runtime_error);
 }
 
 TEST(AofPersistenceTest, BinaryKeyAndValueSurviveReplay) {

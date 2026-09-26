@@ -1,0 +1,8 @@
+# Paths are relative to the repository root, the build context.
+**/build/
+**/build-*/
+**/cmake-build-*/
+.git/
+.idea/
+.vscode/
+data/

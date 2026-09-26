@@ -1,0 +1,1 @@
+add_server_test(testCommandProcessor SERVER_APP)

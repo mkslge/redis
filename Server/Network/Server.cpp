@@ -43,12 +43,14 @@ Server::Server(AofWriter& aof_writer,
                CommandProcessor& command_processor,
                StorageEngine& storage,
                const std::uint16_t port,
-               const std::chrono::milliseconds expiration_sweep_interval)
+               const std::chrono::milliseconds expiration_sweep_interval,
+               const ClientSession::Timeouts client_timeouts)
     : port_(port),
       aof_writer_(aof_writer),
       command_processor_(command_processor),
       storage_(storage),
-      expiration_sweep_interval_(expiration_sweep_interval) {
+      expiration_sweep_interval_(expiration_sweep_interval),
+      client_timeouts_(client_timeouts) {
     socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd_ == -1) throw std::runtime_error("Error creating server socket");
 
@@ -119,6 +121,8 @@ void Server::run() {
     auto next_expiration_sweep = std::chrono::steady_clock::now() + expiration_sweep_interval_;
 
     while (!stopping_) {
+        // poll() array layout, which the indices below rely on:
+        // [0] listening socket, [1] wakeup pipe, [2...] one entry per client.
         std::vector<pollfd> descriptors;
         descriptors.reserve(clients_.size() + 2);
         descriptors.push_back({socket_fd_, POLLIN, 0});
@@ -153,13 +157,19 @@ void Server::run() {
 
             bool keep_open = true;
             const bool has_pending_output = session.has_pending_output();
+            // Flush when the socket is writable, or when it failed or hung up with
+            // output still queued, so the failing send reports the error.
             if ((events & POLLOUT) || (has_pending_output && events & (POLLERR | POLLHUP))) {
                 keep_open = flush_client_output(client_fd, session);
             }
+            // Read when data arrived, or on an error so recv reports it.
             if (keep_open && events & (POLLIN | POLLERR)) {
                 keep_open = read_from_client(client_fd, session);
             }
+            // POLLNVAL: the descriptor is no longer open.
             if (events & POLLNVAL) keep_open = false;
+            // The peer hung up and there is nothing left to read. Report a pending
+            // socket error if there is one; otherwise close once output is flushed.
             if (keep_open && events & POLLHUP && !(events & POLLIN)) {
                 const int error_number = pending_socket_error(client_fd);
                 if (error_number != 0) {
@@ -176,11 +186,22 @@ void Server::run() {
 
         if (std::chrono::steady_clock::now() >= next_expiration_sweep) {
             run_expiration_sweep();
+            // Timeouts are checked on the same 100 ms tick, so they fire up to one
+            // tick late, which is fine for limits measured in seconds.
+            close_timed_out_clients();
             next_expiration_sweep = std::chrono::steady_clock::now() + expiration_sweep_interval_;
         }
     }
 
+    // A client can finish connecting (the kernel completes the handshake) before the
+    // loop accepts it. Such connections wait in the listen queue, so closing only the
+    // accepted clients would leave them hanging until the Server is destroyed. Accept
+    // them so they are closed like the rest, then close the listening socket so any
+    // later connection attempt is reset instead of queued.
+    accept_ready_clients();
     close_all_clients();
+    close(socket_fd_);
+    socket_fd_ = -1;
 }
 
 void Server::accept_ready_clients() {
@@ -213,7 +234,8 @@ bool Server::read_from_client(const int client_fd, ClientSession& session) {
         const ssize_t count = recv(client_fd, buffer, sizeof(buffer), 0);
         if (count > 0) {
             bytes_this_event += static_cast<std::size_t>(count);
-            if (!session.append_input(std::string_view(buffer, static_cast<std::size_t>(count))) ||
+            if (!session.append_input(std::string_view(buffer, static_cast<std::size_t>(count)),
+                                      ClientSession::Clock::now()) ||
                 !process_client_input(session)) return false;
             if (session.closing()) return true;
             continue;
@@ -237,7 +259,7 @@ bool Server::process_client_input(ClientSession& session) {
         if (is_quit_request(*line)) {
             session.discard_input();
             session.close_after_write();
-            return session.queue_response("BYE\n");
+            return session.queue_response("BYE\n", ClientSession::Clock::now());
         }
         if (line->empty()) continue;
 
@@ -253,7 +275,7 @@ bool Server::process_client_input(ClientSession& session) {
             ? ResponseFormatter::format_result(result.processed_command().command,
                                                result.processed_command().execution_result)
             : ResponseFormatter::format_error(result.error_message());
-        if (!session.queue_response(response)) return false;
+        if (!session.queue_response(response, ClientSession::Clock::now())) return false;
     }
     return true;
 }
@@ -265,7 +287,7 @@ bool Server::flush_client_output(const int client_fd, ClientSession& session) {
         const std::size_t remaining_budget = kMaxWritePerEvent - bytes_this_event;
         const ssize_t count = socket_io::send_some(client_fd, session.pending_output().substr(0, remaining_budget));
         if (count > 0) {
-            session.consume_output(static_cast<std::size_t>(count));
+            session.consume_output(static_cast<std::size_t>(count), ClientSession::Clock::now());
             bytes_this_event += static_cast<std::size_t>(count);
             continue;
         }
@@ -311,6 +333,19 @@ void Server::drain_wakeup_pipe() const {
 
 void Server::run_expiration_sweep() {
     storage_.prune_expired_batch(kExpirationCandidatesPerSweep, StorageEngine::Clock::now());
+}
+
+void Server::close_timed_out_clients() {
+    const ClientSession::Clock::time_point now = ClientSession::Clock::now();
+    std::vector<int> timed_out;
+    for (const auto& [client_fd, session] : clients_) {
+        if (const auto reason = session.timed_out(now, client_timeouts_)) {
+            std::cerr << "Client " << client_fd << " timed out: " << *reason << std::endl;
+            timed_out.push_back(client_fd);
+        }
+    }
+    // Closed after the loop, because close_client erases from clients_.
+    for (const int client_fd : timed_out) close_client(client_fd);
 }
 
 void Server::stop() {

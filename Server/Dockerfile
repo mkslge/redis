@@ -1,17 +1,19 @@
+# Build from the repository root: docker build -f Server/Dockerfile .
 FROM ubuntu:24.04 AS build
 
 RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     build-essential \
+    ca-certificates \
     cmake \
     && rm -rf /var/lib/apt/lists/*
 
-
 WORKDIR /app
-COPY . .
+COPY Common Common
+COPY Server Server
 
-RUN cmake -S . -B build && \
-    cmake --build build 
+RUN cmake -S Server -B build && \
+    cmake --build build --target redisserver
 
 FROM ubuntu:24.04
 
