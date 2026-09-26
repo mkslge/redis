@@ -410,7 +410,7 @@ TEST(ExecutorTest, NumericCommandsPreserveExistingExpiration) {
         const std::int64_t after = storage.ttl_milliseconds("counter");
         EXPECT_GT(after, 0);
         EXPECT_LE(after, before);
-        EXPECT_TRUE(storage.possibly_expired().contains("counter"));
+        EXPECT_TRUE(storage.keys_with_deadlines().contains("counter"));
     }
 }
 
@@ -427,7 +427,7 @@ TEST(ExecutorTest, FailedNumericCommandLeavesExpirationIntact) {
     ASSERT_TRUE(storage.get("counter").has_value());
     EXPECT_EQ(storage.get("counter")->bytes(), "not-an-integer");
     EXPECT_GT(storage.ttl_milliseconds("counter"), 0);
-    EXPECT_TRUE(storage.possibly_expired().contains("counter"));
+    EXPECT_TRUE(storage.keys_with_deadlines().contains("counter"));
 }
 
 TEST(ExecutorTest, NumericCommandsTreatExpiredKeysAsMissingAndRecreateThemPersistently) {

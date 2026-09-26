@@ -5,6 +5,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -54,11 +55,16 @@ void AofReplayer::replay(Executor& executor) const {
     if (!stream.eof() && stream.fail()) {
         throw std::runtime_error("Failed while reading append-only log");
     }
+    // Leftover bytes can only be an incomplete final record: anything malformed
+    // earlier already threw above. A crash in the middle of AofWriter::append leaves
+    // exactly this, so drop it (as Redis's aof-load-truncated does) instead of
+    // refusing to start. The file is truncated too, so the next append doesn't land
+    // after the partial record and corrupt the log.
     if (!pending.empty()) {
-        const RespDecodeResult decoded = RespCommandCodec::decode(pending);
-        const std::string detail = decoded.status == RespDecodeStatus::INVALID
-            ? decoded.error : "incomplete RESP record";
-        throw std::runtime_error("Malformed AOF record at byte offset " +
-                                 std::to_string(consumed_offset) + ": " + detail);
+        stream.close();
+        std::cerr << "Warning: append-only log ends with an incomplete record at byte offset "
+                  << consumed_offset << "; truncating " << pending.size()
+                  << " trailing bytes left by an interrupted write" << std::endl;
+        std::filesystem::resize_file(file_path_, consumed_offset);
     }
 }

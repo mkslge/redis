@@ -41,3 +41,10 @@ TEST(ResponseFormatterTest, ExecutionFailureIsFormattedAsError) {
     EXPECT_EQ(ResponseFormatter::format_result(IncrCommand{"k"}, failed),
               "ERROR value is not an integer or out of range\n");
 }
+
+TEST(ResponseFormatterTest, ValuesAreEscapedOntoOneLine) {
+    const std::string response =
+        ResponseFormatter::format_result(GetCommand{"k"}, with_payload(Value("a\nb\"c")));
+    EXPECT_EQ(response, "GET value=\"a\\nb\\\"c\"\n");
+    EXPECT_EQ(response.find('\n'), response.size() - 1);
+}

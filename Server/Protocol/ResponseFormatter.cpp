@@ -1,6 +1,7 @@
 #include "Protocol/ResponseFormatter.h"
 
 #include "Core/Overloaded.h"
+#include "Protocol/ByteEscaping.h"
 #include "Core/Value.h"
 
 #include <string>
@@ -14,8 +15,9 @@ std::string response_line(const std::string_view name, const std::string& field 
     return line + "\n";
 }
 
+// Values are escaped so one response always stays on one line.
 std::string value_field(const ExecutionPayload& payload) {
-    return "value=\"" + std::get<Value>(payload).bytes() + "\"";
+    return "value=\"" + escape_bytes(std::get<Value>(payload).bytes()) + "\"";
 }
 
 std::string bool_field(const std::string_view label, const ExecutionPayload& payload) {

@@ -28,6 +28,7 @@ private:
     CommandProcessor& command_processor_;
     StorageEngine& storage_;
     std::chrono::milliseconds expiration_sweep_interval_;
+    ClientSession::Timeouts client_timeouts_;
     std::atomic<bool> stopping_{false};
     std::unordered_map<int, ClientSession> clients_;
 
@@ -53,16 +54,23 @@ private:
     void drain_wakeup_pipe() const;
     // Removes a bounded number of expired keys without monopolizing the event loop.
     void run_expiration_sweep();
+    // Closes clients stuck mid-request or not reading their responses.
+    void close_timed_out_clients();
 
 public:
     static constexpr std::uint16_t kDefaultPort = 6380;
+    // A client has 10 s to finish a request line, and pending output may go 30 s
+    // without any bytes being sent. Idle clients are never closed.
+    static constexpr ClientSession::Timeouts kDefaultClientTimeouts{
+        std::chrono::seconds(10), std::chrono::seconds(30)};
 
     // Creates a listening server but does not start its blocking event loop.
     explicit Server(AofWriter& aof_writer,
                     CommandProcessor& command_processor,
                     StorageEngine& storage,
                     std::uint16_t port = kDefaultPort,
-                    std::chrono::milliseconds expiration_sweep_interval = std::chrono::milliseconds(100));
+                    std::chrono::milliseconds expiration_sweep_interval = std::chrono::milliseconds(100),
+                    ClientSession::Timeouts client_timeouts = kDefaultClientTimeouts);
     // Releases descriptors after run() has returned; destroying a running server is invalid.
     ~Server();
 

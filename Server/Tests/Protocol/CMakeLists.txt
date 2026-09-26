@@ -1,0 +1,4 @@
+add_server_test(testArgumentSplitter SERVER_PROTOCOL)
+add_server_test(testByteEscaping SERVER_PROTOCOL)
+add_server_test(testResponseFormatter SERVER_PROTOCOL)
+add_server_test(testRespCommandCodec SERVER_PROTOCOL)

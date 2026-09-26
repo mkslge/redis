@@ -9,6 +9,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <fcntl.h>
 #include <stdexcept>
 #include <unordered_map>
@@ -26,9 +27,17 @@ std::vector<Record> read_records(const std::string& path) {
     std::size_t offset = 0;
     while (offset < contents.size()) {
         RespDecodeResult decoded = RespCommandCodec::decode(std::string_view(contents).substr(offset));
-        if (decoded.status != RespDecodeStatus::COMPLETE) {
-            const std::string detail = decoded.status == RespDecodeStatus::INVALID ? decoded.error : "incomplete RESP record";
-            throw std::runtime_error("Malformed AOF at byte offset " + std::to_string(offset) + ": " + detail);
+        // INCOMPLETE means every remaining byte is the start of one record: a final
+        // record cut short by an interrupted write. Leave it out of the rewritten log
+        // rather than refuse to start. Malformed bytes (INVALID) are still fatal.
+        if (decoded.status == RespDecodeStatus::INCOMPLETE) {
+            std::cerr << "Warning: append-only log ends with an incomplete record at byte offset "
+                      << offset << "; dropping " << contents.size() - offset
+                      << " trailing bytes left by an interrupted write" << std::endl;
+            break;
+        }
+        if (decoded.status == RespDecodeStatus::INVALID) {
+            throw std::runtime_error("Malformed AOF at byte offset " + std::to_string(offset) + ": " + decoded.error);
         }
         auto command = Parser::parse_arguments(decoded.arguments);
         if (!command || !is_mutating(*command)) throw std::runtime_error("Invalid AOF command at byte offset " + std::to_string(offset));
@@ -52,6 +61,8 @@ void write_all(int fd, const Bytes& bytes) {
 
 void replace_atomically(const std::filesystem::path& path, const Bytes& contents) {
     const std::filesystem::path temporary = path.string() + ".compacting";
+    // Write-only, create or empty the temporary file, and don't leak the descriptor
+    // into child processes. 0644: owner can read and write, everyone else can only read.
     int fd = ::open(temporary.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
     if (fd < 0) throw std::runtime_error("Failed to create compacted AOF: " + std::string(std::strerror(errno)));
     try {
@@ -60,6 +71,8 @@ void replace_atomically(const std::filesystem::path& path, const Bytes& contents
         if (::close(fd) != 0) throw std::runtime_error("Failed to close compacted AOF: " + std::string(std::strerror(errno)));
         fd = -1;
         if (::rename(temporary.c_str(), path.c_str()) != 0) throw std::runtime_error("Failed to replace compacted AOF: " + std::string(std::strerror(errno)));
+        // rename() only updates the directory, so fsync the directory too; otherwise
+        // a crash could bring back the old file.
         const std::filesystem::path directory = path.has_parent_path() ? path.parent_path() : ".";
         const int directory_fd = ::open(directory.c_str(), O_RDONLY | O_CLOEXEC);
         if (directory_fd < 0) throw std::runtime_error("Failed to open AOF directory");

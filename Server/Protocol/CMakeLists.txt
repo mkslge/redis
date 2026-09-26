@@ -1,5 +1,6 @@
 add_library(SERVER_PROTOCOL STATIC
         ArgumentSplitter.cpp
+        ByteEscaping.cpp
         ResponseFormatter.cpp
         RespCommandCodec.cpp
 )

@@ -52,6 +52,8 @@ std::string uppercase_ascii(const Bytes& bytes) {
     std::string result;
     result.reserve(bytes.size());
     for (const unsigned char byte : bytes) {
+        // Bytes above 0x7f are not ASCII, so no command name contains them. Returning
+        // an empty name makes the lookup fail with "unknown command".
         if (byte > 0x7f) return {};
         result.push_back(static_cast<char>(std::toupper(byte)));
     }

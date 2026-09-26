@@ -1,0 +1,1 @@
+add_server_test(testStorageEngine SERVER_STORAGE)

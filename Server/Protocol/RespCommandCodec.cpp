@@ -14,6 +14,9 @@ struct LineResult {
     std::string error;
 };
 
+// Parses one length line: a marker ('*' for an array, '$' for a bulk string), a
+// decimal number, then "\r\n". For example "$5\r\n". `offset + 1` skips the
+// marker, and `line_end + 2` skips the "\r\n".
 LineResult parse_length(std::string_view input, std::size_t offset, char marker) {
     if (offset >= input.size()) return {LineStatus::INCOMPLETE};
     if (input[offset] != marker) return {LineStatus::INVALID, 0, 0, "unexpected RESP type marker"};
@@ -70,10 +73,13 @@ RespDecodeResult RespCommandCodec::decode(std::string_view input) {
         if (bulk.status == LineStatus::INCOMPLETE) return incomplete();
         if (bulk.status == LineStatus::INVALID) return invalid(bulk.error);
         if (bulk.value > kMaxBulkLength) return invalid("RESP bulk string exceeds configured size limit");
+        // Would this bulk string, plus its trailing "\r\n" (the 2), push the record past
+        // kMaxRecordLength? Written as subtractions so the check itself can't overflow.
         if (bulk.next > kMaxRecordLength - 2 || bulk.value > kMaxRecordLength - bulk.next - 2) {
             return invalid("RESP command exceeds configured size limit");
         }
         const std::size_t payload_end = bulk.next + bulk.value;
+        // The payload must be followed by "\r\n"; wait if those bytes haven't arrived.
         if (payload_end + 2 > input.size()) return incomplete();
         if (input[payload_end] != '\r' || input[payload_end + 1] != '\n') {
             return invalid("RESP bulk string is missing its terminator");

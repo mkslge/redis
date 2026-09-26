@@ -21,6 +21,9 @@ std::string socket_io::error_message(const std::string_view operation, const int
 }
 
 bool socket_io::configure_for_writes(const int socket_fd) {
+// Writing to a socket the peer has closed raises SIGPIPE, which kills the process
+// by default. On macOS, SO_NOSIGPIPE turns that into an EPIPE error instead. Linux
+// has no such option; send_flags() passes MSG_NOSIGNAL on every send instead.
 #ifdef SO_NOSIGPIPE
     const int disable_sigpipe = 1;
     return setsockopt(socket_fd, SOL_SOCKET, SO_NOSIGPIPE,

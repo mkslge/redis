@@ -50,7 +50,12 @@ public:
 
     // Diagnostics and test support.
     bool expire(const Key& key, Duration ttl);
-    std::unordered_set<Key> possibly_expired();
+    // Entries in the sweep queue, including stale ones; at most twice the number of
+    // keys with a deadline.
+    std::size_t expiration_queue_size();
+    // Keys with a tracked deadline, including expired keys not yet pruned.
+    std::unordered_set<Key> keys_with_deadlines();
+    // Not a cheap read: deletes every expired key first, in a full scan under the lock.
     std::size_t size();
     void clear();
 private:
@@ -66,6 +71,12 @@ private:
 
     bool is_expired(const Entry& entry, TimePoint now) const;
     void prune_if_expired_unlocked(const Key& key, TimePoint now);
+    // Every change to a key's deadline must go through these, with the lock held.
+    // track_deadline: the key now has a deadline (new or changed).
+    // untrack_deadline: the key no longer has a deadline, or no longer exists.
+    void track_deadline(const Key& key);
+    void untrack_deadline(const Key& key);
+    void rebuild_expiration_queue_if_mostly_stale();
 
     std::mutex mutex_;
     std::unordered_map<Key, Entry> data_;

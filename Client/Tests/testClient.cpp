@@ -5,10 +5,12 @@
 #include <chrono>
 #include <cstring>
 #include <initializer_list>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <thread>
 #include <unistd.h>
+#include <vector>
 
 #include "Client.h"
 
@@ -184,4 +186,43 @@ TEST(ClientIntegrationTest, ReceiveFailureIncludesErrnoDetails) {
     });
 
     expect_errno_details(message, "receive", {ECONNRESET});
+}
+
+TEST(ClientIntegrationTest, SilentServerTimesOutInsteadOfHanging) {
+    SocketHandle listener(socket(AF_INET, SOCK_STREAM, 0));
+    ASSERT_GE(listener.get(), 0);
+    const std::uint16_t port = bind_socket_to_unused_loopback_port(listener.get());
+    ASSERT_EQ(listen(listener.get(), 1), 0);
+
+    Client client("127.0.0.1", port, Client::kConnectTimeout, std::chrono::milliseconds(200));
+    SocketHandle connection(accept(listener.get(), nullptr, nullptr));
+    ASSERT_GE(connection.get(), 0);
+    ASSERT_TRUE(client.send_command("GET key"));
+
+    const auto started = std::chrono::steady_clock::now();
+    const std::string message = thrown_socket_error([&] {
+        client.get_response();
+    });
+
+    EXPECT_NE(message.find("timed out"), std::string::npos) << message;
+    EXPECT_LT(std::chrono::steady_clock::now() - started, std::chrono::seconds(2));
+}
+
+TEST(ClientIntegrationTest, ConnectToFullBacklogTimesOut) {
+    SocketHandle listener(socket(AF_INET, SOCK_STREAM, 0));
+    ASSERT_GE(listener.get(), 0);
+    const std::uint16_t port = bind_socket_to_unused_loopback_port(listener.get());
+    ASSERT_EQ(listen(listener.get(), 0), 0);
+
+    // Fill the listen queue without ever accepting, so further handshakes stall.
+    std::vector<std::unique_ptr<Client>> queued;
+    for (int attempt = 0; attempt < 8; ++attempt) {
+        try {
+            queued.push_back(std::make_unique<Client>("127.0.0.1", port, std::chrono::milliseconds(200)));
+        } catch (const std::runtime_error& error) {
+            EXPECT_NE(std::string(error.what()).find("timed out"), std::string::npos) << error.what();
+            return;
+        }
+    }
+    GTEST_SKIP() << "the OS accepted every queued connection; cannot provoke a connect timeout here";
 }

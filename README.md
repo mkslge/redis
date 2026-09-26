@@ -63,8 +63,8 @@ Arguments follow `redis-cli` quoting rules:
 - `'...'` is literal except for `\'`
 - a closing quote must be followed by whitespace or the end of the line
 
-The line protocol still cannot return arbitrary bytes in responses; full
-end-to-end binary safety requires a length-prefixed protocol such as RESP.
+Responses escape values the same way, so any stored bytes can be returned and
+pasted back into a request unchanged (see [Wire Protocol](#wire-protocol)).
 
 Examples:
 
@@ -91,9 +91,9 @@ negative amounts. A malformed amount is an execution error, not a parse error.
 ### Expiration
 
 `EXPIRE` accepts a relative lifetime in seconds. The server immediately converts
-it to an absolute deadline, and the AOF stores that deadline as an internal
-`PEXPIREAT` command. Restarting the server therefore does not grant the key a
-fresh lifetime.
+it to an absolute deadline, and the AOF stores the key's value with that deadline
+as an internal `SETSTATE` record. Restarting the server therefore does not grant
+the key a fresh lifetime.
 
 - `TTL` returns the remaining lifetime in whole seconds.
 - `PTTL` returns the remaining lifetime in milliseconds.
@@ -106,13 +106,18 @@ server event loop.
 
 ## Wire Protocol
 
-The server uses a simple newline-delimited text protocol rather than RESP.
+The server uses a simple newline-delimited text protocol rather than RESP. Every
+response is exactly one line. Values are shown in double quotes and escaped like
+`redis-cli` output: `\\`, `\"`, `\n`, `\r`, `\t`, `\b`, `\a`, and `\xHH` for any
+other byte outside printable ASCII (including UTF-8, so `é` appears as
+`\xc3\xa9`). A value containing a newline therefore cannot split a response.
 
 Example responses:
 
 ```text
 SET value="C++"
 GET value="C++"
+GET value="line one\nline two"
 EXISTS exists=true
 EXPIRE applied=true
 TTL ttl=29
@@ -136,7 +141,10 @@ command writes.
 The AOF is a sequence of RESP arrays whose bulk strings are length-prefixed, so
 keys and values containing null bytes, CRLF, quotes, or arbitrary binary data
 round-trip exactly. It is not intended for manual editing. Startup rejects
-malformed commands and truncated records instead of silently discarding them.
+malformed or invalid records instead of silently discarding them. The one
+exception is an incomplete final record, which an interrupted write leaves behind:
+the server logs a warning, drops it, and truncates the file, as Redis does with
+`aof-load-truncated`.
 Successful integer commands log an internal `SETSTATE` record containing the
 resulting value and its absolute expiration deadline. Successful `PERSIST` and
 future `EXPIRE` operations also record their resulting state. This prevents
@@ -213,8 +221,9 @@ flowchart TD
     shutdown --> exit(["AofWriter destructor: final fsync"])
 ```
 
-A malformed or truncated AOF stops startup with an error instead of being
-skipped. Clients are accepted only after replay has finished.
+A malformed AOF stops startup with an error instead of being skipped, except for
+an incomplete final record left by an interrupted write, which is dropped with a
+warning. Clients are accepted only after replay has finished.
 
 ### Event loop
 
@@ -295,13 +304,13 @@ terminates the server.
 flowchart LR
     subgraph write["While running (Persistence/AofRecords)"]
         plain["SET, DEL"] --> self["log the command itself"]
-        arith["INCR, DECR, INCRBY, DECRBY, PERSIST"] --> state["log SETSTATE<br/>(final value + deadline)"]
-        expire["EXPIRE"] --> both["log PEXPIREAT, then SETSTATE<br/>(PEXPIREAT only if the key was deleted)"]
+        arith["EXPIRE, PERSIST,<br/>INCR, DECR, INCRBY, DECRBY"] --> state["log SETSTATE<br/>(final value + deadline)"]
+        expired["EXPIRE with a past deadline"] --> pexpireat["log PEXPIREAT<br/>(the key was deleted)"]
         skipped["reads, failures, no-ops"] --> nothing["log nothing"]
     end
     self --> file[("data/appendonly.aof")]
     state --> file
-    both --> file
+    pexpireat --> file
     file --> compactor["AofCompactor<br/>on startup"]
     compactor --> replayer["AofReplayer<br/>Parser.parse_arguments + Executor"]
     replayer --> storage["StorageEngine restored"]
@@ -396,8 +405,12 @@ In another terminal, start the client:
 Build the server image from the repository root:
 
 ```bash
-docker build -t redisimpl-server -f Server/Dockerfile Server
+docker build -t redisimpl-server -f Server/Dockerfile .
 ```
+
+The build context must be the repository root, because the server also compiles
+`Common/`. The client image builds the same way:
+`docker build -t redisimpl-client -f Client/Dockerfile .`
 
 Run the container and publish the server port:
 
@@ -463,11 +476,18 @@ The server test suite covers:
 - client-session framing and buffer limits
 - TCP event-loop behavior with multiple simultaneous clients and clean shutdown
 
+Tests live in `Server/Tests/<Module>/`, mirroring the source layout: for example,
+`Tests/Protocol/` holds the tests for `Server/Protocol/`, and `Tests/Common/` covers
+`Common/Networking`. Each folder's `CMakeLists.txt` adds a test with one line,
+`add_server_test(testName MODULE_LIBRARY)`, using the helper defined in
+`Tests/CMakeLists.txt`.
+
 Run them with:
 
 ```bash
 cd Server/build
-ctest --output-on-failure
+ctest --output-on-failure          # every test
+ctest --test-dir Tests/Protocol    # one module's tests
 ```
 
 ### Client tests
@@ -484,9 +504,13 @@ ctest --output-on-failure
 ## Notes and Limitations
 
 - The client protocol is newline-delimited text, not RESP.
-- Storage and the AOF are binary-safe, but the text client protocol cannot yet
-  carry every possible byte sequence end to end.
+- Storage, the AOF, and the text protocol are binary-safe: requests and responses
+  carry any byte through escapes. Responses are not length-prefixed, so clients
+  must unescape values themselves.
 - Command execution runs on one event-loop thread and must remain nonblocking.
+- The server closes a client that takes more than 10 s to finish a request line, or
+  whose pending responses make no progress for 30 s. Idle clients are never closed.
+  `redisclient` gives up connecting after 5 s and waiting for a response after 30 s.
 - Durability is append-only-log based; there is no snapshotting yet.
 - Transactions, replication, pub/sub, Raft, and clustering are not implemented.
 - The project is focused on learning core systems concepts, not Redis feature parity.
